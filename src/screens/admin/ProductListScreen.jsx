@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'; // Importer useNavigate
 import { LinkContainer } from 'react-router-bootstrap';
 import { Table, Button, Row, Col } from 'react-bootstrap';
 import Message from '../../components/Message';
@@ -12,6 +13,8 @@ const ProductListScreen = () => {
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
 
+  const navigate = useNavigate(); // Initialiser useNavigate
+
   const deleteHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
       try {
@@ -24,10 +27,12 @@ const ProductListScreen = () => {
   };
 
   const createProductHandler = async () => {
-    if (window.confirm('Un nouvel exemple de produit va être créé. Continuer ?')) {
+    if (window.confirm('Un nouveau produit va être créé. Vous serez redirigé pour le modifier. Continuer ?')) {
       try {
-        await createProduct();
-        refetch();
+        // On appelle la création et on attend le retour du produit créé
+        const newProduct = await createProduct().unwrap();
+        // On redirige l'utilisateur directement vers la page d'édition de ce nouveau produit
+        navigate(`/admin/product/${newProduct._id}/edit`);
       } catch (err) {
         alert(err?.data?.message || err.error);
       }
