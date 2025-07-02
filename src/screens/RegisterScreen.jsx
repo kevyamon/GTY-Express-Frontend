@@ -64,6 +64,8 @@ const RegisterScreen = () => {
             onChange={(e) => setPassword(e.target.value)}
           ></Form.Control>
         </Form.Group>
+        
+        {/* La correction est ici : Form.Group au lieu de Form.Goup */}
         <Form.Group className='my-2' controlId='confirmPassword'>
           <Form.Label>Confirmer le mot de passe</Form.Label>
           <Form.Control
@@ -72,7 +74,7 @@ const RegisterScreen = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           ></Form.Control>
-        </Form.Goup>
+        </Form.Group>
 
         <Button type='submit' variant='primary' disabled={isLoading}>
           S'inscrire
