@@ -24,8 +24,10 @@ const ProductEditScreen = () => {
     error,
   } = useGetProductDetailsQuery(productId);
 
-  const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
-  const [uploadProductImage, { isLoading: loadingUpload }] = useUploadProductImageMutation();
+  const [updateProduct, { isLoading: loadingUpdate }] =
+    useUpdateProductMutation();
+  const [uploadProductImage, { isLoading: loadingUpload }] =
+    useUploadProductImageMutation();
 
   const navigate = useNavigate();
 
@@ -44,7 +46,8 @@ const ProductEditScreen = () => {
       refetch();
       navigate('/admin/productlist');
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      // CORRECTION ICI : On gère tous les types d'erreurs
+      toast.error(err?.data?.message || err.error || err.message);
     }
   };
 
@@ -66,8 +69,7 @@ const ProductEditScreen = () => {
       toast.success(res.message);
       setImage(res.image);
     } catch (err) {
-      // CORRECTION ICI : On gère tous les types d'erreurs
-      toast.error(err?.data?.message || err.message || err.error);
+      toast.error(err?.data?.message || err.error || err.message);
     }
   };
 
@@ -84,7 +86,6 @@ const ProductEditScreen = () => {
         <Message variant='danger'>{error.data.message}</Message>
       ) : (
         <Form onSubmit={submitHandler}>
-          {/* Les autres champs du formulaire restent les mêmes */}
           <Form.Group controlId='name'>
             <Form.Label>Nom</Form.Label>
             <Form.Control
