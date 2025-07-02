@@ -15,24 +15,31 @@ import ProductScreen from './screens/ProductScreen.jsx';
 import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
 import LandingScreen from './screens/LandingScreen.jsx';
-import CartScreen from './screens/CartScreen.jsx'; // Importer la page Panier
+import CartScreen from './screens/CartScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
+import AdminRoute from './components/AdminRoute.jsx'; // Importer la route Admin
+import ProductListScreen from './screens/admin/ProductListScreen.jsx'; // Importer l'écran de liste de produits
+import ProductEditScreen from './screens/admin/ProductEditScreen.jsx'; // Importer l'écran d'édition de produit
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* Route principale publique */}
+      {/* --- Routes Publiques --- */}
       <Route index={true} path="/" element={<LandingScreen />} />
-
-      {/* Autres routes publiques */}
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
 
-      {/* Routes Privées (nécessite d'être connecté) */}
+      {/* --- Routes Privées (pour les clients connectés) --- */}
       <Route path='' element={<PrivateRoute />}>
         <Route path="/products" element={<HomeScreen />} />
         <Route path='/cart' element={<CartScreen />} />
+      </Route>
+
+      {/* --- Routes Administrateur (pour les admins connectés) --- */}
+      <Route path='' element={<AdminRoute />}>
+        <Route path='/admin/productlist' element={<ProductListScreen />} />
+        <Route path='/admin/product/:id/edit' element={<ProductEditScreen />} />
       </Route>
     </Route>
   )
