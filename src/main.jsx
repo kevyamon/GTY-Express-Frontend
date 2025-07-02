@@ -14,7 +14,8 @@ import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
 import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
-import LandingScreen from './screens/LandingScreen.jsx'; // Importer
+import LandingScreen from './screens/LandingScreen.jsx';
+import CartScreen from './screens/CartScreen.jsx'; // Importer la page Panier
 import PrivateRoute from './components/PrivateRoute.jsx';
 
 const router = createBrowserRouter(
@@ -28,10 +29,10 @@ const router = createBrowserRouter(
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
 
-      {/* Routes Privées */}
+      {/* Routes Privées (nécessite d'être connecté) */}
       <Route path='' element={<PrivateRoute />}>
-        {/* La liste des produits est maintenant ici */}
         <Route path="/products" element={<HomeScreen />} />
+        <Route path='/cart' element={<CartScreen />} />
       </Route>
     </Route>
   )
