@@ -12,24 +12,26 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
-import LoginScreen from './screens/LoginScreen.jsx'; 
-import RegisterScreen from './screens/RegisterScreen.jsx'; 
-import PrivateRoute from './components/PrivateRoute.jsx'; 
+import LoginScreen from './screens/LoginScreen.jsx';
+import RegisterScreen from './screens/RegisterScreen.jsx';
+import LandingScreen from './screens/LandingScreen.jsx'; // Importer
+import PrivateRoute from './components/PrivateRoute.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* Route de test - HomeScreen est maintenant publique */}
-      <Route index={true} path="/" element={<HomeScreen />} />
+      {/* Route principale publique */}
+      <Route index={true} path="/" element={<LandingScreen />} />
 
-      {/* Routes Publiques */}
+      {/* Autres routes publiques */}
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
 
-      {/* La route privée est temporairement vide */}
+      {/* Routes Privées */}
       <Route path='' element={<PrivateRoute />}>
-        {/* Rien ici pour l'instant */}
+        {/* La liste des produits est maintenant ici */}
+        <Route path="/products" element={<HomeScreen />} />
       </Route>
     </Route>
   )
