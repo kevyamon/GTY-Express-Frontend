@@ -18,7 +18,7 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate('/'); // Redirige si déjà connecté
+      navigate('/products'); // Redirige si déjà connecté
     }
   }, [navigate, userInfo]);
 
@@ -27,7 +27,7 @@ const LoginScreen = () => {
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-      navigate('/');
+      navigate('/products'); // MODIFICATION ICI
     } catch (err) {
       alert(err?.data?.message || err.error);
     }
