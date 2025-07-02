@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 
@@ -14,20 +14,12 @@ const LoginScreen = () => {
 
   const [login, { isLoading }] = useLoginMutation();
 
-  const { userInfo } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (userInfo) {
-      navigate('/products'); // Redirige si déjà connecté
-    }
-  }, [navigate, userInfo]);
-
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-      navigate('/products'); // MODIFICATION ICI
+      navigate('/products');
     } catch (err) {
       alert(err?.data?.message || err.error);
     }
