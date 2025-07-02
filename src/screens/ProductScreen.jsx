@@ -18,8 +18,6 @@ const ProductScreen = () => {
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     toast.success('Produit ajouté au panier !');
-    // Optionnel : rediriger vers le panier
-    // navigate('/cart');
   };
 
   return (
@@ -34,7 +32,16 @@ const ProductScreen = () => {
       ) : (
         <Row>
           <Col md={5}>
-            <Image src={product.image} alt={product.name} fluid />
+            {/* CORRECTION ICI */}
+            <Image 
+              src={
+                product.image.startsWith('/uploads/') 
+                ? `${import.meta.env.VITE_BACKEND_URL}${product.image}` 
+                : product.image
+              } 
+              alt={product.name} 
+              fluid 
+            />
           </Col>
           <Col md={4}>
             <ListGroup variant="flush">
