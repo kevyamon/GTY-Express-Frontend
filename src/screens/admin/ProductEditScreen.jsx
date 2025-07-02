@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import Message from '../../components/Message';
+import { toast } from 'react-toastify';
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
+  useUploadProductImageMutation, // Importer le nouveau hook
 } from '../../slices/productsApiSlice';
 
 const ProductEditScreen = () => {
@@ -23,6 +25,9 @@ const ProductEditScreen = () => {
   } = useGetProductDetailsQuery(productId);
 
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
+  
+  // Initialiser le hook pour l'upload
+  const [uploadProductImage, { isLoading: loadingUpload }] = useUploadProductImageMutation();
 
   const navigate = useNavigate();
 
@@ -37,11 +42,11 @@ const ProductEditScreen = () => {
         countInStock,
         description,
       }).unwrap();
-      alert('Produit mis à jour');
+      toast.success('Produit mis à jour avec succès');
       refetch();
       navigate('/admin/productlist');
     } catch (err) {
-      alert(err?.data?.message || err.error);
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -55,13 +60,25 @@ const ProductEditScreen = () => {
     }
   }, [product]);
 
+  const uploadFileHandler = async (e) => {
+    const formData = new FormData();
+    formData.append('image', e.target.files[0]);
+    try {
+      const res = await uploadProductImage(formData).unwrap();
+      toast.success(res.message);
+      setImage(res.image);
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
+  };
+
   return (
     <>
       <Link to='/admin/productlist' className='btn btn-light my-3'>
         Retour
       </Link>
       <h1>Modifier le Produit</h1>
-      {loadingUpdate && <p>Chargement...</p>}
+      {loadingUpdate && <p>Mise à jour...</p>}
       {isLoading ? (
         <p>Chargement...</p>
       ) : error ? (
@@ -78,7 +95,7 @@ const ProductEditScreen = () => {
             ></Form.Control>
           </Form.Group>
 
-          <Form.Group controlId='price'>
+          <Form.Group controlId='price' className='my-2'>
             <Form.Label>Prix</Form.Label>
             <Form.Control
               type='number'
@@ -88,17 +105,24 @@ const ProductEditScreen = () => {
             ></Form.Control>
           </Form.Group>
 
-          <Form.Group controlId='image'>
+          {/* NOUVEAU BLOC POUR L'IMAGE */}
+          <Form.Group controlId='image' className='my-2'>
             <Form.Label>Image</Form.Label>
             <Form.Control
               type='text'
-              placeholder="Entrez l'URL de l'image"
+              placeholder="URL de l'image"
               value={image}
               onChange={(e) => setImage(e.target.value)}
             ></Form.Control>
+            <Form.Control
+              label='Choisir un fichier'
+              onChange={uploadFileHandler}
+              type='file'
+            ></Form.Control>
+            {loadingUpload && <p>Téléversement de l'image...</p>}
           </Form.Group>
 
-          <Form.Group controlId='countInStock'>
+          <Form.Group controlId='countInStock' className='my-2'>
             <Form.Label>Stock</Form.Label>
             <Form.Control
               type='number'
@@ -108,7 +132,7 @@ const ProductEditScreen = () => {
             ></Form.Control>
           </Form.Group>
 
-          <Form.Group controlId='description'>
+          <Form.Group controlId='description' className='my-2'>
             <Form.Label>Description</Form.Label>
             <Form.Control
               type='text'
