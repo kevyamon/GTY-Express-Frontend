@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom'; // Importer useNavigate
+import { useNavigate } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Table, Button, Row, Col } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import Message from '../../components/Message';
 import {
   useGetProductsQuery,
@@ -9,19 +10,19 @@ import {
 } from '../../slices/productsApiSlice';
 
 const ProductListScreen = () => {
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+  const { data: products, isLoading, error } = useGetProductsQuery();
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
 
-  const navigate = useNavigate(); // Initialiser useNavigate
+  const navigate = useNavigate();
 
   const deleteHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
       try {
         await deleteProduct(id);
-        refetch();
+        toast.success('Produit supprimé');
       } catch (err) {
-        alert(err?.data?.message || err.error);
+        toast.error(err?.data?.message || err.error);
       }
     }
   };
@@ -29,12 +30,10 @@ const ProductListScreen = () => {
   const createProductHandler = async () => {
     if (window.confirm('Un nouveau produit va être créé. Vous serez redirigé pour le modifier. Continuer ?')) {
       try {
-        // On appelle la création et on attend le retour du produit créé
         const newProduct = await createProduct().unwrap();
-        // On redirige l'utilisateur directement vers la page d'édition de ce nouveau produit
         navigate(`/admin/product/${newProduct._id}/edit`);
       } catch (err) {
-        alert(err?.data?.message || err.error);
+        toast.error(err?.data?.message || err.error);
       }
     }
   };
@@ -52,7 +51,7 @@ const ProductListScreen = () => {
         </Col>
       </Row>
 
-      {loadingCreate && <p>Chargement...</p>}
+      {loadingCreate && <p>Création...</p>}
       {loadingDelete && <p>Suppression...</p>}
       {isLoading ? (
         <p>Chargement...</p>

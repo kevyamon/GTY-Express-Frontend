@@ -20,7 +20,6 @@ const ProductEditScreen = () => {
   const {
     data: product,
     isLoading,
-    refetch,
     error,
   } = useGetProductDetailsQuery(productId);
 
@@ -43,11 +42,9 @@ const ProductEditScreen = () => {
         description,
       }).unwrap();
       toast.success('Produit mis à jour avec succès');
-      refetch();
       navigate('/admin/productlist');
     } catch (err) {
-      // CORRECTION ICI : On gère tous les types d'erreurs
-      toast.error(err?.data?.message || err.error || err.message);
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -69,7 +66,7 @@ const ProductEditScreen = () => {
       toast.success(res.message);
       setImage(res.image);
     } catch (err) {
-      toast.error(err?.data?.message || err.error || err.message);
+      toast.error(err?.data?.message || err.message || err.error);
     }
   };
 
