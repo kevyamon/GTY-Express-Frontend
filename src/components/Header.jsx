@@ -9,7 +9,6 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Nous n'utilisons pas le 'logoutApiCall' directement, mais il doit être là
   const [logoutApiCall] = useLogoutMutation();
 
   const logoutHandler = async () => {
@@ -27,26 +26,32 @@ const Header = () => {
       <Navbar bg="dark" variant="dark" expand="md" collapseOnSelect>
         <Container>
           <Navbar.Brand as={Link} to="/">
-            GTY Express 
+            GTY Express
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               {userInfo ? (
                 <>
+                  <Nav.Link as={Link} to="/cart">
+                    🛒 Panier
+                  </Nav.Link>
                   <NavDropdown title={userInfo.name} id='username'>
-                      <NavDropdown.Item onClick={logoutHandler}>
-                        Déconnexion
-                      </NavDropdown.Item>
+                    <Nav.Link as={Link} to="/products" className="dropdown-item">
+                      Produits
+                    </Nav.Link>
+                    <NavDropdown.Item onClick={logoutHandler}>
+                      Déconnexion
+                    </NavDropdown.Item>
                   </NavDropdown>
                 </>
               ) : (
                 <>
-                  <Nav.Link as={Link} to="/cart">
-                    🛒 Panier
-                  </Nav.Link>
                   <Nav.Link as={Link} to="/login">
-                    👤 Connexion
+                    Se Connecter
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/register">
+                    S'inscrire
                   </Nav.Link>
                 </>
               )}
