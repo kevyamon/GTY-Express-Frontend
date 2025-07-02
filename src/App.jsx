@@ -1,20 +1,19 @@
-import React, { useState } from 'react'
+import { Container } from 'react-bootstrap';
+import { Outlet } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App = () => {
   return (
-    <div>
-      <p>React ⚛️ + Vite ⚡️ + Replit 🌀</p>
-      <button
-        onClick={() => setCount((count) => count + 1)}>
-        count is: {count}
-      </button>
-      <p>
-        Edit <code>App.jsx</code> and save to test HMR uupdates.
-      </p>
-    </div>
-  )
-}
-
-export default App
+    <>
+      <Header />
+      <main className="py-3">
+        <Container>
+          <Outlet />
+        </Container>
+      </main>
+      <Footer />
+    </>
+  );
+};
+export default App;
