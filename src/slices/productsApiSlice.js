@@ -1,5 +1,6 @@
 import { apiSlice } from './apiSlice';
 const PRODUCTS_URL = '/api/products';
+const UPLOAD_URL = '/api/upload'; // URL pour l'upload
 
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,7 +8,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: PRODUCTS_URL,
       }),
-      // On dit que cette requête fournit une liste de 'Products'
       providesTags: ['Product'], 
       keepUnusedDataFor: 5,
     }),
@@ -15,7 +15,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
       }),
-      // Et cette requête fournit un 'Product' spécifique
       providesTags: (result, error, id) => [{ type: 'Product', id }],
       keepUnusedDataFor: 5,
     }),
@@ -24,7 +23,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         url: `${PRODUCTS_URL}`,
         method: 'POST',
       }),
-      // Une création invalide la liste des produits pour la recharger
       invalidatesTags: ['Product'], 
     }),
     updateProduct: builder.mutation({
@@ -33,15 +31,21 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      // Une mise à jour invalide la liste
       invalidatesTags: ['Product'],
+    }),
+    // NOUVELLE FONCTION POUR L'UPLOAD
+    uploadProductImage: builder.mutation({
+      query: (data) => ({
+        url: UPLOAD_URL,
+        method: 'POST',
+        body: data,
+      }),
     }),
     deleteProduct: builder.mutation({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
         method: 'DELETE',
       }),
-      // Une suppression invalide la liste
       invalidatesTags: ['Product'],
     }),
   }),
@@ -53,4 +57,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useUploadProductImageMutation, // EXPORTATION DU NOUVEAU HOOK
 } = productsApiSlice;
