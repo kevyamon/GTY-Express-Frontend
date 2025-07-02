@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
-  useUploadProductImageMutation, // Importer le nouveau hook
+  useUploadProductImageMutation,
 } from '../../slices/productsApiSlice';
 
 const ProductEditScreen = () => {
@@ -25,8 +25,6 @@ const ProductEditScreen = () => {
   } = useGetProductDetailsQuery(productId);
 
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
-  
-  // Initialiser le hook pour l'upload
   const [uploadProductImage, { isLoading: loadingUpload }] = useUploadProductImageMutation();
 
   const navigate = useNavigate();
@@ -68,7 +66,8 @@ const ProductEditScreen = () => {
       toast.success(res.message);
       setImage(res.image);
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      // CORRECTION ICI : On gère tous les types d'erreurs
+      toast.error(err?.data?.message || err.message || err.error);
     }
   };
 
@@ -85,6 +84,7 @@ const ProductEditScreen = () => {
         <Message variant='danger'>{error.data.message}</Message>
       ) : (
         <Form onSubmit={submitHandler}>
+          {/* Les autres champs du formulaire restent les mêmes */}
           <Form.Group controlId='name'>
             <Form.Label>Nom</Form.Label>
             <Form.Control
@@ -105,7 +105,6 @@ const ProductEditScreen = () => {
             ></Form.Control>
           </Form.Group>
 
-          {/* NOUVEAU BLOC POUR L'IMAGE */}
           <Form.Group controlId='image' className='my-2'>
             <Form.Label>Image</Form.Label>
             <Form.Control
