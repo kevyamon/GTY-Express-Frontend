@@ -7,13 +7,16 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: PRODUCTS_URL,
       }),
-      providesTags: ['Products'], // Important pour le rafraîchissement automatique
+      // On dit que cette requête fournit une liste de 'Products'
+      providesTags: ['Product'], 
       keepUnusedDataFor: 5,
     }),
     getProductDetails: builder.query({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
       }),
+      // Et cette requête fournit un 'Product' spécifique
+      providesTags: (result, error, id) => [{ type: 'Product', id }],
       keepUnusedDataFor: 5,
     }),
     createProduct: builder.mutation({
@@ -21,7 +24,8 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         url: `${PRODUCTS_URL}`,
         method: 'POST',
       }),
-      invalidatesTags: ['Product'], // Pour forcer le rafraîchissement de la liste
+      // Une création invalide la liste des produits pour la recharger
+      invalidatesTags: ['Product'], 
     }),
     updateProduct: builder.mutation({
       query: (data) => ({
@@ -29,14 +33,16 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Products'],
+      // Une mise à jour invalide la liste
+      invalidatesTags: ['Product'],
     }),
     deleteProduct: builder.mutation({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
         method: 'DELETE',
       }),
-      providesTags: ['Product'],
+      // Une suppression invalide la liste
+      invalidatesTags: ['Product'],
     }),
   }),
 });
