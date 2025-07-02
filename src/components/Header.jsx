@@ -15,7 +15,7 @@ const Header = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
-      navigate('/'); // Redirection vers la page d'accueil
+      navigate('/');
     } catch (err) {
       console.error(err);
     }
@@ -25,33 +25,25 @@ const Header = () => {
     <header>
       <Navbar bg="dark" variant="dark" expand="md" collapseOnSelect>
         <Container>
-          <Navbar.Brand as={Link} to="/">
-            GTY Express
-          </Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               {userInfo ? (
                 <>
-                  <Nav.Link as={Link} to="/cart">
-                    🛒 Panier
-                  </Nav.Link>
+                  <Nav.Link as={Link} to="/cart">🛒 Panier</Nav.Link>
                   <NavDropdown title={userInfo.name} id='username'>
-                    <Nav.Link as={Link} to="/products" className="dropdown-item">
-                      Produits
-                    </Nav.Link>
+                    <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
+                    
                     {userInfo && userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
-                        <Nav.Link
-                          as={Link}
-                          to='/admin/productlist'
-                          className='dropdown-item'
-                        >
+                        <NavDropdown.Item as={Link} to='/admin/productlist'>
                           Gestion Produits
-                        </Nav.Link>
+                        </NavDropdown.Item>
                       </>
                     )}
+
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>
                       Déconnexion
@@ -60,12 +52,8 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Nav.Link as={Link} to="/login">
-                    Se Connecter
-                  </Nav.Link>
-                  <Nav.Link as={Link} to="/register">
-                    S'inscrire
-                  </Nav.Link>
+                  <Nav.Link as={Link} to="/login">Se Connecter</Nav.Link>
+                  <Nav.Link as={Link} to="/register">S'inscrire</Nav.Link>
                 </>
               )}
             </Nav>
