@@ -27,7 +27,7 @@
 @media (max-width: 767px) {
   /* NOUVELLE RÈGLE POUR LA HAUTEUR DE LA CARTE */
   .card {
-    max-height: 200px; /* Fixe une hauteur maximale pour la carte */
+    max-height: 340px; /* Fixe une hauteur maximale pour la carte */
     overflow: hidden;   /* Empêche le contenu de déborder */
     display: flex;
     flex-direction: column;
