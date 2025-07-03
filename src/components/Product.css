@@ -27,7 +27,7 @@
 @media (max-width: 767px) {
   .card {
     /* Une hauteur plus réaliste. Essayons 330px. */
-    max-height: 330px;
+    max-height: 355px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
