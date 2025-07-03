@@ -10,7 +10,8 @@ const App = () => {
     <>
       <Header />
       <main className="py-3">
-        <Container>
+        {/* On ajoute "fluid" ici pour élargir la zone de contenu */}
+        <Container fluid> 
           <Outlet />
         </Container>
       </main>
