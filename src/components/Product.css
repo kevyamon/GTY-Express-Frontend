@@ -25,18 +25,23 @@
 
 /* --- STYLES UNIQUEMENT POUR LES PETITS ÉCRANS --- */
 @media (max-width: 767px) {
+  /* On réduit la hauteur de l'image sur mobile */
+  .card-img-top {
+    height: 160px;
+  }
+  
   .product-card-body .product-title {
-    font-size: 0.9rem; /* Réduit la taille du nom du produit */
-    min-height: 45px; /* Donne une hauteur fixe pour un meilleur alignement */
+    font-size: 0.9rem;
+    min-height: 45px;
   }
 
   .product-card-body h4 {
-    font-size: 1rem; /* Réduit la taille du prix */
+    font-size: 1rem;
     margin-bottom: 0.8rem;
   }
 
   .btn-violet {
-    padding: 0.4rem 0.5rem; /* Réduit le padding (l'espace intérieur) du bouton */
-    font-size: 0.9rem; /* Réduit la taille du texte du bouton */
+    padding: 0.4rem 0.5rem;
+    font-size: 0.9rem;
   }
 }
