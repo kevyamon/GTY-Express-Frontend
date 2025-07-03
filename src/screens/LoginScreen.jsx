@@ -4,6 +4,7 @@ import { Form, Button, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+import { toast } from 'react-toastify';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const LoginScreen = () => {
       dispatch(setCredentials({ ...res }));
       navigate('/products');
     } catch (err) {
-      alert(err?.data?.message || err.error);
+      toast.error(err?.data?.message || err.error || err.message);
     }
   };
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useRegisterMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 
@@ -19,14 +20,14 @@ const RegisterScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Les mots de passe ne correspondent pas');
+      toast.error('Les mots de passe ne correspondent pas');
     } else {
       try {
         const res = await register({ name, email, password }).unwrap();
         dispatch(setCredentials({ ...res }));
         navigate('/products');
       } catch (err) {
-        alert(err?.data?.message || err.error);
+        toast.error(err?.data?.message || err.error || err.message);
       }
     }
   };
@@ -64,8 +65,6 @@ const RegisterScreen = () => {
             onChange={(e) => setPassword(e.target.value)}
           ></Form.Control>
         </Form.Group>
-        
-        {/* La correction est ici : Form.Group au lieu de Form.Goup */}
         <Form.Group className='my-2' controlId='confirmPassword'>
           <Form.Label>Confirmer le mot de passe</Form.Label>
           <Form.Control
