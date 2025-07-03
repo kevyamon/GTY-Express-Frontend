@@ -3,17 +3,17 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 import { useEffect } from 'react';
+import './HomeScreen.css'; // On importe notre nouveau fichier de style
 
 const HomeScreen = () => {
   const { data: products, isLoading, error, refetch } = useGetProductsQuery();
 
-  // Force le rafraîchissement des données à chaque fois que l'on affiche cette page
   useEffect(() => {
     refetch();
   }, [refetch]);
 
   return (
-    <>
+    <div className='home-screen-background'> {/* On applique notre nouveau fond ici */}
       {isLoading ? (
         <h2>Chargement...</h2>
       ) : error ? (
@@ -22,17 +22,18 @@ const HomeScreen = () => {
         </Message>
       ) : (
         <>
-          <h1>Derniers Produits</h1>
-          <Row>
+          <h1 className='home-screen-title'>Derniers Produits</h1>
+          {/* Cette ligne organise les produits en grille */}
+          <Row xs={1} md={2} className="g-4">
             {products.map((product) => (
-              <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+              <Col key={product._id}>
                 <Product product={product} />
               </Col>
             ))}
           </Row>
         </>
       )}
-    </>
+    </div>
   );
 };
 

@@ -1,0 +1,12 @@
+.home-screen-background {
+  background: linear-gradient(to bottom, #f7f7f7, #e9e9e9); /* Dégradé de gris très clair et doux */
+  padding: 2rem 1rem; /* Ajoute de l'espace en haut/bas et sur les côtés */
+  border-radius: 8px; /* Bords légèrement arrondis pour un look moderne */
+  margin-top: 1rem;
+}
+
+.home-screen-title {
+    color: #333; /* Titre en gris foncé pour un bon contraste */
+    text-align: center;
+    margin-bottom: 2rem;
+}
