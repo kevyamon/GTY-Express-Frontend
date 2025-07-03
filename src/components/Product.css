@@ -27,7 +27,7 @@
 @media (max-width: 767px) {
   /* On réduit la hauteur de l'image sur mobile */
   .card-img-top {
-    height: 160px;
+    height: 90px;
   }
   
   .product-card-body .product-title {
