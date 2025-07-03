@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
@@ -15,6 +15,14 @@ const ProductScreen = () => {
 
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
 
+  // Gère le cas où le produit a été supprimé entre-temps
+  useEffect(() => {
+    if (error) {
+      toast.error("Ce produit n'existe plus ou a été déplacé.");
+      navigate('/products');
+    }
+  }, [error, navigate]);
+
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     toast.success('Produit ajouté au panier !');
@@ -28,19 +36,19 @@ const ProductScreen = () => {
       {isLoading ? (
         <h2>Chargement...</h2>
       ) : error ? (
-        <div>Une erreur est survenue: {error?.data?.message || error.error}</div>
+        // Affiche un écran vide pendant la redirection
+        <></>
       ) : (
         <Row>
           <Col md={5}>
-            {/* CORRECTION ICI */}
-            <Image 
+            <Image
               src={
-                product.image.startsWith('/uploads/') 
-                ? `${import.meta.env.VITE_BACKEND_URL}${product.image}` 
-                : product.image
-              } 
-              alt={product.name} 
-              fluid 
+                product.image.startsWith('/')
+                  ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`
+                  : product.image
+              }
+              alt={product.name}
+              fluid
             />
           </Col>
           <Col md={4}>
@@ -58,7 +66,7 @@ const ProductScreen = () => {
                 <ListGroup.Item>
                   <Row>
                     <Col>Prix:</Col>
-                    <Col><strong>{product.price} €</strong></Col>
+                    <Col><strong>{product.price} FCFA</strong></Col>
                   </Row>
                 </ListGroup.Item>
                 <ListGroup.Item>

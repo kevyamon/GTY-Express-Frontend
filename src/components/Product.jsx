@@ -2,8 +2,9 @@ import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 const Product = ({ product }) => {
-  const imageUrl = product.image.startsWith('/uploads/') 
-    ? `${import.meta.env.VITE_BACKEND_URL}${product.image}` 
+  // Gère l'affichage des images locales et celles de Cloudinary
+  const imageUrl = product.image.startsWith('/')
+    ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`
     : product.image;
 
   return (

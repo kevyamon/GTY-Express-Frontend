@@ -1,16 +1,25 @@
 import { Row, Col } from 'react-bootstrap';
 import Product from '../components/Product';
-import { useGetProductsQuery } from '../slices/productsApiSlice.js';
+import Message from '../components/Message';
+import { useGetProductsQuery } from '../slices/productsApiSlice';
+import { useEffect } from 'react';
 
 const HomeScreen = () => {
-  const { data: products, isLoading, error } = useGetProductsQuery();
+  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+
+  // Force le rafraîchissement des données à chaque fois que l'on affiche cette page
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <>
       {isLoading ? (
         <h2>Chargement...</h2>
       ) : error ? (
-        <div>Une erreur est survenue: {error?.data?.message || error.error}</div>
+        <Message variant="danger">
+          {error?.data?.message || error.error}
+        </Message>
       ) : (
         <>
           <h1>Derniers Produits</h1>
@@ -26,4 +35,5 @@ const HomeScreen = () => {
     </>
   );
 };
+
 export default HomeScreen;
