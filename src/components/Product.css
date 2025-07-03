@@ -54,3 +54,28 @@
     font-size: 0.9rem;
   }
 }
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 1.2rem;
+  z-index: 10;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img-top {
+  /* ... styles existants ... */
+  transition: transform 0.3s ease-in-out; /* Ajoute la transition pour l'animation */
+}
+
+.card:hover .card-img-top {
+  transform: scale(1.05); /* Fait grossir l'image au survol de la carte */
+}

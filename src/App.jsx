@@ -5,13 +5,22 @@ import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import './App.css'; // On importe le style pour l'animation
+import './App.css';
+import bgImage from '../background.jpg'; // On modifie le chemin ici
 
 const App = () => {
   const location = useLocation();
 
+  const appStyle = {
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: 'cover',
+    backgroundAttachment: 'fixed',
+    backgroundPosition: 'center',
+    minHeight: '100vh',
+  };
+
   return (
-    <>
+    <div style={appStyle}> 
       <Header />
       <main className="py-3">
         <TransitionGroup component={null}>
@@ -24,7 +33,8 @@ const App = () => {
       </main>
       <Footer />
       <ToastContainer />
-    </>
+    </div>
   );
 };
+
 export default App;

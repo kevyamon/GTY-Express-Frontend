@@ -7,12 +7,3 @@
 main {
   flex: 1;
 }
-
-/* --- NOUVEAU STYLE POUR L'ARRIÈRE-PLAN --- */
-body {
-  margin: 0;
-  padding: 0;
-  /* On remplace l'image par un dégradé orange */
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  background-attachment: fixed; /* L'arrière-plan reste fixe quand on défile */
-}

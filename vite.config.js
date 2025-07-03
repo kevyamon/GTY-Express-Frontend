@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://gty-express.onrender.com', // Votre lien backend
+        target: 'https://gty-express.onrender.com',
         changeOrigin: true,
       },
     },
