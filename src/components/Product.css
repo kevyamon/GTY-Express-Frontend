@@ -1,23 +1,42 @@
 .card-img-top {
   width: 100%;
-  height: 200px; /* On fixe une hauteur pour toutes les images */
-  object-fit: contain; /* Assure que l'image est entièrement visible sans être déformée */
-  padding: 0.5rem; /* Ajoute un peu d'air autour de l'image */
+  height: 200px; 
+  object-fit: contain; 
+  padding: 0.5rem; 
 }
 
 .product-card-body {
-  text-align: center; /* Centre le texte */
+  text-align: center; 
 }
 
 .btn-violet {
-  background-color: #8a2be2; /* Une belle couleur violette douce */
+  background-color: #8a2be2;
   border-color: #8a2be2;
   color: white;
-  width: 100%; /* Le bouton prend toute la largeur de la carte */
+  width: 100%; 
   margin-top: 1rem;
 }
 
 .btn-violet:hover {
   background-color: #7b25c9;
   border-color: #7b25c9;
+}
+
+
+/* --- STYLES UNIQUEMENT POUR LES PETITS ÉCRANS --- */
+@media (max-width: 767px) {
+  .product-card-body .product-title {
+    font-size: 0.9rem; /* Réduit la taille du nom du produit */
+    min-height: 45px; /* Donne une hauteur fixe pour un meilleur alignement */
+  }
+
+  .product-card-body h4 {
+    font-size: 1rem; /* Réduit la taille du prix */
+    margin-bottom: 0.8rem;
+  }
+
+  .btn-violet {
+    padding: 0.4rem 0.5rem; /* Réduit le padding (l'espace intérieur) du bouton */
+    font-size: 0.9rem; /* Réduit la taille du texte du bouton */
+  }
 }
