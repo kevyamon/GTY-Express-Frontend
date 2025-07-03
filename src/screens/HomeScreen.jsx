@@ -23,9 +23,9 @@ const HomeScreen = () => {
       ) : (
         <>
           <h1 className='home-screen-title'>Derniers Produits</h1>
-          <Row>
+          {/* LA MODIFICATION EST SUR CETTE LIGNE */}
+          <Row xs={1} md={2} className="g-2">
             {products.map((product) => (
-              // LA MODIFICATION EST SUR CETTE LIGNE
               <Col key={product._id} xs={6} md={6} lg={4} xl={3}>
                 <Product product={product} />
               </Col>
