@@ -25,9 +25,17 @@
 
 /* --- STYLES UNIQUEMENT POUR LES PETITS ÉCRANS --- */
 @media (max-width: 767px) {
-  /* On réduit la hauteur de l'image sur mobile */
+  /* NOUVELLE RÈGLE POUR LA HAUTEUR DE LA CARTE */
+  .card {
+    max-height: 380px; /* Fixe une hauteur maximale pour la carte */
+    overflow: hidden;   /* Empêche le contenu de déborder */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
   .card-img-top {
-    height: 90px;
+    height: 160px; /* On garde une hauteur raisonnable pour l'image */
   }
   
   .product-card-body .product-title {
