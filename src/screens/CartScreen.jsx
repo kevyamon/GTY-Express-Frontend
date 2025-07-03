@@ -79,7 +79,7 @@ const CartScreen = () => {
                 Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 articles
               </h2>
-              {cart.itemsPrice} €
+              {cart.itemsPrice} FCFA
             </ListGroup.Item>
             <ListGroup.Item>
               <Button
