@@ -48,7 +48,7 @@ const ProductScreen = () => {
               <ListGroup.Item>
                 <h3>{product.name}</h3>
               </ListGroup.Item>
-              <ListGroup.Item>Prix: {product.price} €</ListGroup.Item>
+              <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
               <ListGroup.Item>Description: {product.description}</ListGroup.Item>
             </ListGroup>
           </Col>

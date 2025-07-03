@@ -2,7 +2,6 @@ import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 const Product = ({ product }) => {
-  // On ajoute l'URL du backend devant le chemin de l'image
   const imageUrl = product.image.startsWith('/uploads/') 
     ? `${import.meta.env.VITE_BACKEND_URL}${product.image}` 
     : product.image;
@@ -18,7 +17,7 @@ const Product = ({ product }) => {
             <strong>{product.name}</strong>
           </Card.Title>
         </Link>
-        <Card.Text as="h3">{product.price} €</Card.Text>
+        <Card.Text as="h3">{product.price} FCFA</Card.Text>
       </Card.Body>
     </Card>
   );
