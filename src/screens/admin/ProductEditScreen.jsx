@@ -3,11 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
-  useUploadProductImageMutation,
 } from '../../slices/productsApiSlice';
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const ProductEditScreen = () => {
   const { id: productId } = useParams();
@@ -16,18 +19,16 @@ const ProductEditScreen = () => {
   const [image, setImage] = useState('');
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
+  const [loadingUpload, setLoadingUpload] = useState(false);
 
   const {
     data: product,
     isLoading,
+    refetch,
     error,
   } = useGetProductDetailsQuery(productId);
 
-  const [updateProduct, { isLoading: loadingUpdate }] =
-    useUpdateProductMutation();
-  const [uploadProductImage, { isLoading: loadingUpload }] =
-    useUploadProductImageMutation();
-
+  const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
   const navigate = useNavigate();
 
   const submitHandler = async (e) => {
@@ -42,6 +43,7 @@ const ProductEditScreen = () => {
         description,
       }).unwrap();
       toast.success('Produit mis à jour avec succès');
+      refetch();
       navigate('/admin/productlist');
     } catch (err) {
       toast.error(err?.data?.message || err.error);
@@ -59,14 +61,28 @@ const ProductEditScreen = () => {
   }, [product]);
 
   const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
     const formData = new FormData();
-    formData.append('image', e.target.files[0]);
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    setLoadingUpload(true);
     try {
-      const res = await uploadProductImage(formData).unwrap();
-      toast.success(res.message);
-      setImage(res.image);
-    } catch (err) {
-      toast.error(err?.data?.message || err.message || err.error);
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+      const { data } = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        formData,
+        config
+      );
+      toast.success('Image téléversée avec succès');
+      setImage(data.secure_url);
+      setLoadingUpload(false);
+    } catch (error) {
+      toast.error("Le téléversement de l'image a échoué");
+      setLoadingUpload(false);
     }
   };
 
@@ -92,7 +108,6 @@ const ProductEditScreen = () => {
               onChange={(e) => setName(e.target.value)}
             ></Form.Control>
           </Form.Group>
-
           <Form.Group controlId='price' className='my-2'>
             <Form.Label>Prix</Form.Label>
             <Form.Control
@@ -102,7 +117,6 @@ const ProductEditScreen = () => {
               onChange={(e) => setPrice(e.target.value)}
             ></Form.Control>
           </Form.Group>
-
           <Form.Group controlId='image' className='my-2'>
             <Form.Label>Image</Form.Label>
             <Form.Control
@@ -118,7 +132,6 @@ const ProductEditScreen = () => {
             ></Form.Control>
             {loadingUpload && <p>Téléversement de l'image...</p>}
           </Form.Group>
-
           <Form.Group controlId='countInStock' className='my-2'>
             <Form.Label>Stock</Form.Label>
             <Form.Control
@@ -128,7 +141,6 @@ const ProductEditScreen = () => {
               onChange={(e) => setCountInStock(e.target.value)}
             ></Form.Control>
           </Form.Group>
-
           <Form.Group controlId='description' className='my-2'>
             <Form.Label>Description</Form.Label>
             <Form.Control
@@ -138,7 +150,6 @@ const ProductEditScreen = () => {
               onChange={(e) => setDescription(e.target.value)}
             ></Form.Control>
           </Form.Group>
-
           <Button type='submit' variant='primary' style={{ marginTop: '1rem' }}>
             Mettre à jour
           </Button>
@@ -147,5 +158,4 @@ const ProductEditScreen = () => {
     </>
   );
 };
-
 export default ProductEditScreen;
