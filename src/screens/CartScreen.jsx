@@ -1,9 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Row, Col, ListGroup, Image, Button, Card } from 'react-bootstrap';
+import {
+  Row,
+  Col,
+  ListGroup,
+  Image,
+  Button,
+  Card,
+} from 'react-bootstrap';
 import Message from '../components/Message';
 import { addToCart, removeFromCart } from '../slices/cartSlice';
-import QtySelector from '../components/QtySelector'; // Importer notre nouveau composant
+import QtySelector from '../components/QtySelector';
 
 const CartScreen = () => {
   const navigate = useNavigate();
@@ -11,6 +18,9 @@ const CartScreen = () => {
 
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
+
+  // On récupère les informations de l'utilisateur depuis le state Redux
+  const { userInfo } = useSelector((state) => state.auth);
 
   const updateQtyHandler = (item, newQty) => {
     dispatch(addToCart({ ...item, qty: newQty }));
@@ -21,7 +31,13 @@ const CartScreen = () => {
   };
 
   const checkoutHandler = () => {
-    navigate('/login?redirect=/shipping');
+    // Si l'utilisateur est connecté (userInfo existe), on va à la livraison
+    if (userInfo) {
+      navigate('/shipping');
+    } else {
+      // Sinon, on l'envoie se connecter
+      navigate('/login?redirect=/shipping');
+    }
   };
 
   return (
@@ -45,7 +61,6 @@ const CartScreen = () => {
                   </Col>
                   <Col md={2}>{item.price} FCFA</Col>
                   <Col md={3}>
-                    {/* On remplace l'ancien champ par notre nouveau composant */}
                     <QtySelector
                       value={item.qty}
                       onChange={(newQty) => updateQtyHandler(item, newQty)}
