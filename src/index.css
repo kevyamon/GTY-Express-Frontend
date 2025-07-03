@@ -1,21 +1,18 @@
-/*
-  On applique une disposition Flexbox à la racine de l'application.
-  On lui dit de prendre 100% de la hauteur de l'écran (100vh).
-  et d'organiser ses enfants (Header, Main, Footer) en colonne.
-*/
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/*
-  On dit à l'élément <main> (le contenu principal) de "grandir"
-  pour occuper tout l'espace vertical disponible.
-  C'est ça qui pousse le footer tout en bas.
-*/
 main {
   flex: 1;
 }
 
-/* Vous pouvez garder le reste de vos styles personnalisés ici si vous en avez */
+/* --- NOUVEAU STYLE POUR L'ARRIÈRE-PLAN --- */
+body {
+  margin: 0;
+  padding: 0;
+  /* On remplace l'image par un dégradé orange */
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  background-attachment: fixed; /* L'arrière-plan reste fixe quand on défile */
+}
