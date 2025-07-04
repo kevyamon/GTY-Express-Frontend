@@ -2,17 +2,19 @@ import { Table, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
 import { toast } from 'react-toastify';
-import { useGetMyOrdersQuery, useCancelOrderMutation } from '../slices/orderApiSlice';
+import { useGetMyOrdersQuery, useCancelOrderMutation, useDeleteOrderMutation } from '../slices/orderApiSlice';
 
 const ProfileScreen = () => {
   const { data: orders, isLoading, error, refetch } = useGetMyOrdersQuery();
+  
   const [cancelOrder, { isLoading: loadingCancel }] = useCancelOrderMutation();
+  const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
 
   const cancelHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
       try {
         await cancelOrder(id).unwrap();
-        refetch(); // On rafraîchit la liste pour voir le nouveau statut
+        refetch();
         toast.success('Commande annulée');
       } catch (err) {
         toast.error(err?.data?.message || err.error);
@@ -20,10 +22,21 @@ const ProfileScreen = () => {
     }
   };
 
+  const deleteHandler = async (id) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande de votre historique ?')) {
+        try {
+            await deleteOrder(id).unwrap();
+            toast.success('Commande supprimée');
+          } catch (err) {
+            toast.error(err?.data?.message || err.error);
+          }
+    }
+  };
+
   return (
     <div>
       <h2>Mes Commandes</h2>
-      {isLoading || loadingCancel ? (
+      {isLoading || loadingCancel || loadingDelete ? (
         <p>Chargement...</p>
       ) : error ? (
         <Message variant='danger'>
@@ -44,7 +57,7 @@ const ProfileScreen = () => {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id}>
-                <td>{order._id}</td>
+                <td>{order._id.substring(0, 10)}...</td>
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>{order.totalPrice.toFixed(2)} FCFA</td>
                 <td>
@@ -62,14 +75,25 @@ const ProfileScreen = () => {
                     </Button>
                   </LinkContainer>
                   
-                  {/* ON AJOUTE LE BOUTON ANNULER ICI */}
+                  {/* BOUTON ANNULER (conditionnel) */}
                   {order.status === 'En attente' && (
                     <Button
                       className='btn-sm ms-2'
-                      variant='danger'
+                      variant='warning'
                       onClick={() => cancelHandler(order._id)}
                     >
                       Annuler
+                    </Button>
+                  )}
+
+                  {/* NOUVEAU BOUTON SUPPRIMER (conditionnel) */}
+                  {(order.status === 'Livrée' || order.status === 'Annulée') && (
+                    <Button
+                      className='btn-sm ms-2'
+                      variant='danger'
+                      onClick={() => deleteHandler(order._id)}
+                    >
+                      Supprimer
                     </Button>
                   )}
                 </td>
