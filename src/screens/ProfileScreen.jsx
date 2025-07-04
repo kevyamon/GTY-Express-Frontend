@@ -1,15 +1,29 @@
 import { Table, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
-import { useGetMyOrdersQuery } from '../slices/orderApiSlice';
+import { toast } from 'react-toastify';
+import { useGetMyOrdersQuery, useCancelOrderMutation } from '../slices/orderApiSlice';
 
 const ProfileScreen = () => {
-  const { data: orders, isLoading, error } = useGetMyOrdersQuery();
+  const { data: orders, isLoading, error, refetch } = useGetMyOrdersQuery();
+  const [cancelOrder, { isLoading: loadingCancel }] = useCancelOrderMutation();
+
+  const cancelHandler = async (id) => {
+    if (window.confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
+      try {
+        await cancelOrder(id).unwrap();
+        refetch(); // On rafraîchit la liste pour voir le nouveau statut
+        toast.success('Commande annulée');
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  };
 
   return (
     <div>
       <h2>Mes Commandes</h2>
-      {isLoading ? (
+      {isLoading || loadingCancel ? (
         <p>Chargement...</p>
       ) : error ? (
         <Message variant='danger'>
@@ -24,7 +38,7 @@ const ProfileScreen = () => {
               <th>TOTAL</th>
               <th>PAYÉ</th>
               <th>STATUT</th>
-              <th></th>
+              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
@@ -47,6 +61,17 @@ const ProfileScreen = () => {
                       Détails
                     </Button>
                   </LinkContainer>
+                  
+                  {/* ON AJOUTE LE BOUTON ANNULER ICI */}
+                  {order.status === 'En attente' && (
+                    <Button
+                      className='btn-sm ms-2'
+                      variant='danger'
+                      onClick={() => cancelHandler(order._id)}
+                    >
+                      Annuler
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}

@@ -4,32 +4,21 @@ const ORDERS_URL = '/api/orders';
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createOrder: builder.mutation({
-      query: (order) => ({
-        url: ORDERS_URL,
-        method: 'POST',
-        body: order,
-      }),
+      query: (order) => ({ url: ORDERS_URL, method: 'POST', body: order }),
     }),
     getOrderDetails: builder.query({
-      query: (id) => ({
-        url: `${ORDERS_URL}/${id}`,
-      }),
+      query: (id) => ({ url: `${ORDERS_URL}/${id}` }),
       providesTags: (result, error, id) => [{ type: 'Order', id }],
       keepUnusedDataFor: 5,
     }),
     getMyOrders: builder.query({
-      query: () => ({
-        url: `${ORDERS_URL}/myorders`,
-      }),
+      query: () => ({ url: `${ORDERS_URL}/myorders` }),
       providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
     getOrders: builder.query({
-      query: () => ({
-        url: ORDERS_URL,
-      }),
+      query: () => ({ url: ORDERS_URL }),
       providesTags: ['Order'],
-      keepUnusedDataFor: 5,
     }),
     updateOrderStatus: builder.mutation({
       query: ({ orderId, status, isPaid }) => ({
@@ -38,6 +27,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         body: { status, isPaid },
       }),
       invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
+    }),
+    cancelOrder: builder.mutation({ // NOUVELLE FONCTION
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/cancel`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['Order'],
     }),
     deleteOrder: builder.mutation({
       query: (orderId) => ({
@@ -56,4 +52,5 @@ export const {
   useGetOrdersQuery,
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
+  useCancelOrderMutation, // On exporte le nouveau hook
 } = orderApiSlice;
