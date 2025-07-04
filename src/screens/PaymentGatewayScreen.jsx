@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, ListGroup, Card, Button } from 'react-bootstrap';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 import Message from '../components/Message';
 import {
   useGetOrderDetailsQuery,
@@ -39,7 +37,7 @@ const PaymentGatewayScreen = () => {
         await payOrder({ orderId, details }).unwrap();
         refetch();
         toast.success('Paiement réussi !');
-        navigate(`/order/${orderId}`); // Redirige vers la page de suivi après succès
+        navigate(`/order/${orderId}`);
       } catch (err) {
         toast.error(err?.data?.message || err.message);
       }
@@ -57,30 +55,30 @@ const PaymentGatewayScreen = () => {
     : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
     : (
     <div className="payment-gateway">
-      <div className="ticket">
+      <div className="ticket-header">
         <span>Montant total à payer</span>
         <h2>{(order.totalPrice || 0).toFixed(2)} FCFA</h2>
       </div>
 
       <div className="meta-info">
-        <div><span>Paiement via</span><strong>{order.paymentMethod}</strong></div>
-        <div><span>Articles</span><strong>{order.orderItems.length}</strong></div>
-        <div><span>Commande N°</span><strong>{order._id.substring(0, 8)}...</strong></div>
+        <p>Vous êtes sur le point de régler la commande <strong>{order._id.substring(0, 8)}...</strong> via <strong>{order.paymentMethod}</strong>.</p>
       </div>
       
       <div>
         {loadingPay && <p>Finalisation du paiement...</p>}
         {isPending || loadingPayPal ? <p>Chargement de PayPal...</p> : (
-          <div>
             <PayPalButtons
-              style={{ layout: 'vertical' }}
+              style={{ layout: 'vertical', label: 'pay' }}
               createOrder={createOrder}
               onApprove={onApprove}
               onError={onError}
             ></PayPalButtons>
-          </div>
         )}
-        {errorPayPal && <Message variant='danger'>Erreur de chargement du module de paiement.</Message>}
+        {errorPayPal && <Message variant='danger'>Erreur de chargement du module de paiement. Veuillez actualiser.</Message>}
+      </div>
+
+      <div className="text-center mt-4">
+        <Link to={`/order/${orderId}`}>Retour aux détails de la commande</Link>
       </div>
     </div>
   );
