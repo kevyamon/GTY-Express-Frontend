@@ -25,6 +25,7 @@ import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
 import PlaceOrderScreen from './screens/PlaceOrderScreen.jsx';
 import OrderScreen from './screens/OrderScreen.jsx';
+import ProfileScreen from './screens/ProfileScreen.jsx'; // NOUVELLE PAGE
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -47,6 +48,7 @@ const router = createBrowserRouter(
 
       {/* --- Routes Privées (pour les clients connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
+        <Route path='/profile' element={<ProfileScreen />} />
         <Route path="/products" element={<HomeScreen />} />
         <Route path="/cart" element={<CartScreen />} />
         <Route path="/favorites" element={<FavoritesScreen />} />

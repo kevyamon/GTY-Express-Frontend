@@ -44,21 +44,22 @@ const PlaceOrderScreen = () => {
             Merci de continuer vos achats 🤠
           </div>
         </div>,
-        { autoClose: 3000 }
+        { autoClose: 5000 }
       );
       
       setTimeout(() => {
-        navigate('/cart');
-      }, 3000);
+        navigate(`/order/${res._id}`); // On redirige vers la page de la commande
+      }, 5000);
 
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      // CORRECTION ICI pour gérer toutes les erreurs sans planter
+      toast.error(err?.data?.message || err.error || err.message);
     }
   };
 
   return (
     <>
-      <CheckoutSteps step={3} />
+      <CheckoutSteps step={4} />
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
@@ -70,7 +71,6 @@ const PlaceOrderScreen = () => {
                 {cart.shippingAddress.country}
               </p>
             </ListGroup.Item>
-
             <ListGroup.Item>
               <h2>Paiement</h2>
               <p>
@@ -78,7 +78,6 @@ const PlaceOrderScreen = () => {
                 {cart.paymentMethod}
               </p>
             </ListGroup.Item>
-
             <ListGroup.Item>
               <h2>Articles</h2>
               {cart.cartItems.length === 0 ? (
