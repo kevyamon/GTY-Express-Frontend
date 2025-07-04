@@ -1,10 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-select'; // On importe le nouveau composant
-import { getData } from 'country-list'; // On importe la liste des pays
 import { saveShippingAddress } from '../slices/cartSlice';
+import CheckoutSteps from '../components/CheckoutSteps'; // On importe le nouveau composant
 
 const ShippingScreen = () => {
   const cart = useSelector((state) => state.cart);
@@ -12,16 +11,13 @@ const ShippingScreen = () => {
 
   const [address, setAddress] = useState(shippingAddress?.address || '');
   const [city, setCity] = useState(shippingAddress?.city || '');
-  const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
+  const [postalCode, setPostalCode] = useState(
+    shippingAddress?.postalCode || ''
+  );
   const [country, setCountry] = useState(shippingAddress?.country || '');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // On prépare la liste des pays pour le composant Select
-  const countryOptions = useMemo(() => getData().map(c => ({ value: c.code, label: c.name })), []);
-  const selectedCountry = countryOptions.find(opt => opt.label === country);
-
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -31,6 +27,9 @@ const ShippingScreen = () => {
 
   return (
     <div>
+      {/* On ajoute la barre de progression ici */}
+      <CheckoutSteps step1 step2 />
+      
       <h1>Livraison</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className='my-2' controlId='address'>
@@ -68,17 +67,16 @@ const ShippingScreen = () => {
 
         <Form.Group className='my-2' controlId='country'>
           <Form.Label>Pays</Form.Label>
-          {/* ON REMPLACE L'ANCIEN CHAMP PAR LE NOUVEAU COMPOSANT */}
-          <Select
-            options={countryOptions}
-            value={selectedCountry}
-            onChange={(selectedOption) => setCountry(selectedOption.label)}
-            placeholder="Sélectionnez ou tapez un pays..."
-            isSearchable
-          />
+          <Form.Control
+            type='text'
+            placeholder='Entrez votre pays'
+            value={country}
+            required
+            onChange={(e) => setCountry(e.target.value)}
+          ></Form.Control>
         </Form.Group>
 
-        <Button type='submit' variant='primary' className='mt-2'>
+        <Button type='submit' variant='primary'>
           Continuer
         </Button>
       </Form>

@@ -22,7 +22,8 @@ import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
 import LandingScreen from './screens/LandingScreen.jsx';
 import FavoritesScreen from './screens/FavoritesScreen.jsx';
-import ShippingScreen from './screens/ShippingScreen.jsx'; // NOUVELLE PAGE
+import ShippingScreen from './screens/ShippingScreen.jsx';
+import PaymentScreen from './screens/PaymentScreen.jsx'; // NOUVELLE PAGE
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -47,6 +48,7 @@ const router = createBrowserRouter(
         <Route path='/cart' element={<CartScreen />} />
         <Route path='/favorites' element={<FavoritesScreen />} />
         <Route path='/shipping' element={<ShippingScreen />} />
+        <Route path='/payment' element={<PaymentScreen />} />
       </Route>
 
       {/* --- Routes Admin (pour les admins connectés) --- */}
