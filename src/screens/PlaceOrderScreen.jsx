@@ -33,6 +33,7 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
+      
       dispatch(clearCartItems());
       navigate(`/order/${res._id}`);
     } catch (err) {
@@ -72,7 +73,7 @@ const PlaceOrderScreen = () => {
                       <Row>
                         <Col md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image} alt={item.name} fluid rounded /></Col>
                         <Col><Link to={`/product/${item._id}`}>{item.name}</Link></Col>
-                        <Col md={4}>
+                        <Col md={4} className="text-end">
                           {item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA
                         </Col>
                       </Row>
@@ -87,9 +88,6 @@ const PlaceOrderScreen = () => {
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Articles</Col><Col>{(cart.itemsPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Frais de livraison</Col><Col>{(cart.shippingPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Taxes</Col><Col>{(cart.taxPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
               <ListGroup.Item><Row><Col>Total</Col><Col>{(cart.totalPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
               <ListGroup.Item>{error && (<Message variant='danger'>{error.data.message}</Message>)}</ListGroup.Item>
               <ListGroup.Item>
@@ -101,7 +99,7 @@ const PlaceOrderScreen = () => {
                 >
                   {cart.paymentMethod === 'Cash' ? 'Valider la Commande' : 'Continuer vers le Paiement'}
                 </Button>
-                {isLoading && <p>Chargement...</p>}
+                {isLoading && <p>Enregistrement de la commande...</p>}
               </ListGroup.Item>
             </ListGroup>
           </Card>

@@ -19,7 +19,6 @@ const OrderScreen = () => {
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
   const [deliverOrder, { isLoading: loadingDeliver }] = useUpdateOrderStatusMutation();
-
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
   const { userInfo } = useSelector((state) => state.auth);
@@ -29,7 +28,10 @@ const OrderScreen = () => {
       const loadPaypalScript = () => {
         paypalDispatch({
           type: 'resetOptions',
-          value: { 'client-id': paypal.clientId, currency: 'USD' },
+          value: {
+            'client-id': paypal.clientId,
+            currency: 'USD',
+          },
         });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
@@ -72,25 +74,26 @@ const OrderScreen = () => {
   }
 
   const deliverHandler = async () => {
-    await deliverOrder({ orderId, status: 'Livrée' });
+    await updateOrderStatus({ orderId, status: 'Livrée' });
     refetch();
   };
 
-  return isLoading ? <p>Chargement...</p> 
-    : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
-    : (
+  return isLoading ? (
+    <p>Chargement...</p>
+  ) : error ? (
+    <Message variant='danger'>{error?.data?.message || error.error}</Message>
+  ) : (
     <>
-      <h3 className="mb-4">Détails de la commande {order._id}</h3>
+      <h3 className="mb-4">Commande {order._id.substring(0,10)}...</h3>
       <Row>
-        <Col md={8}>
+        <Col md={7}>
           <ListGroup variant='flush'>
             <ListGroup.Item className="mb-3">
               <OrderStatusTracker order={order} />
             </ListGroup.Item>
             <ListGroup.Item>
               <h2>Livraison</h2>
-              <p><strong>Nom: </strong> {order.user.name}</p>
-              <p><strong>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
+              <p><strong>Nom: </strong> {order.shippingAddress.name}</p>
               <p><strong>Adresse:</strong> {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}</p>
               <p><strong>Téléphone:</strong> {order.shippingAddress.phone}</p>
             </ListGroup.Item>
@@ -108,21 +111,23 @@ const OrderScreen = () => {
             </ListGroup.Item>
           </ListGroup>
         </Col>
-        <Col md={4}>
+
+        <Col md={5}>
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Total</Col><Col>{(order.totalPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item>
+                <Row><Col><strong>Total</strong></Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
+              </ListGroup.Item>
               
               {!order.isPaid ? (
                 <ListGroup.Item>
-                  {loadingPay && <p>Chargement...</p>}
-                  {isPending ? (
-                    <p>Chargement de PayPal...</p>
-                  ) : order.paymentMethod === 'PayPal' ? (
+                  {loadingPay && <p>Chargement du paiement...</p>}
+                  {isPending ? <p>Chargement de PayPal...</p>
+                  : order.paymentMethod === 'PayPal' ? (
                     <div>
-                      <p className='text-muted small'>Finalisez votre paiement ci-dessous.</p>
-                      <PayPalButtons createOrder={createOrder} onApprove={onApprove} onError={onError}></PayPalButtons>
+                      <p className='text-muted small my-2'>Finalisez votre paiement ci-dessous pour valider la commande.</p>
+                      <PayPalButtons style={{ layout: 'vertical' }} createOrder={createOrder} onApprove={onApprove} onError={onError}></PayPalButtons>
                     </div>
                   ) : (
                     <Message>Le paiement se fera à la livraison.</Message>
