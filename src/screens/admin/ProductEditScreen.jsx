@@ -16,7 +16,7 @@ const ProductEditScreen = () => {
   const { id: productId } = useParams();
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
-  const [originalPrice, setOriginalPrice] = useState(0); // État pour le prix original
+  const [originalPrice, setOriginalPrice] = useState(0);
   const [image, setImage] = useState('');
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
@@ -39,7 +39,7 @@ const ProductEditScreen = () => {
         productId,
         name,
         price,
-        originalPrice, // On envoie le prix original
+        originalPrice,
         image,
         countInStock,
         description,
@@ -56,7 +56,7 @@ const ProductEditScreen = () => {
     if (product) {
       setName(product.name);
       setPrice(product.price);
-      setOriginalPrice(product.originalPrice || 0); // On récupère le prix original
+      setOriginalPrice(product.originalPrice || 0);
       setImage(product.image);
       setCountInStock(product.countInStock);
       setDescription(product.description);
@@ -94,7 +94,16 @@ const ProductEditScreen = () => {
       : error ? (<Message variant='danger'>{error.data.message}</Message>) 
       : (
         <Form onSubmit={submitHandler}>
-          <Form.Group controlId='name'></Form.Group>
+          <Form.Group controlId='name' className='my-2'>
+            <Form.Label>Nom</Form.Label>
+            <Form.Control
+              type='text'
+              placeholder='Entrez le nom'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            ></Form.Control>
+          </Form.Group>
+
           <Row>
             <Col>
               <Form.Group controlId='originalPrice' className='my-2'>
@@ -119,10 +128,47 @@ const ProductEditScreen = () => {
               </Form.Group>
             </Col>
           </Row>
-          <Form.Group controlId='image' className='my-2'></Form.Group>
-          <Form.Group controlId='countInStock' className='my-2'></Form.Group>
-          <Form.Group controlId='description' className='my-2'></Form.Group>
-          <Button type='submit' variant='primary' style={{ marginTop: '1rem' }}>Mettre à jour</Button>
+
+          <Form.Group controlId='image' className='my-2'>
+            <Form.Label>Image</Form.Label>
+            <Form.Control
+              type='text'
+              placeholder="URL de l'image"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            ></Form.Control>
+            <Form.Control
+              label='Choisir un fichier'
+              onChange={uploadFileHandler}
+              type='file'
+            ></Form.Control>
+            {loadingUpload && <p>Téléversement...</p>}
+          </Form.Group>
+
+          <Form.Group controlId='countInStock' className='my-2'>
+            <Form.Label>Stock</Form.Label>
+            <Form.Control
+              type='number'
+              placeholder='Entrez le stock'
+              value={countInStock}
+              onChange={(e) => setCountInStock(e.target.value)}
+            ></Form.Control>
+          </Form.Group>
+
+          <Form.Group controlId='description' className='my-2'>
+            <Form.Label>Description</Form.Label>
+            <Form.Control
+              as='textarea'
+              rows={3}
+              placeholder='Entrez la description'
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></Form.Control>
+          </Form.Group>
+
+          <Button type='submit' variant='primary' style={{ marginTop: '1rem' }}>
+            Mettre à jour
+          </Button>
         </Form>
       )}
     </>
