@@ -1,0 +1,51 @@
+.order-summary-ticket {
+  background-color: #ff9a9e; /* Couleur orange du dégradé */
+  background-image: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.order-summary-ticket h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.order-meta-info {
+  display: flex;
+  justify-content: space-around;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.order-meta-info div {
+  text-align: center;
+}
+
+.order-meta-info span {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+.order-meta-info strong {
+  font-size: 1rem;
+}
+
+.pay-button-container {
+    text-align: center;
+}
+
+.pay-button-container .btn {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
