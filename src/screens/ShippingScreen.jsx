@@ -11,11 +11,15 @@ const ShippingScreen = () => {
   const cart = useSelector((state) => state.cart);
   const { shippingAddress } = cart;
 
-  const [address, setAddress] = useState(shippingAddress?.address || '');
-  const [city, setCity] = useState(shippingAddress?.city || '');
-  const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const [name, setName] = useState(shippingAddress?.name || userInfo?.name || '');
   const [country, setCountry] = useState(shippingAddress?.country || '');
-  const [phone, setPhone] = useState(shippingAddress?.phone || ''); // NOUVEAU
+  const [city, setCity] = useState(shippingAddress?.city || '');
+  const [phone, setPhone] = useState(shippingAddress?.phone || '');
+  const [address, setAddress] = useState(shippingAddress?.address || '');
+  const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -25,7 +29,7 @@ const ShippingScreen = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(saveShippingAddress({ address, city, postalCode, country, phone })); // NOUVEAU
+    dispatch(saveShippingAddress({ name, country, city, phone, address, postalCode }));
     navigate('/payment');
   };
 
@@ -34,8 +38,17 @@ const ShippingScreen = () => {
       <CheckoutSteps step={1} />
       <h1>Adresse de Livraison</h1>
       <Form onSubmit={submitHandler}>
-        {/* ... champs adresse, ville, code postal ... */}
-        
+        <Form.Group className='my-2' controlId='name'>
+          <Form.Label>Nom</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Entrez votre nom complet'
+            value={name}
+            required
+            onChange={(e) => setName(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
         <Form.Group className='my-2' controlId='country'>
           <Form.Label>Pays</Form.Label>
           <Select
@@ -43,9 +56,19 @@ const ShippingScreen = () => {
             value={selectedCountry}
             onChange={(selectedOption) => setCountry(selectedOption.label)}
             placeholder="Sélectionnez ou tapez un pays..."
-            isSearchable
             required
           />
+        </Form.Group>
+
+        <Form.Group className='my-2' controlId='city'>
+          <Form.Label>Ville</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Entrez votre ville'
+            value={city}
+            required
+            onChange={(e) => setCity(e.target.value)}
+          ></Form.Control>
         </Form.Group>
 
         <Form.Group className='my-2' controlId='phone'>
@@ -56,6 +79,27 @@ const ShippingScreen = () => {
             value={phone}
             required
             onChange={(e) => setPhone(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        
+        <Form.Group className='my-2' controlId='address'>
+          <Form.Label>Adresse de livraison</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Entrez votre adresse complète (ex: quartier, rue, porte)'
+            value={address}
+            required
+            onChange={(e) => setAddress(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
+        <Form.Group className='my-2' controlId='postalCode'>
+          <Form.Label>Code Postal (optionnel)</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Entrez votre code postal'
+            value={postalCode}
+            onChange={(e) => setPostalCode(e.target.value)}
           ></Form.Control>
         </Form.Group>
 

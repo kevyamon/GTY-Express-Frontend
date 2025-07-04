@@ -41,7 +41,7 @@ export const {
   addToCart,
   removeFromCart,
   saveShippingAddress,
-  savePaymentMethod, // On exporte la nouvelle action
+  savePaymentMethod,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
