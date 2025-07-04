@@ -33,26 +33,10 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      
       dispatch(clearCartItems());
-
-      toast(
-        <div className='d-flex align-items-center'>
-          <span style={{fontSize: '2rem', marginRight: '15px'}}>📢</span>
-          <div>
-            <strong>Commande validée !</strong><br/>
-            Elle est en cours de traitement.
-          </div>
-        </div>,
-        { autoClose: 5000 }
-      );
-      
-      setTimeout(() => {
-        navigate(`/order/${res._id}`);
-      }, 5000);
-
+      navigate(`/order/${res._id}`);
     } catch (err) {
-      toast.error(err?.data?.message || err.message || 'Une erreur est survenue');
+      toast.error(err?.data?.message || err.message);
     }
   };
 
@@ -86,19 +70,8 @@ const PlaceOrderScreen = () => {
                   {cart.cartItems.map((item, index) => (
                     <ListGroup.Item key={index}>
                       <Row>
-                        <Col md={1}>
-                          <Image
-                            src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image}
-                            alt={item.name}
-                            fluid
-                            rounded
-                          />
-                        </Col>
-                        <Col>
-                          <Link to={`/product/${item._id}`}>
-                            {item.name}
-                          </Link>
-                        </Col>
+                        <Col md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image} alt={item.name} fluid rounded /></Col>
+                        <Col><Link to={`/product/${item._id}`}>{item.name}</Link></Col>
                         <Col md={4}>
                           {item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA
                         </Col>
@@ -113,38 +86,12 @@ const PlaceOrderScreen = () => {
         <Col md={4}>
           <Card>
             <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <h2>Récapitulatif</h2>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Articles</Col>
-                  <Col>{(cart.itemsPrice || 0).toFixed(2)} FCFA</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Frais de livraison</Col>
-                  <Col>{(cart.shippingPrice || 0).toFixed(2)} FCFA</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Taxes</Col>
-                  <Col>{(cart.taxPrice || 0).toFixed(2)} FCFA</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>{(cart.totalPrice || 0).toFixed(2)} FCFA</Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                {error && (
-                  <Message variant='danger'>{error.data.message}</Message>
-                )}
-              </ListGroup.Item>
+              <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
+              <ListGroup.Item><Row><Col>Articles</Col><Col>{(cart.itemsPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item><Row><Col>Frais de livraison</Col><Col>{(cart.shippingPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item><Row><Col>Taxes</Col><Col>{(cart.taxPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item><Row><Col>Total</Col><Col>{(cart.totalPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item>{error && (<Message variant='danger'>{error.data.message}</Message>)}</ListGroup.Item>
               <ListGroup.Item>
                 <Button
                   type='button'
@@ -152,7 +99,7 @@ const PlaceOrderScreen = () => {
                   disabled={cart.cartItems.length === 0}
                   onClick={placeOrderHandler}
                 >
-                  Valider la Commande
+                  {cart.paymentMethod === 'Cash' ? 'Valider la Commande' : 'Continuer vers le Paiement'}
                 </Button>
                 {isLoading && <p>Chargement...</p>}
               </ListGroup.Item>
