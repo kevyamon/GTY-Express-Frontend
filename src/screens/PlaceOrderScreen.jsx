@@ -11,9 +11,7 @@ import { clearCartItems } from '../slices/cartSlice';
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const cart = useSelector((state) => state.cart);
-
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
   useEffect(() => {
@@ -35,7 +33,25 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
+      
+      // On vide le panier et on affiche la notification spéciale
       dispatch(clearCartItems());
+      toast(
+        <div>
+          📢 Commande validée ! Elle est en cours de traitement.
+        </div>,
+        {
+          position: 'top-center',
+          autoClose: 8000, // Laisser la notif 8 secondes
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        }
+      );
+      
       navigate(`/order/${res._id}`);
     } catch (err) {
       toast.error(err?.data?.message || err.error);
@@ -56,7 +72,6 @@ const PlaceOrderScreen = () => {
                 {cart.shippingAddress.country}
               </p>
             </ListGroup.Item>
-
             <ListGroup.Item>
               <h2>Paiement</h2>
               <p>
@@ -64,7 +79,6 @@ const PlaceOrderScreen = () => {
                 {cart.paymentMethod}
               </p>
             </ListGroup.Item>
-
             <ListGroup.Item>
               <h2>Articles</h2>
               {cart.cartItems.length === 0 ? (
