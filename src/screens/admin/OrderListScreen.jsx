@@ -73,12 +73,14 @@ const OrderListScreen = () => {
             {orders.map((order) => (
               <>
                 <tr key={order._id}>
-                  <td>{order._id}</td>
+                  <td>{order._id.substring(0, 10)}...</td>
                   <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td>{order.totalPrice.toFixed(2)} FCFA</td>
                   <td>{order.isPaid ? '✅' : '❌'}</td>
-                  <td>{order.status}</td>
+                  <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>
+                    {order.status}
+                  </td>
                   <td>
                     <Button
                       variant='secondary'
@@ -94,10 +96,11 @@ const OrderListScreen = () => {
                     <td colSpan="7" className="details-cell">
                       <h5>Actions pour la commande {order._id.substring(0, 8)}...</h5>
                       <div className="actions-container">
-                        <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')}>Confirmer</Button>
-                        <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')}>Expédier</Button>
-                        <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')}>Marquer comme Livré</Button>
-                        {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)}>Marquer comme Payé</Button>}
+                        {/* LOGIQUE DE VERROUILLAGE AJOUTÉE ICI */}
+                        <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>
+                        <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>
+                        <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Marquer comme Livré</Button>
+                        {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)} disabled={order.status === 'Annulée'}>Marquer comme Payé</Button>}
                         <Button variant="danger" size="sm" onClick={() => handleDeleteOrder(order._id)}>Supprimer</Button>
                       </div>
                     </td>
