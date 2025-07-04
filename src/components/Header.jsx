@@ -72,16 +72,25 @@ const Header = () => {
 
               {userInfo ? (
                 <NavDropdown title={userInfo.name} id="username">
-                  <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/products">
+                    Produits
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/favorites">
+                    Mes Favoris
+                  </NavDropdown.Item>
+
                   {userInfo.isAdmin && (
                     <>
                       <NavDropdown.Divider />
                       <NavDropdown.Item as={Link} to="/admin/productlist">
                         Gestion Produits
                       </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/admin/orderlist">
+                        Gestion Commandes
+                      </NavDropdown.Item>
                     </>
                   )}
+
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={logoutHandler}>
                     Déconnexion
