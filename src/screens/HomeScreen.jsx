@@ -1,19 +1,19 @@
 import { Row, Col } from 'react-bootstrap';
+import { useParams, Link } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
-import { useEffect } from 'react';
 import './HomeScreen.css';
 
 const HomeScreen = () => {
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  const { keyword } = useParams();
+  const { data: products, isLoading, error } = useGetProductsQuery({
+    keyword,
+  });
 
   return (
     <div className='home-screen-background'>
+      {keyword && <Link to='/products' className='btn btn-light mb-4'>Retour</Link>}
       {isLoading ? (
         <h2>Chargement...</h2>
       ) : error ? (
@@ -23,8 +23,7 @@ const HomeScreen = () => {
       ) : (
         <>
           <h1 className='home-screen-title'>Derniers Produits</h1>
-          {/* LA MODIFICATION EST SUR CETTE LIGNE */}
-          <Row xs={1} md={2} className="g-2">
+          <Row>
             {products.map((product) => (
               <Col key={product._id} xs={6} md={6} lg={4} xl={3}>
                 <Product product={product} />

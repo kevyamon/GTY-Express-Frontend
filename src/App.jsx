@@ -1,12 +1,12 @@
 import { Container } from 'react-bootstrap';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './App.css';
-import bgImage from '../background.jpg'; // On modifie le chemin ici
+import bgImage from '../background.jpg';
 
 const App = () => {
   const location = useLocation();
@@ -20,7 +20,7 @@ const App = () => {
   };
 
   return (
-    <div style={appStyle}> 
+    <div style={appStyle}>
       <Header />
       <main className="py-3">
         <TransitionGroup component={null}>
@@ -31,6 +31,12 @@ const App = () => {
           </CSSTransition>
         </TransitionGroup>
       </main>
+
+      {/* BOUTON MAISON AJOUTÉ ICI */}
+      <Link to="/products" className="home-fab">
+        🏠
+      </Link>
+
       <Footer />
       <ToastContainer />
     </div>

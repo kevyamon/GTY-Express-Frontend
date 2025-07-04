@@ -11,8 +11,7 @@ import store from './store.js';
 import App from './App.jsx';
 
 // Fichiers de style
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+import './App.css'; 
 
 // Écrans principaux
 import HomeScreen from './screens/HomeScreen.jsx';
@@ -40,6 +39,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<App />}>
       {/* --- Routes Publiques --- */}
       <Route index={true} path="/" element={<LandingScreen />} />
+      <Route path="/search/:keyword" element={<HomeScreen />} />
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />

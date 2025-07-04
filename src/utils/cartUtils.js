@@ -5,17 +5,14 @@ export const updateCart = (state) => {
     0
   );
 
-  // Calculer les frais de port (Ex: Gratuit si > 10000 FCFA, sinon 1000 FCFA)
-  state.shippingPrice = state.itemsPrice > 10000 ? 0 : 1000;
+  // Mettre les frais de livraison à 0
+  state.shippingPrice = 0;
 
-  // Calculer les taxes (Ex: 18%)
-  state.taxPrice = 0.18 * state.itemsPrice;
+  // Mettre les taxes à 0
+  state.taxPrice = 0;
 
-  // Calculer le prix total
-  state.totalPrice =
-    Number(state.itemsPrice) +
-    Number(state.shippingPrice) +
-    Number(state.taxPrice);
+  // Le total est maintenant juste le prix des articles
+  state.totalPrice = state.itemsPrice; 
 
   localStorage.setItem('cart', JSON.stringify(state));
 

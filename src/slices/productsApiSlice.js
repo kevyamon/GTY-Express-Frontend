@@ -1,21 +1,21 @@
 import { apiSlice } from './apiSlice';
 const PRODUCTS_URL = '/api/products';
-const UPLOAD_URL = '/api/upload'; // URL pour l'upload
+const UPLOAD_URL = '/api/upload';
 
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: () => ({
+      query: ({ keyword = '' }) => ({ // On accepte le mot-clé ici
         url: PRODUCTS_URL,
+        params: { keyword }, // On l'ajoute comme paramètre à l'URL
       }),
-      providesTags: ['Product'], 
+      providesTags: ['Product'],
       keepUnusedDataFor: 5,
     }),
     getProductDetails: builder.query({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
       }),
-      providesTags: (result, error, id) => [{ type: 'Product', id }],
       keepUnusedDataFor: 5,
     }),
     createProduct: builder.mutation({
@@ -23,7 +23,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         url: `${PRODUCTS_URL}`,
         method: 'POST',
       }),
-      invalidatesTags: ['Product'], 
+      invalidatesTags: ['Product'],
     }),
     updateProduct: builder.mutation({
       query: (data) => ({
@@ -32,14 +32,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
       invalidatesTags: ['Product'],
-    }),
-    // NOUVELLE FONCTION POUR L'UPLOAD
-    uploadProductImage: builder.mutation({
-      query: (data) => ({
-        url: UPLOAD_URL,
-        method: 'POST',
-        body: data,
-      }),
     }),
     deleteProduct: builder.mutation({
       query: (productId) => ({
@@ -57,5 +49,4 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useUploadProductImageMutation, // EXPORTATION DU NOUVEAU HOOK
 } = productsApiSlice;
