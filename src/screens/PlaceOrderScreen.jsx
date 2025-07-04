@@ -41,19 +41,18 @@ const PlaceOrderScreen = () => {
           <span style={{fontSize: '2rem', marginRight: '15px'}}>📢</span>
           <div>
             <strong>Commande validée !</strong><br/>
-            Merci de continuer vos achats 🤠
+            Elle est en cours de traitement.
           </div>
         </div>,
         { autoClose: 5000 }
       );
       
       setTimeout(() => {
-        navigate(`/order/${res._id}`); // On redirige vers la page de la commande
+        navigate(`/order/${res._id}`);
       }, 5000);
 
     } catch (err) {
-      // CORRECTION ICI pour gérer toutes les erreurs sans planter
-      toast.error(err?.data?.message || err.error || err.message);
+      toast.error(err?.data?.message || err.message || 'Une erreur est survenue');
     }
   };
 
