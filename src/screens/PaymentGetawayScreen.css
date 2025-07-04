@@ -1,0 +1,51 @@
+.payment-gateway {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.ticket {
+  background-color: #f8f9fa;
+  color: #333;
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid #dee2e6;
+}
+
+.ticket h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.meta-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1.5rem;
+}
+
+.meta-info div {
+  text-align: center;
+}
+
+.meta-info span {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+.meta-info strong {
+  font-size: 1rem;
+}
+
+.paypal-container {
+  margin-top: 1rem;
+}

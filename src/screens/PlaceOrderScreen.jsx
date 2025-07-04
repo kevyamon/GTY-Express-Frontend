@@ -35,7 +35,15 @@ const PlaceOrderScreen = () => {
       }).unwrap();
       
       dispatch(clearCartItems());
-      navigate(`/order/${res._id}`);
+
+      // Logique d'aiguillage
+      if (res.paymentMethod === 'Cash') {
+        toast.success('Votre commande a été validée !');
+        navigate(`/order/${res._id}`);
+      } else {
+        navigate(`/payment-gateway/${res._id}`);
+      }
+
     } catch (err) {
       toast.error(err?.data?.message || err.message);
     }
@@ -43,7 +51,7 @@ const PlaceOrderScreen = () => {
 
   return (
     <>
-      <CheckoutSteps step={4} />
+      <CheckoutSteps step={3} /> {/* On est à l'étape 3 */}
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
@@ -88,7 +96,7 @@ const PlaceOrderScreen = () => {
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Total</Col><Col>{(cart.totalPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(cart.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
               <ListGroup.Item>{error && (<Message variant='danger'>{error.data.message}</Message>)}</ListGroup.Item>
               <ListGroup.Item>
                 <Button
