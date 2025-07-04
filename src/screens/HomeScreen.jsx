@@ -13,7 +13,10 @@ const HomeScreen = () => {
 
   return (
     <div className='home-screen-background'>
-      {keyword && <Link to='/products' className='btn btn-light mb-4'>Retour</Link>}
+      {keyword && <Link to='/products' className='btn btn-light mb-4'>Retour à la liste complète</Link>}
+      
+      <h1>{keyword ? 'Résultats de la recherche' : 'Derniers Produits'}</h1>
+
       {isLoading ? (
         <h2>Chargement...</h2>
       ) : error ? (
@@ -22,14 +25,17 @@ const HomeScreen = () => {
         </Message>
       ) : (
         <>
-          <h1 className='home-screen-title'>Derniers Produits</h1>
-          <Row>
-            {products.map((product) => (
-              <Col key={product._id} xs={6} md={6} lg={4} xl={3}>
-                <Product product={product} />
-              </Col>
-            ))}
-          </Row>
+          {products.length === 0 ? (
+            <Message>Aucun produit trouvé</Message>
+          ) : (
+            <Row>
+              {products.map((product) => (
+                <Col key={product._id} xs={6} md={6} lg={4} xl={3}>
+                  <Product product={product} />
+                </Col>
+              ))}
+            </Row>
+          )}
         </>
       )}
     </div>
