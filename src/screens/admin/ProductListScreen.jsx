@@ -10,7 +10,7 @@ import {
 } from '../../slices/productsApiSlice';
 
 const ProductListScreen = () => {
-  const { data: products, isLoading, error } = useGetProductsQuery();
+  const { data: products, isLoading, error } = useGetProductsQuery({});
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
 
@@ -56,7 +56,8 @@ const ProductListScreen = () => {
       {isLoading ? (
         <p>Chargement...</p>
       ) : error ? (
-        <Message variant='danger'>{error.data.message}</Message>
+        // GESTION D'ERREUR CORRIGÉE ICI
+        <Message variant='danger'>{error?.data?.message || error.error}</Message>
       ) : (
         <Table striped bordered hover responsive className='table-sm'>
           <thead>
