@@ -22,6 +22,12 @@ const OrderScreen = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error?.data?.message || error.error);
+    }
+  }, [error]);
+
   const deliverHandler = async () => {
     try {
       await deliverOrder(orderId).unwrap();
@@ -45,7 +51,7 @@ const OrderScreen = () => {
             <ListGroup.Item>
               <h2>Livraison</h2>
               <p>
-                <strong>Nom: </strong> {order.shippingAddress.name}
+                <strong>Nom: </strong> {order.user.name}
               </p>
               <p>
                 <strong>Email: </strong>{' '}
@@ -61,7 +67,7 @@ const OrderScreen = () => {
               </p>
               {order.isDelivered ? (
                 <Message variant='success'>
-                  Livré le {order.deliveredAt.substring(0, 10)}
+                  Livré le {new Date(order.deliveredAt).toLocaleDateString()}
                 </Message>
               ) : (
                 <Message variant='danger'>Non livré</Message>
@@ -75,7 +81,7 @@ const OrderScreen = () => {
               </p>
               {order.isPaid ? (
                 <Message variant='success'>
-                  Payé le {order.paidAt.substring(0, 10)}
+                  Payé le {new Date(order.paidAt).toLocaleDateString()}
                 </Message>
               ) : (
                 <Message variant='danger'>Non payé</Message>
@@ -124,25 +130,26 @@ const OrderScreen = () => {
               <ListGroup.Item>
                 <Row>
                   <Col>Articles</Col>
-                  <Col>{order.itemsPrice.toFixed(2)} FCFA</Col>
+                  {/* SÉCURITÉ AJOUTÉE ICI */}
+                  <Col>{(order.itemsPrice || 0).toFixed(2)} FCFA</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Frais de livraison</Col>
-                  <Col>{order.shippingPrice.toFixed(2)} FCFA</Col>
+                  <Col>{(order.shippingPrice || 0).toFixed(2)} FCFA</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Taxes</Col>
-                  <Col>{order.taxPrice.toFixed(2)} FCFA</Col>
+                  <Col>{(order.taxPrice || 0).toFixed(2)} FCFA</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
-                  <Col>{order.totalPrice.toFixed(2)} FCFA</Col>
+                  <Col>{(order.totalPrice || 0).toFixed(2)} FCFA</Col>
                 </Row>
               </ListGroup.Item>
               
