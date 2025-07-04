@@ -27,7 +27,8 @@ const Header = () => {
     <header>
       <Navbar bg="dark" variant="dark" expand="md" collapseOnSelect>
         <Container>
-          <Navbar.Brand as={Link} to="/">
+          {/* MODIFICATION ICI : to="/products" si connecté, sinon "/" */}
+          <Navbar.Brand as={Link} to={userInfo ? "/products" : "/"}>
             GTY Express
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -43,7 +44,6 @@ const Header = () => {
               </Nav.Link>
 
               {userInfo ? (
-                // Vue quand l'utilisateur est connecté
                 <NavDropdown title={userInfo.name} id="username">
                   <NavDropdown.Item as={Link} to="/products">
                     Produits
@@ -51,7 +51,6 @@ const Header = () => {
                   <NavDropdown.Item as={Link} to="/favorites">
                     Mes Favoris
                   </NavDropdown.Item>
-
                   {userInfo.isAdmin && (
                     <>
                       <NavDropdown.Divider />
@@ -60,14 +59,12 @@ const Header = () => {
                       </NavDropdown.Item>
                     </>
                   )}
-
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={logoutHandler}>
                     Déconnexion
                   </NavDropdown.Item>
                 </NavDropdown>
               ) : (
-                // Vue quand l'utilisateur n'est pas connecté
                 <Nav.Link as={Link} to="/login">
                   👤 Se Connecter
                 </Nav.Link>
