@@ -112,7 +112,7 @@ const ProductEditScreen = () => {
                   type='number'
                   placeholder='Entrez le prix original'
                   value={originalPrice}
-                  onChange={(e) => setOriginalPrice(e.target.value)}
+                  onChange={(e) => setOriginalPrice(Number(e.target.value))} // CORRECTION ICI
                 ></Form.Control>
               </Form.Group>
             </Col>
@@ -123,7 +123,7 @@ const ProductEditScreen = () => {
                   type='number'
                   placeholder='Entrez le prix de vente'
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => setPrice(Number(e.target.value))} // CORRECTION ICI
                 ></Form.Control>
               </Form.Group>
             </Col>
@@ -142,7 +142,7 @@ const ProductEditScreen = () => {
               onChange={uploadFileHandler}
               type='file'
             ></Form.Control>
-            {loadingUpload && <p>Téléversement...</p>}
+            {loadingUpload && <p>Téléversement de l'image...</p>}
           </Form.Group>
 
           <Form.Group controlId='countInStock' className='my-2'>
@@ -151,7 +151,7 @@ const ProductEditScreen = () => {
               type='number'
               placeholder='Entrez le stock'
               value={countInStock}
-              onChange={(e) => setCountInStock(e.target.value)}
+              onChange={(e) => setCountInStock(Number(e.target.value))} // CORRECTION ICI
             ></Form.Control>
           </Form.Group>
 
@@ -174,4 +174,5 @@ const ProductEditScreen = () => {
     </>
   );
 };
+
 export default ProductEditScreen;
