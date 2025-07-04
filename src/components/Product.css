@@ -1,6 +1,7 @@
 /* Style de la carte produit */
 .card {
   transition: box-shadow 0.3s ease-in-out;
+  position: relative; /* Important pour le positionnement des badges */
 }
 .card:hover {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -58,25 +59,30 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #28a745;
+  background-color: #28a745; /* Vert */
   color: white;
-  padding: 5px 8px;
-  border-radius: 5px;
+  border-radius: 50%; /* Rond comme le bouton coeur */
+  width: 40px; /* Taille similaire */
+  height: 40px; /* Taille similaire */
   font-size: 0.8rem;
   font-weight: bold;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
 }
 
 /* Style pour les prix */
 .price-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: baseline; /* Aligne les prix sur leur base */
   gap: 10px;
 }
 .original-price {
   text-decoration: line-through;
-  color: #6c757d;
+  color: #dc3545; /* Rouge pour bien marquer */
   font-size: 0.9rem;
 }
 

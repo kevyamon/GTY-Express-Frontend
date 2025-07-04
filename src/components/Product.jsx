@@ -11,22 +11,49 @@ import './Product.css';
 
 const Product = ({ product }) => {
   const dispatch = useDispatch();
+
+  // On récupère les favoris depuis le state Redux
   const { favoriteItems } = useSelector((state) => state.favorites);
+  // On vérifie si ce produit est déjà dans les favoris
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
-  const imageUrl = product.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`: product.image;
-  const addToCartHandler = () => { dispatch(addToCart({ ...product, qty: 1 })); toast.success('Produit ajouté au panier !'); };
-  const toggleFavoriteHandler = () => { /* ... */ };
+
+  const imageUrl = product.image.startsWith('/')
+    ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`
+    : product.image;
+
+  const addToCartHandler = () => {
+    dispatch(addToCart({ ...product, qty: 1 }));
+    toast.success('Produit ajouté au panier !');
+  };
+
+  const toggleFavoriteHandler = () => {
+    if (isFavorite) {
+      dispatch(removeFromFavorites(product._id));
+      toast.info('Produit retiré des favoris');
+    } else {
+      dispatch(addToFavorites(product));
+      toast.success('Produit ajouté aux favoris');
+    }
+  };
 
   // Calcul de la promotion
   const hasPromo = product.originalPrice && product.originalPrice > product.price;
-  const discountPercent = hasPromo ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+  const discountPercent = hasPromo
+    ? Math.round(
+        ((product.originalPrice - product.price) / product.originalPrice) * 100
+      )
+    : 0;
 
   return (
-    <Card className="my-3 p-3 rounded h-100 position-relative">
-      {hasPromo && (
-        <div className="discount-badge">-{discountPercent}%</div>
-      )}
-      <button onClick={toggleFavoriteHandler} className="favorite-btn">{isFavorite ? '❤️' : '🤍'}</button>
+    <Card className="my-3 p-3 rounded h-100">
+      {/* On affiche le badge de promo si elle existe */}
+      {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
+
+      {/* On affiche le bouton coeur */}
+      <button onClick={toggleFavoriteHandler} className="favorite-btn">
+        {isFavorite ? '❤️' : '🤍'}
+      </button>
+
       <Link to={`/product/${product._id}`}>
         <Card.Img src={imageUrl} variant="top" className="card-img-top" />
       </Link>
@@ -39,19 +66,27 @@ const Product = ({ product }) => {
         </Card.Title>
 
         <div className="price-container">
+          {/* On affiche le prix de vente actuel */}
           <Card.Text as="h4">{product.price} FCFA</Card.Text>
+          {/* Si il y a une promo, on affiche le prix original barré */}
           {hasPromo && (
             <Card.Text as="span" className="original-price">
-              <del>{product.originalPrice} FCFA</del>
+              {product.originalPrice} FCFA
             </Card.Text>
           )}
         </div>
 
-        <Button className="btn-violet" type="button" disabled={product.countInStock === 0} onClick={addToCartHandler}>
+        <Button
+          className="btn-violet"
+          type="button"
+          disabled={product.countInStock === 0}
+          onClick={addToCartHandler}
+        >
           PANIER
         </Button>
       </Card.Body>
     </Card>
   );
 };
+
 export default Product;
