@@ -10,15 +10,27 @@ import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
+  useUpdateOrderStatusMutation,
 } from '../slices/orderApiSlice';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
-  const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
+  const {
+    data: order,
+    refetch,
+    isLoading,
+    error,
+  } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [updateOrderStatus, { isLoading: loadingDeliver }] = useUpdateOrderStatusMutation();
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
-  const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
+  const {
+    data: paypal,
+    isLoading: loadingPayPal,
+    error: errorPayPal,
+  } = useGetPaypalClientIdQuery();
+
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -28,7 +40,7 @@ const OrderScreen = () => {
           type: 'resetOptions',
           value: {
             'client-id': paypal.clientId,
-            currency: 'EUR', // Tu peux changer la devise ici
+            currency: 'USD', // USD est plus standard pour les tests
           },
         });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
@@ -45,7 +57,7 @@ const OrderScreen = () => {
     return actions.order.capture().then(async function (details) {
       try {
         await payOrder({ orderId, details }).unwrap();
-        refetch();
+        refetch(); // On rafraîchit les données de la commande
         toast.success('Paiement réussi');
       } catch (err) {
         toast.error(err?.data?.message || err.message);
@@ -71,19 +83,30 @@ const OrderScreen = () => {
       });
   }
 
+  const deliverHandler = async () => {
+    try {
+      await updateOrderStatus({ orderId, status: 'Livrée' }).unwrap();
+      refetch();
+      toast.success('Commande marquée comme livrée');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
+  };
+
   return isLoading ? (
     <p>Chargement...</p>
   ) : error ? (
     <Message variant='danger'>{error?.data?.message || error.error}</Message>
   ) : (
     <>
-      <h3 className="mb-4">Détails de la commande {order._id}</h3>
+      <h3 className='mb-4'>Détails de la commande {order._id}</h3>
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
-            <ListGroup.Item className="mb-3">
+            <ListGroup.Item className='mb-3'>
               <OrderStatusTracker order={order} />
             </ListGroup.Item>
+
             <ListGroup.Item>
               <h2>Livraison</h2>
               <p><strong>Nom: </strong> {order.shippingAddress.name}</p>
@@ -91,27 +114,44 @@ const OrderScreen = () => {
               <p><strong>Adresse:</strong> {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}</p>
               <p><strong>Téléphone:</strong> {order.shippingAddress.phone}</p>
             </ListGroup.Item>
+
+            <ListGroup.Item>
+              <h2>Paiement</h2>
+              <p><strong>Méthode: </strong>{order.paymentMethod}</p>
+              {order.isPaid ? (
+                <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
+              ) : (
+                <Message variant='danger'>Non payé</Message>
+              )}
+            </ListGroup.Item>
+
             <ListGroup.Item>
               <h2>Articles Commandés</h2>
               {order.orderItems.map((item, index) => (
                 <ListGroup.Item key={index}>
-                  <Row className="align-items-center">
-                    <Col xs={2} md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}`: item.image} alt={item.name} fluid rounded /></Col>
+                  <Row className='align-items-center'>
+                    <Col xs={2} md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image} alt={item.name} fluid rounded /></Col>
                     <Col><Link to={`/product/${item.product}`}>{item.name}</Link></Col>
-                    <Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
+                    <Col md={4} className='text-end'>{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
                   </Row>
                 </ListGroup.Item>
               ))}
             </ListGroup.Item>
           </ListGroup>
         </Col>
+
         <Col md={4}>
           <Card>
             <ListGroup variant='flush'>
-              <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Total</Col><Col>{(order.totalPrice || 0).toFixed(2)} FCFA</Col></Row></ListGroup.Item>
+              <ListGroup.Item>
+                <h2>Récapitulatif</h2>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row><Col>Total</Col><Col>{(order.totalPrice || 0).toFixed(2)} FCFA</Col></Row>
+              </ListGroup.Item>
               
-              {!order.isPaid && (
+              {/* Logique pour afficher les boutons PayPal */}
+              {!order.isPaid && order.paymentMethod === 'PayPal' && (
                 <ListGroup.Item>
                   {loadingPay && <p>Chargement du paiement...</p>}
                   {isPending ? <p>Chargement de PayPal...</p> : (
@@ -123,6 +163,20 @@ const OrderScreen = () => {
                       ></PayPalButtons>
                     </div>
                   )}
+                </ListGroup.Item>
+              )}
+
+              {/* Logique pour afficher les boutons de l'admin */}
+              {userInfo && userInfo.isAdmin && !order.isDelivered && (
+                <ListGroup.Item>
+                  <Button
+                    type='button'
+                    className='btn btn-success w-100'
+                    onClick={deliverHandler}
+                  >
+                    Marquer comme livré
+                  </Button>
+                  {loadingDeliver && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
             </ListGroup>

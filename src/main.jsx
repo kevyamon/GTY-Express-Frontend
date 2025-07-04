@@ -6,26 +6,28 @@ import {
   Route,
   RouterProvider,
 } from 'react-router-dom';
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
 
 // Fichiers de style
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'; 
 
 // Écrans principaux
+import LandingScreen from './screens/LandingScreen.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
 import CartScreen from './screens/CartScreen.jsx';
 import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
-import LandingScreen from './screens/LandingScreen.jsx';
 import FavoritesScreen from './screens/FavoritesScreen.jsx';
 import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
 import PlaceOrderScreen from './screens/PlaceOrderScreen.jsx';
 import OrderScreen from './screens/OrderScreen.jsx';
-import ProfileScreen from './screens/ProfileScreen.jsx'; // NOUVELLE PAGE
+import ProfileScreen from './screens/ProfileScreen.jsx';
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -33,8 +35,8 @@ import AdminRoute from './components/AdminRoute.jsx';
 
 // Écrans Admin
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
-import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
+import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -48,7 +50,7 @@ const router = createBrowserRouter(
 
       {/* --- Routes Privées (pour les clients connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
-        <Route path='/profile' element={<ProfileScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/products" element={<HomeScreen />} />
         <Route path="/cart" element={<CartScreen />} />
         <Route path="/favorites" element={<FavoritesScreen />} />
@@ -61,7 +63,7 @@ const router = createBrowserRouter(
       {/* --- Routes Admin (pour les admins connectés) --- */}
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin/productlist" element={<ProductListScreen />} />
-        <Route path='/admin/orderlist' element={<OrderListScreen />} />
+        <Route path="/admin/orderlist" element={<OrderListScreen />} />
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
       </Route>
     </Route>
@@ -71,7 +73,9 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <PayPalScriptProvider deferLoading={true}>
+        <RouterProvider router={router} />
+      </PayPalScriptProvider>
     </Provider>
   </React.StrictMode>
 );
