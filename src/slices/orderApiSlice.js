@@ -17,20 +17,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Order', id }],
       keepUnusedDataFor: 5,
     }),
-    getOrders: builder.query({
-      query: () => ({
-        url: ORDERS_URL,
-      }),
-      providesTags: ['Order'],
-      keepUnusedDataFor: 5,
-    }),
-    deliverOrder: builder.mutation({
-      query: (orderId) => ({
-        url: `${ORDERS_URL}/${orderId}/deliver`,
-        method: 'PUT',
-      }),
-      invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg }],
-    }),
     getMyOrders: builder.query({
       query: () => ({
         url: `${ORDERS_URL}/myorders`,
@@ -38,13 +24,36 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
+    getOrders: builder.query({
+      query: () => ({
+        url: ORDERS_URL,
+      }),
+      providesTags: ['Order'],
+      keepUnusedDataFor: 5,
+    }),
+    updateOrderStatus: builder.mutation({
+      query: ({ orderId, status, isPaid }) => ({
+        url: `${ORDERS_URL}/${orderId}/status`,
+        method: 'PUT',
+        body: { status, isPaid },
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
+    }),
+    deleteOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Order'],
+    }),
   }),
 });
 
 export const {
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
-  useGetOrdersQuery,
-  useDeliverOrderMutation,
   useGetMyOrdersQuery,
+  useGetOrdersQuery,
+  useUpdateOrderStatusMutation,
+  useDeleteOrderMutation,
 } = orderApiSlice;

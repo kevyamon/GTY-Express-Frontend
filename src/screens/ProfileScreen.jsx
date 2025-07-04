@@ -23,7 +23,7 @@ const ProfileScreen = () => {
               <th>DATE</th>
               <th>TOTAL</th>
               <th>PAYÉ</th>
-              <th>LIVRÉ</th>
+              <th>STATUT</th>
               <th></th>
             </tr>
           </thead>
@@ -31,22 +31,16 @@ const ProfileScreen = () => {
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>
-                <td>{order.createdAt.substring(0, 10)}</td>
+                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td>{order.totalPrice.toFixed(2)} FCFA</td>
                 <td>
                   {order.isPaid ? (
-                    order.paidAt.substring(0, 10)
+                    `Le ${new Date(order.paidAt).toLocaleDateString()}`
                   ) : (
-                    <span style={{ color: 'red' }}>✖️</span>
+                    <span style={{ color: 'red' }}>Non</span>
                   )}
                 </td>
-                <td>
-                  {order.isDelivered ? (
-                    order.deliveredAt.substring(0, 10)
-                  ) : (
-                    <span style={{ color: 'red' }}>✖️</span>
-                  )}
-                </td>
+                <td>{order.status}</td>
                 <td>
                   <LinkContainer to={`/order/${order._id}`}>
                     <Button className='btn-sm' variant='light'>
