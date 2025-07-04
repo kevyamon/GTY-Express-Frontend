@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -16,6 +16,7 @@ const ProductEditScreen = () => {
   const { id: productId } = useParams();
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
+  const [originalPrice, setOriginalPrice] = useState(0); // État pour le prix original
   const [image, setImage] = useState('');
   const [countInStock, setCountInStock] = useState(0);
   const [description, setDescription] = useState('');
@@ -38,11 +39,12 @@ const ProductEditScreen = () => {
         productId,
         name,
         price,
+        originalPrice, // On envoie le prix original
         image,
         countInStock,
         description,
       }).unwrap();
-      toast.success('Produit mis à jour avec succès');
+      toast.success('Produit mis à jour');
       refetch();
       navigate('/admin/productlist');
     } catch (err) {
@@ -54,6 +56,7 @@ const ProductEditScreen = () => {
     if (product) {
       setName(product.name);
       setPrice(product.price);
+      setOriginalPrice(product.originalPrice || 0); // On récupère le prix original
       setImage(product.image);
       setCountInStock(product.countInStock);
       setDescription(product.description);
@@ -67,92 +70,59 @@ const ProductEditScreen = () => {
     formData.append('upload_preset', UPLOAD_PRESET);
     setLoadingUpload(true);
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      };
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       const { data } = await axios.post(
         `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData,
         config
       );
-      toast.success('Image téléversée avec succès');
+      toast.success('Image téléversée');
       setImage(data.secure_url);
       setLoadingUpload(false);
     } catch (error) {
-      toast.error("Le téléversement de l'image a échoué");
+      toast.error("Le téléversement a échoué");
       setLoadingUpload(false);
     }
   };
 
   return (
     <>
-      <Link to='/admin/productlist' className='btn btn-light my-3'>
-        Retour
-      </Link>
+      <Link to='/admin/productlist' className='btn btn-light my-3'>Retour</Link>
       <h1>Modifier le Produit</h1>
       {loadingUpdate && <p>Mise à jour...</p>}
-      {isLoading ? (
-        <p>Chargement...</p>
-      ) : error ? (
-        <Message variant='danger'>{error.data.message}</Message>
-      ) : (
+      {isLoading ? (<p>Chargement...</p>) 
+      : error ? (<Message variant='danger'>{error.data.message}</Message>) 
+      : (
         <Form onSubmit={submitHandler}>
-          <Form.Group controlId='name'>
-            <Form.Label>Nom</Form.Label>
-            <Form.Control
-              type='name'
-              placeholder='Entrez le nom'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
-          <Form.Group controlId='price' className='my-2'>
-            <Form.Label>Prix</Form.Label>
-            <Form.Control
-              type='number'
-              placeholder='Entrez le prix'
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
-          <Form.Group controlId='image' className='my-2'>
-            <Form.Label>Image</Form.Label>
-            <Form.Control
-              type='text'
-              placeholder="URL de l'image"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-            ></Form.Control>
-            <Form.Control
-              label='Choisir un fichier'
-              onChange={uploadFileHandler}
-              type='file'
-            ></Form.Control>
-            {loadingUpload && <p>Téléversement de l'image...</p>}
-          </Form.Group>
-          <Form.Group controlId='countInStock' className='my-2'>
-            <Form.Label>Stock</Form.Label>
-            <Form.Control
-              type='number'
-              placeholder='Entrez le stock'
-              value={countInStock}
-              onChange={(e) => setCountInStock(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
-          <Form.Group controlId='description' className='my-2'>
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              type='text'
-              placeholder='Entrez la description'
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
-          <Button type='submit' variant='primary' style={{ marginTop: '1rem' }}>
-            Mettre à jour
-          </Button>
+          <Form.Group controlId='name'></Form.Group>
+          <Row>
+            <Col>
+              <Form.Group controlId='originalPrice' className='my-2'>
+                <Form.Label>Prix Original (pour la promo)</Form.Label>
+                <Form.Control
+                  type='number'
+                  placeholder='Entrez le prix original'
+                  value={originalPrice}
+                  onChange={(e) => setOriginalPrice(e.target.value)}
+                ></Form.Control>
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId='price' className='my-2'>
+                <Form.Label>Prix de Vente Actuel</Form.Label>
+                <Form.Control
+                  type='number'
+                  placeholder='Entrez le prix de vente'
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                ></Form.Control>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Form.Group controlId='image' className='my-2'></Form.Group>
+          <Form.Group controlId='countInStock' className='my-2'></Form.Group>
+          <Form.Group controlId='description' className='my-2'></Form.Group>
+          <Button type='submit' variant='primary' style={{ marginTop: '1rem' }}>Mettre à jour</Button>
         </Form>
       )}
     </>
