@@ -19,7 +19,6 @@ const CartScreen = () => {
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
 
-  // On récupère les informations de l'utilisateur depuis le state Redux
   const { userInfo } = useSelector((state) => state.auth);
 
   const updateQtyHandler = (item, newQty) => {
@@ -31,11 +30,9 @@ const CartScreen = () => {
   };
 
   const checkoutHandler = () => {
-    // Si l'utilisateur est connecté (userInfo existe), on va à la livraison
     if (userInfo) {
       navigate('/shipping');
     } else {
-      // Sinon, on l'envoie se connecter
       navigate('/login?redirect=/shipping');
     }
   };
@@ -90,12 +87,13 @@ const CartScreen = () => {
                 Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 articles
               </h2>
-              {cart.itemsPrice.toFixed(2)} FCFA
+              {/* Correction du bug toFixed */}
+              {(cart.itemsPrice || 0).toFixed(2)} FCFA
             </ListGroup.Item>
             <ListGroup.Item>
               <Button
                 type='button'
-                className='btn-block'
+                className='btn-block w-100'
                 disabled={cartItems.length === 0}
                 onClick={checkoutHandler}
               >
