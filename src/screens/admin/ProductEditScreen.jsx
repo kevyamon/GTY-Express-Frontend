@@ -15,53 +15,51 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const ProductEditScreen = () => {
   const { id: productId } = useParams();
   const [name, setName] = useState('');
-  const [price, setPrice] = useState(0);
-  const [originalPrice, setOriginalPrice] = useState(0);
+  const [price, setPrice] = useState('');
+  const [originalPrice, setOriginalPrice] = useState('');
   const [image, setImage] = useState('');
-  const [countInStock, setCountInStock] = useState(0);
+  const [countInStock, setCountInStock] = useState('');
   const [description, setDescription] = useState('');
   const [loadingUpload, setLoadingUpload] = useState(false);
 
   const {
     data: product,
     isLoading,
-    refetch,
     error,
   } = useGetProductDetailsQuery(productId);
 
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (product) {
+      setName(product.name || '');
+      setPrice(product.price || '');
+      setOriginalPrice(product.originalPrice || '');
+      setImage(product.image || '');
+      setCountInStock(product.countInStock || '');
+      setDescription(product.description || '');
+    }
+  }, [product]);
+  
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       await updateProduct({
         productId,
         name,
-        price,
-        originalPrice,
+        price: Number(price),
+        originalPrice: Number(originalPrice),
         image,
-        countInStock,
+        countInStock: Number(countInStock),
         description,
       }).unwrap();
-      toast.success('Produit mis à jour');
-      refetch();
+      toast.success('Produit mis à jour avec succès');
       navigate('/admin/productlist');
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
   };
-
-  useEffect(() => {
-    if (product) {
-      setName(product.name);
-      setPrice(product.price);
-      setOriginalPrice(product.originalPrice || 0);
-      setImage(product.image);
-      setCountInStock(product.countInStock);
-      setDescription(product.description);
-    }
-  }, [product]);
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -112,7 +110,7 @@ const ProductEditScreen = () => {
                   type='number'
                   placeholder='Entrez le prix original'
                   value={originalPrice}
-                  onChange={(e) => setOriginalPrice(Number(e.target.value))} // CORRECTION ICI
+                  onChange={(e) => setOriginalPrice(e.target.value)}
                 ></Form.Control>
               </Form.Group>
             </Col>
@@ -123,7 +121,7 @@ const ProductEditScreen = () => {
                   type='number'
                   placeholder='Entrez le prix de vente'
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))} // CORRECTION ICI
+                  onChange={(e) => setPrice(e.target.value)}
                 ></Form.Control>
               </Form.Group>
             </Col>
@@ -142,7 +140,7 @@ const ProductEditScreen = () => {
               onChange={uploadFileHandler}
               type='file'
             ></Form.Control>
-            {loadingUpload && <p>Téléversement de l'image...</p>}
+            {loadingUpload && <p>Téléversement...</p>}
           </Form.Group>
 
           <Form.Group controlId='countInStock' className='my-2'>
@@ -151,7 +149,7 @@ const ProductEditScreen = () => {
               type='number'
               placeholder='Entrez le stock'
               value={countInStock}
-              onChange={(e) => setCountInStock(Number(e.target.value))} // CORRECTION ICI
+              onChange={(e) => setCountInStock(e.target.value)}
             ></Form.Control>
           </Form.Group>
 
