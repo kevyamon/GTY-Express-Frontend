@@ -1,0 +1,25 @@
+.payment-method-label {
+  display: block;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.payment-method-label:hover {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+
+/* Style quand la méthode est sélectionnée */
+.payment-method-input:checked + .payment-method-label {
+  border-color: #0d6efd;
+  background-color: #e7f1ff;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+.payment-method-input {
+    display: none; /* On cache le bouton radio de base */
+}

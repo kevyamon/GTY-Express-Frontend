@@ -1,49 +1,40 @@
-import { Nav } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import './CheckoutSteps.css';
 
-const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
+const CheckoutSteps = ({ step }) => {
   return (
-    <Nav className='justify-content-center mb-4'>
-      <Nav.Item>
-        {step1 ? (
-          <LinkContainer to='/login'>
-            <Nav.Link>Connexion</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Connexion</Nav.Link>
-        )}
-      </Nav.Item>
+    <div className='checkout-steps d-flex justify-content-center mb-4'>
+      {/* Étape 1 : Livraison */}
+      <Button
+        as={Link}
+        to='/shipping'
+        variant={step >= 1 ? 'success' : 'light'}
+        disabled={false} // Toujours cliquable
+      >
+        {step > 1 && '✅ '}Livraison
+      </Button>
 
-      <Nav.Item>
-        {step2 ? (
-          <LinkContainer to='/shipping'>
-            <Nav.Link>Livraison</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Livraison</Nav.Link>
-        )}
-      </Nav.Item>
+      {/* Étape 2 : Paiement */}
+      <Button
+        as={Link}
+        to='/payment'
+        variant={step >= 2 ? (step === 2 ? 'primary' : 'success') : 'light'}
+        disabled={step < 2}
+      >
+        {step > 2 && '✅ '}Paiement
+      </Button>
 
-      <Nav.Item>
-        {step3 ? (
-          <LinkContainer to='/payment'>
-            <Nav.Link>Paiement</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Paiement</Nav.Link>
-        )}
-      </Nav.Item>
-
-      <Nav.Item>
-        {step4 ? (
-          <LinkContainer to='/placeorder'>
-            <Nav.Link>Valider</Nav.Link>
-          </LinkContainer>
-        ) : (
-          <Nav.Link disabled>Valider</Nav.Link>
-        )}
-      </Nav.Item>
-    </Nav>
+      {/* Étape 3 : Valider */}
+      <Button
+        as={Link}
+        to='/placeorder'
+        variant={step >= 3 ? (step === 3 ? 'primary' : 'success') : 'light'}
+        disabled={step < 3}
+      >
+        Valider
+      </Button>
+    </div>
   );
 };
 
