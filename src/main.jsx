@@ -11,8 +11,11 @@ import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
 
+// Fichiers de style
+import './index.css';
 import './App.css'; 
 
+// Écrans principaux
 import LandingScreen from './screens/LandingScreen.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
@@ -27,8 +30,13 @@ import OrderScreen from './screens/OrderScreen.jsx';
 import PaymentGatewayScreen from './screens/PaymentGatewayScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
 import ProfileDetailsScreen from './screens/ProfileDetailsScreen.jsx';
+import NotificationsScreen from './screens/NotificationsScreen.jsx';
+
+// Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+
+// Écrans Admin
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
@@ -45,10 +53,10 @@ const router = createBrowserRouter(
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
 
-      {/* --- Routes Privées (pour les clients connectés) --- */}
+      {/* --- Routes Privées (clients et admins connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
-        <Route path='/profile' element={<ProfileScreen />} />
-        <Route path='/profile-details' element={<ProfileDetailsScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/profile-details" element={<ProfileDetailsScreen />} />
         <Route path="/products" element={<HomeScreen />} />
         <Route path="/cart" element={<CartScreen />} />
         <Route path="/favorites" element={<FavoritesScreen />} />
@@ -57,12 +65,13 @@ const router = createBrowserRouter(
         <Route path="/placeorder" element={<PlaceOrderScreen />} />
         <Route path="/order/:id" element={<OrderScreen />} />
         <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
+        <Route path='/notifications' element={<NotificationsScreen />} />
       </Route>
 
-      {/* --- Routes Admin (pour les admins connectés) --- */}
+      {/* --- Routes Admin (uniquement admins connectés) --- */}
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin/productlist" element={<ProductListScreen />} />
-        <Route path='/admin/orderlist' element={<OrderListScreen />} />
+        <Route path="/admin/orderlist" element={<OrderListScreen />} />
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
       </Route>
     </Route>
