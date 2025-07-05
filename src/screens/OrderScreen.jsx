@@ -18,7 +18,6 @@ const OrderScreen = () => {
     isLoading,
     error,
   } = useGetOrderDetailsQuery(orderId, {
-    // On dit à cette page de redemander les infos toutes les 5 secondes
     pollingInterval: 5000, 
   });
 
@@ -30,6 +29,16 @@ const OrderScreen = () => {
       toast.error(error?.data?.message || error.error);
     }
   }, [error]);
+
+  // NOUVEAU : Logique pour marquer la commande comme "lue"
+  useEffect(() => {
+    if (order) {
+      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
+      seenOrders[order._id] = order.updatedAt;
+      localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
+    }
+  }, [order]);
+
 
   const updateStatusHandler = async (newStatus) => {
     try {
@@ -78,34 +87,16 @@ const OrderScreen = () => {
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
               <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
-              
               <ListGroup.Item>
                 <h4>Statut du Paiement</h4>
-                {order.isPaid ? (
-                  <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
-                ) : (
-                  <Message variant='danger'>Non payé</Message>
-                )}
+                {order.isPaid ? (<Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>) : (<Message variant='danger'>Non payé</Message>)}
               </ListGroup.Item>
-
               {!order.isPaid && order.paymentMethod !== 'Cash' && (
-                <ListGroup.Item>
-                   <Link to={`/payment-gateway/${order._id}`}>
-                    <Button className='btn-primary w-100'>Terminer le paiement</Button>
-                  </Link>
-                </ListGroup.Item>
+                <ListGroup.Item><Link to={`/payment-gateway/${order._id}`}><Button className='btn-primary w-100'>Terminer le paiement</Button></Link></ListGroup.Item>
               )}
-              
               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
                 <ListGroup.Item>
-                  <Button
-                    type='button'
-                    className='btn btn-success w-100'
-                    onClick={() => updateStatusHandler('Livrée')}
-                    disabled={loadingUpdate}
-                  >
-                    Marquer comme livré
-                  </Button>
+                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>Marquer comme livré</Button>
                   {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
