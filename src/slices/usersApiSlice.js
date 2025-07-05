@@ -17,15 +17,33 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    // J'ajoute la fonction logout ici
     logout: builder.mutation({
       query: () => ({
         url: `${USERS_URL}/logout`,
         method: 'POST',
       }),
     }),
+    // NOUVELLES FONCTIONS
+    getProfileDetails: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/profile`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    updateProfile: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/profile`,
+        method: 'PUT',
+        body: data,
+      }),
+    }),
   }),
 });
 
-// J'ajoute l'exportation de useLogoutMutation ici
-export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = usersApiSlice;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useGetProfileDetailsQuery, // On exporte le nouveau hook
+  useUpdateProfileMutation, // On exporte le nouveau hook
+} = usersApiSlice;
