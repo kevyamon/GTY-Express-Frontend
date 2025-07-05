@@ -10,7 +10,7 @@ import {
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
-  const { data: orders, isLoading, error, refetch } = useGetOrdersQuery();
+  const { data: orders, isLoading, error } = useGetOrdersQuery();
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
@@ -49,67 +49,74 @@ const OrderListScreen = () => {
     }
   };
 
+  // On sépare la logique d'affichage
+  if (isLoading) {
+    return <p>Chargement des commandes...</p>;
+  }
+
+  // On n'affiche l'erreur que si le chargement initial a échoué
+  if (error && !orders) {
+    return <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>;
+  }
+
   return (
     <>
       <h1>Gestion des Commandes</h1>
-      {isLoading || isUpdating || isDeleting ? <p>Chargement...</p> : error ? (
-        <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>
-      ) : (
-        <Table striped bordered hover responsive className='table-sm'>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>CLIENT</th>
-              <th>DATE</th>
-              <th>TOTAL</th>
-              <th>PAYÉ</th>
-              <th>STATUT</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <>
-                <tr key={order._id}>
-                  <td>{order._id.substring(0, 10)}...</td>
-                  <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order.totalPrice.toFixed(2)} FCFA</td>
-                  <td>{order.isPaid ? '✅' : '❌'}</td>
-                  <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>
-                    {order.status}
-                  </td>
-                  <td>
-                    <Button
-                      variant='secondary'
-                      className='btn-sm'
-                      onClick={() => handleToggleDetails(order._id)}
-                    >
-                      Gérer
-                    </Button>
+      {(isUpdating || isDeleting) && <p>Mise à jour en cours...</p>}
+      
+      <Table striped bordered hover responsive className='table-sm'>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>CLIENT</th>
+            <th>DATE</th>
+            <th>TOTAL</th>
+            <th>PAYÉ</th>
+            <th>STATUT</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders?.map((order) => (
+            <>
+              <tr key={order._id}>
+                <td>{order._id.substring(0, 10)}...</td>
+                <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
+                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td>{order.totalPrice.toFixed(2)} FCFA</td>
+                <td>{order.isPaid ? '✅' : '❌'}</td>
+                <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>
+                  {order.status}
+                </td>
+                <td>
+                  <Button
+                    variant='secondary'
+                    className='btn-sm'
+                    onClick={() => handleToggleDetails(order._id)}
+                  >
+                    Gérer
+                  </Button>
+                </td>
+              </tr>
+              {expandedOrderId === order._id && (
+                <tr className="details-row">
+                  <td colSpan="7" className="details-cell">
+                    <h5>Actions pour la commande {order._id.substring(0, 8)}...</h5>
+                    <div className="actions-container">
+                      <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>
+                      <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>
+                      <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Marquer comme Livré</Button>
+                      {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)} disabled={order.status === 'Annulée'}>Marquer comme Payé</Button>}
+                      <Button variant="warning" size="sm" onClick={() => handleStatusChange(order._id, 'Annulée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Annuler</Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDeleteOrder(order._id)}>Supprimer</Button>
+                    </div>
                   </td>
                 </tr>
-                {expandedOrderId === order._id && (
-                  <tr className="details-row">
-                    <td colSpan="7" className="details-cell">
-                      <h5>Actions pour la commande {order._id.substring(0, 8)}...</h5>
-                      <div className="actions-container">
-                        <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>
-                        <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>
-                        <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Marquer comme Livré</Button>
-                        {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)} disabled={order.status === 'Annulée'}>Marquer comme Payé</Button>}
-                        {/* BOUTON ANNULER AJOUTÉ POUR L'ADMIN */}
-                        <Button variant="warning" size="sm" onClick={() => handleStatusChange(order._id, 'Annulée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Annuler</Button>
-                        <Button variant="danger" size="sm" onClick={() => handleDeleteOrder(order._id)}>Supprimer</Button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </Table>
-      )}
+              )}
+            </>
+          ))}
+        </tbody>
+      </Table>
     </>
   );
 };
