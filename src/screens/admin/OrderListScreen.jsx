@@ -54,8 +54,10 @@ const OrderListScreen = () => {
   return (
     <>
       <h1>Gestion des Commandes</h1>
-      {isLoading || isUpdating || isDeleting ? <p>Chargement...</p> : error ? (
-        <Message variant='danger'>{error?.data?.message || error.error}</Message>
+      {isLoading || isUpdating || isDeleting ? <p>Chargement...</p> 
+      : error ? (
+        // GESTION D'ERREUR CORRIGÉE ICI
+        <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>
       ) : (
         <Table striped bordered hover responsive className='table-sm'>
           <thead>
@@ -96,7 +98,6 @@ const OrderListScreen = () => {
                     <td colSpan="7" className="details-cell">
                       <h5>Actions pour la commande {order._id.substring(0, 8)}...</h5>
                       <div className="actions-container">
-                        {/* LOGIQUE DE VERROUILLAGE AJOUTÉE ICI */}
                         <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>
                         <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>
                         <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Marquer comme Livré</Button>

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
@@ -6,9 +7,18 @@ import { useGetMyOrdersQuery, useCancelOrderMutation, useDeleteOrderMutation } f
 
 const ProfileScreen = () => {
   const { data: orders, isLoading, error, refetch } = useGetMyOrdersQuery();
-  
   const [cancelOrder, { isLoading: loadingCancel }] = useCancelOrderMutation();
   const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
+
+  useEffect(() => {
+    if (orders) {
+      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
+      orders.forEach(order => {
+        seenOrders[order._id] = order.updatedAt;
+      });
+      localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
+    }
+  }, [orders]);
 
   const cancelHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
@@ -23,10 +33,10 @@ const ProfileScreen = () => {
   };
 
   const deleteHandler = async (id) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande de votre historique ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande de votre historique ? Cette action est irréversible.')) {
         try {
             await deleteOrder(id).unwrap();
-            toast.success('Commande supprimée');
+            toast.success('Commande supprimée de votre historique');
           } catch (err) {
             toast.error(err?.data?.message || err.error);
           }
@@ -75,7 +85,6 @@ const ProfileScreen = () => {
                     </Button>
                   </LinkContainer>
                   
-                  {/* BOUTON ANNULER (conditionnel) */}
                   {order.status === 'En attente' && (
                     <Button
                       className='btn-sm ms-2'
@@ -86,16 +95,14 @@ const ProfileScreen = () => {
                     </Button>
                   )}
 
-                  {/* NOUVEAU BOUTON SUPPRIMER (conditionnel) */}
-                  {(order.status === 'Livrée' || order.status === 'Annulée') && (
-                    <Button
-                      className='btn-sm ms-2'
-                      variant='danger'
-                      onClick={() => deleteHandler(order._id)}
-                    >
-                      Supprimer
-                    </Button>
-                  )}
+                  {/* CORRECTION : Le bouton est maintenant toujours visible */}
+                  <Button
+                    className='btn-sm ms-2'
+                    variant='danger'
+                    onClick={() => deleteHandler(order._id)}
+                  >
+                    Supprimer
+                  </Button>
                 </td>
               </tr>
             ))}
