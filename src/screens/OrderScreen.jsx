@@ -29,15 +29,6 @@ const OrderScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Marque la commande comme "vue" pour faire disparaître la notif
-    if (order) {
-      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
-      seenOrders[order._id] = order.updatedAt;
-      localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
-    }
-  }, [order]);
-
-  useEffect(() => {
     if (error) {
       toast.error(error?.data?.message || error.error);
     }
@@ -46,7 +37,7 @@ const OrderScreen = () => {
   const updateStatusHandler = async (newStatus) => {
     try {
       await updateOrderStatus({ orderId, status: newStatus }).unwrap();
-      refetch();
+      refetch(); // On garde ce refetch pour l'admin pour forcer la mise à jour immédiate
       toast.success('Statut mis à jour');
     } catch (err) {
       toast.error(err?.data?.message || err.error);
@@ -101,32 +92,20 @@ const OrderScreen = () => {
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item>
-                <Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
-              </ListGroup.Item>
+              <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
               <ListGroup.Item>
                 <h4>Statut du Paiement</h4>
                 {order.isPaid ? (<Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>) : (<Message variant='danger'>Non payé</Message>)}
               </ListGroup.Item>
-
               {!order.isPaid && order.paymentMethod !== 'Cash' && (
-                <ListGroup.Item>
-                   <Link to={`/payment-gateway/${order._id}`}>
-                    <Button className='btn-primary w-100'>Terminer le paiement</Button>
-                  </Link>
-                </ListGroup.Item>
+                <ListGroup.Item><Link to={`/payment-gateway/${order._id}`}><Button className='btn-primary w-100'>Terminer le paiement</Button></Link></ListGroup.Item>
               )}
-              
               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
                 <ListGroup.Item>
-                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>
-                    Marquer comme livré
-                  </Button>
+                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>Marquer comme livré</Button>
                   {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
-
-              {/* BOUTON SUPPRIMER POUR LE CLIENT */}
               {userInfo && !userInfo.isAdmin && (
                 <ListGroup.Item>
                    <Button

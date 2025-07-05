@@ -6,25 +6,16 @@ import { toast } from 'react-toastify';
 import { useGetMyOrdersQuery, useCancelOrderMutation, useDeleteOrderMutation } from '../slices/orderApiSlice';
 
 const ProfileScreen = () => {
-  const { data: orders, isLoading, error, refetch } = useGetMyOrdersQuery();
+  const { data: orders, isLoading, error } = useGetMyOrdersQuery();
   const [cancelOrder, { isLoading: loadingCancel }] = useCancelOrderMutation();
   const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
 
-  useEffect(() => {
-    if (orders) {
-      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
-      orders.forEach(order => {
-        seenOrders[order._id] = order.updatedAt;
-      });
-      localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
-    }
-  }, [orders]);
-
+  // On enlève la logique de "lecture" d'ici, elle sera gérée dans le Header
+  
   const cancelHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
       try {
         await cancelOrder(id).unwrap();
-        refetch();
         toast.success('Commande annulée');
       } catch (err) {
         toast.error(err?.data?.message || err.error);
@@ -85,6 +76,7 @@ const ProfileScreen = () => {
                     </Button>
                   </LinkContainer>
                   
+                  {/* Le bouton "Annuler" n'apparaît que si la commande est "En attente" */}
                   {order.status === 'En attente' && (
                     <Button
                       className='btn-sm ms-2'
@@ -95,14 +87,16 @@ const ProfileScreen = () => {
                     </Button>
                   )}
 
-                  {/* CORRECTION : Le bouton est maintenant toujours visible */}
-                  <Button
-                    className='btn-sm ms-2'
-                    variant='danger'
-                    onClick={() => deleteHandler(order._id)}
-                  >
-                    Supprimer
-                  </Button>
+                  {/* Le bouton "Supprimer" n'apparaît que si la commande est terminée */}
+                  {(order.status === 'Livrée' || order.status === 'Annulée') && (
+                    <Button
+                      className='btn-sm ms-2'
+                      variant='danger'
+                      onClick={() => deleteHandler(order._id)}
+                    >
+                      Supprimer
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}

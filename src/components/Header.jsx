@@ -1,7 +1,7 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { logout } from '../slices/authSlice';
@@ -11,7 +11,6 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // --- LOGIQUE DES NOTIFICATIONS ---
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
     pollingInterval: 15000,
@@ -33,8 +32,9 @@ const Header = () => {
 
   useEffect(() => {
     if (userInfo?.isAdmin && adminOrders) {
-      const newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenData.lastSeenTimestamp));
-      const newCancelled = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenData.lastSeenTimestamp));
+      const lastSeenTimestamp = localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString();
+      const newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenTimestamp));
+      const newCancelled = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenTimestamp));
       setNewOrdersCount(newOrders.length);
       setCancelledOrdersCount(newCancelled.length);
     } else if (userInfo && !userInfo.isAdmin && clientOrders) {
@@ -48,9 +48,20 @@ const Header = () => {
   }, [userInfo, adminOrders, clientOrders, lastSeenData]);
 
   const handleAdminMenuClick = () => {
-    const newData = { lastSeenTimestamp: new Date().toISOString() };
-    localStorage.setItem('lastSeenData', JSON.stringify(newData));
-    setLastSeenData(newData);
+    localStorage.setItem('lastSeenAdminTimestamp', new Date().toISOString());
+    setNewOrdersCount(0);
+    setCancelledOrdersCount(0);
+  };
+
+  const handleClientMenuClick = () => {
+    if (clientOrders) {
+      const updatedSeenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
+      clientOrders.forEach(order => {
+        updatedSeenOrders[order._id] = order.updatedAt;
+      });
+      localStorage.setItem('seenOrders', JSON.stringify(updatedSeenOrders));
+      setHasNotification(false);
+    }
   };
 
   const dispatch = useDispatch();
@@ -103,8 +114,8 @@ const Header = () => {
                         {!userInfo.isAdmin && hasNotification && (<Badge pill bg="danger" style={{ marginLeft: '5px' }}> </Badge>)}
                       </div>
                     } id="username" align="end">
+                    <NavDropdown.Item as={Link} to="/profile" onClick={handleClientMenuClick}>Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
                     {userInfo.isAdmin && (
@@ -127,8 +138,8 @@ const Header = () => {
       </Navbar>
       <div className="header-center-row bg-dark">
         <Form onSubmit={submitHandler} className="d-flex search-form">
-          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher des produits...' className='mr-sm-2'></Form.Control>
-          <Button type='submit' variant='outline-success' className='p-2 ms-2'>Rechercher</Button>
+          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2'></Form.Control>
+          <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
         </Form>
         <div className="d-flex align-items-center mt-3">
             <Link to="/products" className="home-icon-link"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg></Link>

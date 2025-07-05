@@ -24,7 +24,6 @@ const OrderListScreen = () => {
     try {
       await updateOrderStatus({ orderId, status: newStatus }).unwrap();
       toast.success('Statut de la commande mis à jour');
-      refetch();
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -34,7 +33,6 @@ const OrderListScreen = () => {
     try {
         await updateOrderStatus({ orderId, isPaid: true }).unwrap();
         toast.success('Commande marquée comme payée');
-        refetch();
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
@@ -54,9 +52,7 @@ const OrderListScreen = () => {
   return (
     <>
       <h1>Gestion des Commandes</h1>
-      {isLoading || isUpdating || isDeleting ? <p>Chargement...</p> 
-      : error ? (
-        // GESTION D'ERREUR CORRIGÉE ICI
+      {isLoading || isUpdating || isDeleting ? <p>Chargement...</p> : error ? (
         <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>
       ) : (
         <Table striped bordered hover responsive className='table-sm'>
@@ -102,6 +98,8 @@ const OrderListScreen = () => {
                         <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>
                         <Button variant="success" size="sm" onClick={() => handleStatusChange(order._id, 'Livrée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Marquer comme Livré</Button>
                         {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)} disabled={order.status === 'Annulée'}>Marquer comme Payé</Button>}
+                        {/* BOUTON ANNULER AJOUTÉ POUR L'ADMIN */}
+                        <Button variant="warning" size="sm" onClick={() => handleStatusChange(order._id, 'Annulée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Annuler</Button>
                         <Button variant="danger" size="sm" onClick={() => handleDeleteOrder(order._id)}>Supprimer</Button>
                       </div>
                     </td>
