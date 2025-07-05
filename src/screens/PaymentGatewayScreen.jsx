@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
@@ -23,19 +23,14 @@ const PaymentGatewayScreen = () => {
 
   useEffect(() => {
     if (errorPayPal) {
-      toast.error('Erreur de chargement de PayPal. Veuillez réessayer.');
+      toast.error('Erreur de chargement du module de paiement.');
     } else if (!loadingPayPal && paypal.clientId) {
       const loadPaypalScript = () => {
-        paypalDispatch({
-          type: 'resetOptions',
-          value: { 'client-id': paypal.clientId, currency: 'USD' },
-        });
+        paypalDispatch({ type: 'resetOptions', value: { 'client-id': paypal.clientId, currency: 'USD' } });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       if (order && !order.isPaid) {
-        if (!window.paypal) {
-          loadPaypalScript();
-        }
+        if (!window.paypal) { loadPaypalScript(); }
       }
     }
   }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
@@ -53,29 +48,16 @@ const PaymentGatewayScreen = () => {
     });
   }
 
-  function onError(err) {
-    toast.error(err.message);
-  }
+  function onError(err) { toast.error(err.message); }
 
   function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: order.totalPrice },
-          },
-        ],
-      })
-      .then((orderID) => {
-        return orderID;
-      });
+    return actions.order.create({ purchase_units: [{ amount: { value: order.totalPrice } }] })
+      .then((orderID) => { return orderID; });
   }
 
-  return isLoading ? (
-    <p>Chargement...</p>
-  ) : error ? (
-    <Message variant='danger'>{error?.data?.message || error.error}</Message>
-  ) : (
+  return isLoading ? <p>Chargement...</p> 
+    : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
+    : (
     <div className="payment-gateway">
       <div className="ticket-header">
         <span>Montant total à payer</span>
@@ -83,37 +65,27 @@ const PaymentGatewayScreen = () => {
       </div>
 
       <div className="meta-info">
-        <p>
-          Vous êtes sur le point de régler la commande{' '}
-          <strong>{order._id.substring(0, 8)}...</strong> via{' '}
-          <strong>{order.paymentMethod}</strong>.
-        </p>
+        <p>Vous êtes sur le point de régler la commande <strong>{order._id.substring(0, 8)}...</strong> via <strong>{order.paymentMethod}</strong>.</p>
       </div>
-
+      
       <div>
         {loadingPay && <p>Finalisation du paiement...</p>}
-        
-        {isPending || loadingPayPal ? (
-          <p>Chargement de PayPal...</p>
-        ) : errorPayPal ? (
-          <Message variant='danger'>
-            Impossible de charger le service de paiement. Veuillez actualiser.
-          </Message>
-        ) : (
-          <div className="paypal-container">
-            <PayPalButtons
-              style={{ layout: 'vertical', label: 'pay' }}
-              createOrder={createOrder}
-              onApprove={onApprove}
-              onError={onError}
-            ></PayPalButtons>
-          </div>
+        {isPending || loadingPayPal ? <p>Chargement de PayPal...</p> : (
+            <div className="paypal-container">
+              <PayPalButtons
+                style={{ layout: 'vertical', label: 'pay' }}
+                createOrder={createOrder}
+                onApprove={onApprove}
+                onError={onError}
+              ></PayPalButtons>
+            </div>
         )}
+        {errorPayPal && <Message variant='danger'>Impossible de charger le service de paiement. Veuillez actualiser.</Message>}
       </div>
 
       <div className="text-center mt-4">
         <LinkContainer to={`/order/${orderId}`}>
-          <Button variant="secondary" size="sm">Retour aux détails</Button>
+          <Button variant="secondary" size="sm">Retourner aux détails de la commande</Button>
         </LinkContainer>
       </div>
     </div>
