@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
@@ -12,7 +12,14 @@ import {
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
-  const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
+  const navigate = useNavigate();
+
+  const {
+    data: order,
+    refetch,
+    isLoading,
+    error,
+  } = useGetOrderDetailsQuery(orderId);
 
   const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
   const { userInfo } = useSelector((state) => state.auth);
@@ -23,14 +30,13 @@ const OrderScreen = () => {
     }
   }, [error]);
 
-  const updateStatusHandler = async (newStatus) => {
-    try {
-      await updateOrderStatus({ orderId, status: newStatus }).unwrap();
-      refetch();
-      toast.success('Statut mis à jour');
-    } catch (err) {
-      toast.error(err?.data?.message || err.error);
-    }
+  const deliverHandler = async () => {
+    await updateOrderStatus({ orderId, status: 'Livrée' });
+    refetch();
+  };
+
+  const goToPayment = () => {
+    navigate(`/payment-gateway/${orderId}`);
   };
 
   return isLoading ? (
@@ -74,8 +80,9 @@ const OrderScreen = () => {
                 <h2>Récapitulatif</h2>
               </ListGroup.Item>
               <ListGroup.Item>
-                <Row><Col>Paiement</Col><Col>{order.paymentMethod}</Col></Row>
+                <Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
               </ListGroup.Item>
+              
               <ListGroup.Item>
                 {order.isPaid ? (
                   <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
@@ -83,21 +90,24 @@ const OrderScreen = () => {
                   <Message variant='danger'>Non payé</Message>
                 )}
               </ListGroup.Item>
-              <ListGroup.Item>
-                <Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
-              </ListGroup.Item>
-              
-              {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
+
+              {/* BOUTON POUR TERMINER LE PAIEMENT */}
+              {!order.isPaid && order.paymentMethod === 'PayPal' && (
                 <ListGroup.Item>
-                  <Button
-                    type='button'
-                    className='btn btn-success w-100'
-                    onClick={() => updateStatusHandler('Livrée')}
-                    disabled={loadingUpdate}
-                  >
+                    <div className="d-grid">
+                        <Button type='button' variant="primary" onClick={goToPayment}>
+                            Terminer le Paiement
+                        </Button>
+                    </div>
+                </ListGroup.Item>
+              )}
+
+              {/* BOUTON ADMIN */}
+              {userInfo && userInfo.isAdmin && !order.isDelivered && (
+                <ListGroup.Item>
+                  <Button type='button' className='btn w-100' onClick={deliverHandler} disabled={loadingUpdate}>
                     Marquer comme livré
                   </Button>
-                  {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
             </ListGroup>
