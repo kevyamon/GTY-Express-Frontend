@@ -18,7 +18,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: details,
       }),
-      // CORRECTION : On invalide le tag de la commande pour forcer le rafraîchissement
+      // CORRECTION : On invalide le cache de cette commande pour forcer le rafraîchissement
       invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
     }),
     getPaypalClientId: builder.query({

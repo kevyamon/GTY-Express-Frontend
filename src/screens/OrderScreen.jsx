@@ -17,7 +17,7 @@ const OrderScreen = () => {
   const { id: orderId } = useParams();
   const {
     data: order,
-    refetch, // On le garde pour le bouton admin, mais plus besoin dans onApprove
+    refetch,
     isLoading,
     error,
   } = useGetOrderDetailsQuery(orderId);
@@ -32,10 +32,7 @@ const OrderScreen = () => {
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
       const loadPaypalScript = () => {
-        paypalDispatch({
-          type: 'resetOptions',
-          value: { 'client-id': paypal.clientId, currency: 'USD' },
-        });
+        paypalDispatch({ type: 'resetOptions', value: { 'client-id': paypal.clientId, currency: 'USD' } });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       if (order && !order.isPaid) {
@@ -50,7 +47,7 @@ const OrderScreen = () => {
     return actions.order.capture().then(async function (details) {
       try {
         await payOrder({ orderId, details }).unwrap();
-        // refetch() n'est plus nécessaire ici, la mise à jour est automatique
+        // Plus besoin de refetch(), la mise à jour est automatique !
         toast.success('Paiement réussi');
       } catch (err) {
         toast.error(err?.data?.message || err.message);
@@ -63,14 +60,7 @@ const OrderScreen = () => {
   }
 
   function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: order.totalPrice },
-          },
-        ],
-      })
+    return actions.order.create({ purchase_units: [{ amount: { value: order.totalPrice } }] })
       .then((orderID) => {
         return orderID;
       });
@@ -78,7 +68,6 @@ const OrderScreen = () => {
 
   const deliverHandler = async () => {
     await updateOrderStatus({ orderId, status: 'Livrée' });
-    refetch();
   };
 
   return isLoading ? <p>Chargement...</p> 
@@ -117,19 +106,17 @@ const OrderScreen = () => {
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item>
-                <Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
-              </ListGroup.Item>
+              <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
               
-              {!order.isPaid ? (
-                <ListGroup.Item>
-                  <Message variant='warning'>En attente de paiement...</Message>
-                </ListGroup.Item>
-              ) : (
-                <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
-              )}
+              <ListGroup.Item>
+                <h4>Statut du Paiement</h4>
+                {order.isPaid ? (
+                  <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
+                ) : (
+                  <Message variant='danger'>Non payé</Message>
+                )}
+              </ListGroup.Item>
 
-              {/* Si la commande n'est pas payée et que la méthode est PayPal, on affiche le bouton pour payer */}
               {!order.isPaid && order.paymentMethod === 'PayPal' && (
                 <ListGroup.Item>
                    <Link to={`/payment-gateway/${order._id}`}>
@@ -138,7 +125,6 @@ const OrderScreen = () => {
                 </ListGroup.Item>
               )}
               
-              {/* Boutons pour l'admin */}
               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
                 <ListGroup.Item>
                   <Button type='button' className='btn btn-success w-100' onClick={deliverHandler} disabled={loadingDeliver}>
