@@ -1,21 +1,43 @@
-/* Animation pour l'apparition d'une nouvelle page */
-.fade-enter {
-  opacity: 0;
-  transform: scale(0.95);
-}
-.fade-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 300ms, transform 300ms;
+/* Conteneur principal pour nos deux rangées */
+.header-layout {
+  background-color: #212529; /* Fond sombre de la barre de navigation */
+  padding-bottom: 0.75rem;
 }
 
-/* Animation pour la disparition de l'ancienne page */
-.fade-exit {
-  opacity: 1;
-  transform: scale(1);
+/* Première rangée : Logo et Menu Utilisateur */
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
-.fade-exit-active {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 300ms, transform 300ms;
+
+/* Deuxième rangée : Recherche et Icône Maison */
+.header-center-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+}
+
+.search-form {
+  max-width: 600px;
+  width: 100%;
+}
+
+.home-icon-link {
+  color: rgba(255, 255, 255, 0.65); /* Couleur gris clair */
+  margin-top: 0.75rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.home-icon-link:hover {
+  color: white; /* Changement de couleur au survol */
+}
+
+.profile-icon-container {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.65);
 }
