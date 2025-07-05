@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -22,11 +22,15 @@ const PaymentGatewayScreen = () => {
   const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
 
   useEffect(() => {
-    if (errorPayPal) {
-      toast.error('Erreur de chargement du module de paiement.');
-    } else if (!loadingPayPal && paypal.clientId) {
+    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
       const loadPaypalScript = () => {
-        paypalDispatch({ type: 'resetOptions', value: { 'client-id': paypal.clientId, currency: 'USD' } });
+        paypalDispatch({
+          type: 'resetOptions',
+          value: { 
+            'client-id': paypal.clientId, 
+            currency: 'USD' // MODIFICATION ICI
+          },
+        });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       if (order && !order.isPaid) {
@@ -51,8 +55,24 @@ const PaymentGatewayScreen = () => {
   function onError(err) { toast.error(err.message); }
 
   function createOrder(data, actions) {
-    return actions.order.create({ purchase_units: [{ amount: { value: order.totalPrice } }] })
-      .then((orderID) => { return orderID; });
+    // On convertit le total en USD avant de l'envoyer à PayPal
+    const exchangeRate = 610; // Taux de change approximatif FCFA vers USD
+    const amountInUSD = (order.totalPrice / exchangeRate).toFixed(2);
+
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: {
+              currency_code: 'USD', // MODIFICATION ICI
+              value: amountInUSD,
+            },
+          },
+        ],
+      })
+      .then((orderID) => {
+        return orderID;
+      });
   }
 
   return isLoading ? <p>Chargement...</p> 
@@ -60,7 +80,7 @@ const PaymentGatewayScreen = () => {
     : (
     <div className="payment-gateway">
       <div className="ticket-header">
-        <span>Montant total à payer</span>
+        <span>Montant total</span>
         <h2>{(order.totalPrice || 0).toFixed(2)} FCFA</h2>
       </div>
 
@@ -85,7 +105,7 @@ const PaymentGatewayScreen = () => {
 
       <div className="text-center mt-4">
         <LinkContainer to={`/order/${orderId}`}>
-          <Button variant="secondary" size="sm">Retourner aux détails de la commande</Button>
+          <Button variant="secondary" size="sm">Retour aux détails</Button>
         </LinkContainer>
       </div>
     </div>
