@@ -1,15 +1,12 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
-import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import Message from '../components/Message';
 import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
   useGetOrderDetailsQuery,
-  usePayOrderMutation,
-  useGetPaypalClientIdQuery,
   useUpdateOrderStatusMutation,
 } from '../slices/orderApiSlice';
 
@@ -20,54 +17,28 @@ const OrderScreen = () => {
     refetch,
     isLoading,
     error,
-  } = useGetOrderDetailsQuery(orderId);
+  } = useGetOrderDetailsQuery(orderId, {
+    // On dit à cette page de redemander les infos toutes les 5 secondes
+    pollingInterval: 5000, 
+  });
 
-  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
-  const [updateOrderStatus, { isLoading: loadingDeliver }] = useUpdateOrderStatusMutation();
-
-  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
-  const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
+  const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
-      const loadPaypalScript = () => {
-        paypalDispatch({ type: 'resetOptions', value: { 'client-id': paypal.clientId, currency: 'USD' } });
-        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
-      };
-      if (order && !order.isPaid) {
-        if (!window.paypal) {
-          loadPaypalScript();
-        }
-      }
+    if (error) {
+      toast.error(error?.data?.message || error.error);
     }
-  }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
+  }, [error]);
 
-  function onApprove(data, actions) {
-    return actions.order.capture().then(async function (details) {
-      try {
-        await payOrder({ orderId, details }).unwrap();
-        // Plus besoin de refetch(), la mise à jour est automatique !
-        toast.success('Paiement réussi');
-      } catch (err) {
-        toast.error(err?.data?.message || err.message);
-      }
-    });
-  }
-
-  function onError(err) {
-    toast.error(err.message);
-  }
-
-  function createOrder(data, actions) {
-    return actions.order.create({ purchase_units: [{ amount: { value: order.totalPrice } }] })
-      .then((orderID) => {
-        return orderID;
-      });
-  }
-
-  const deliverHandler = async () => {
-    await updateOrderStatus({ orderId, status: 'Livrée' });
+  const updateStatusHandler = async (newStatus) => {
+    try {
+      await updateOrderStatus({ orderId, status: newStatus }).unwrap();
+      refetch();
+      toast.success('Statut mis à jour');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
   };
 
   return isLoading ? <p>Chargement...</p> 
@@ -83,7 +54,7 @@ const OrderScreen = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <h2>Livraison</h2>
-              <p><strong>Nom: </strong> {order.user.name}</p>
+              <p><strong>Nom: </strong> {order.shippingAddress.name}</p>
               <p><strong>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
               <p><strong>Adresse:</strong> {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}</p>
               <p><strong>Téléphone:</strong> {order.shippingAddress.phone}</p>
@@ -117,7 +88,7 @@ const OrderScreen = () => {
                 )}
               </ListGroup.Item>
 
-              {!order.isPaid && order.paymentMethod === 'PayPal' && (
+              {!order.isPaid && order.paymentMethod !== 'Cash' && (
                 <ListGroup.Item>
                    <Link to={`/payment-gateway/${order._id}`}>
                     <Button className='btn-primary w-100'>Terminer le paiement</Button>
@@ -127,10 +98,15 @@ const OrderScreen = () => {
               
               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
                 <ListGroup.Item>
-                  <Button type='button' className='btn btn-success w-100' onClick={deliverHandler} disabled={loadingDeliver}>
+                  <Button
+                    type='button'
+                    className='btn btn-success w-100'
+                    onClick={() => updateStatusHandler('Livrée')}
+                    disabled={loadingUpdate}
+                  >
                     Marquer comme livré
                   </Button>
-                  {loadingDeliver && <p>Chargement...</p>}
+                  {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
             </ListGroup>
