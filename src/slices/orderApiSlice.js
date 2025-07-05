@@ -1,6 +1,6 @@
 import { apiSlice } from './apiSlice';
 const ORDERS_URL = '/api/orders';
-const PAYPAL_URL = '/api/config/paypal'; // On ajoute l'URL pour la clé PayPal
+const PAYPAL_URL = '/api/config/paypal';
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,14 +12,16 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Order', id }],
       keepUnusedDataFor: 5,
     }),
-    payOrder: builder.mutation({ // NOUVELLE FONCTION
+    payOrder: builder.mutation({
       query: ({ orderId, details }) => ({
         url: `${ORDERS_URL}/${orderId}/pay`,
         method: 'PUT',
         body: details,
       }),
+      // CORRECTION : On invalide le tag de la commande pour forcer le rafraîchissement
+      invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
     }),
-    getPaypalClientId: builder.query({ // NOUVELLE FONCTION
+    getPaypalClientId: builder.query({
       query: () => ({ url: PAYPAL_URL }),
       keepUnusedDataFor: 5,
     }),
@@ -60,8 +62,8 @@ export const orderApiSlice = apiSlice.injectEndpoints({
 export const {
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
-  usePayOrderMutation, // On exporte le nouveau hook
-  useGetPaypalClientIdQuery, // On exporte le nouveau hook
+  usePayOrderMutation,
+  useGetPaypalClientIdQuery,
   useGetMyOrdersQuery,
   useGetOrdersQuery,
   useUpdateOrderStatusMutation,

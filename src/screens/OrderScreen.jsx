@@ -1,35 +1,84 @@
 import { useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import Message from '../components/Message';
 import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
   useGetOrderDetailsQuery,
+  usePayOrderMutation,
+  useGetPaypalClientIdQuery,
   useUpdateOrderStatusMutation,
 } from '../slices/orderApiSlice';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
-  const navigate = useNavigate();
-  const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
-  const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
+  const {
+    data: order,
+    refetch, // On le garde pour le bouton admin, mais plus besoin dans onApprove
+    isLoading,
+    error,
+  } = useGetOrderDetailsQuery(orderId);
+
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [updateOrderStatus, { isLoading: loadingDeliver }] = useUpdateOrderStatusMutation();
+
+  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+  const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error?.data?.message || error.error);
+    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+      const loadPaypalScript = () => {
+        paypalDispatch({
+          type: 'resetOptions',
+          value: { 'client-id': paypal.clientId, currency: 'USD' },
+        });
+        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
+      };
+      if (order && !order.isPaid) {
+        if (!window.paypal) {
+          loadPaypalScript();
+        }
+      }
     }
-  }, [error]);
+  }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
+
+  function onApprove(data, actions) {
+    return actions.order.capture().then(async function (details) {
+      try {
+        await payOrder({ orderId, details }).unwrap();
+        // refetch() n'est plus nécessaire ici, la mise à jour est automatique
+        toast.success('Paiement réussi');
+      } catch (err) {
+        toast.error(err?.data?.message || err.message);
+      }
+    });
+  }
+
+  function onError(err) {
+    toast.error(err.message);
+  }
+
+  function createOrder(data, actions) {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: { value: order.totalPrice },
+          },
+        ],
+      })
+      .then((orderID) => {
+        return orderID;
+      });
+  }
 
   const deliverHandler = async () => {
     await updateOrderStatus({ orderId, status: 'Livrée' });
     refetch();
-  };
-
-  const goToPayment = () => {
-    navigate(`/payment-gateway/${orderId}`);
   };
 
   return isLoading ? <p>Chargement...</p> 
@@ -40,40 +89,62 @@ const OrderScreen = () => {
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
-            <ListGroup.Item className="mb-3"><OrderStatusTracker order={order} /></ListGroup.Item>
-            <ListGroup.Item><h2>Livraison</h2>{/* ... */}</ListGroup.Item>
-            <ListGroup.Item><h2>Articles Commandés</h2>{/* ... */}</ListGroup.Item>
+            <ListGroup.Item className="mb-3">
+              <OrderStatusTracker order={order} />
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <h2>Livraison</h2>
+              <p><strong>Nom: </strong> {order.user.name}</p>
+              <p><strong>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
+              <p><strong>Adresse:</strong> {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}</p>
+              <p><strong>Téléphone:</strong> {order.shippingAddress.phone}</p>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <h2>Articles Commandés</h2>
+              {order.orderItems.map((item, index) => (
+                <ListGroup.Item key={index}>
+                  <Row className="align-items-center">
+                    <Col xs={2} md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}`: item.image} alt={item.name} fluid rounded /></Col>
+                    <Col><Link to={`/product/${item.product}`}>{item.name}</Link></Col>
+                    <Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
+                  </Row>
+                </ListGroup.Item>
+              ))}
+            </ListGroup.Item>
           </ListGroup>
         </Col>
         <Col md={4}>
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
-              
               <ListGroup.Item>
-                {order.isPaid ? (
-                  <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
-                ) : (
-                  <Message variant='danger'>Non payé</Message>
-                )}
+                <Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
               </ListGroup.Item>
-
-              {!order.isPaid && order.paymentMethod === 'PayPal' && (
+              
+              {!order.isPaid ? (
                 <ListGroup.Item>
-                    <div className="d-grid">
-                        <Button type='button' variant="primary" onClick={goToPayment}>
-                            Terminer le Paiement
-                        </Button>
-                    </div>
+                  <Message variant='warning'>En attente de paiement...</Message>
                 </ListGroup.Item>
+              ) : (
+                <Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>
               )}
 
-              {userInfo && userInfo.isAdmin && !order.isDelivered && (
+              {/* Si la commande n'est pas payée et que la méthode est PayPal, on affiche le bouton pour payer */}
+              {!order.isPaid && order.paymentMethod === 'PayPal' && (
                 <ListGroup.Item>
-                  <Button type='button' className='btn w-100' onClick={deliverHandler} disabled={loadingUpdate}>
+                   <Link to={`/payment-gateway/${order._id}`}>
+                    <Button className='btn-primary w-100'>Terminer le paiement</Button>
+                  </Link>
+                </ListGroup.Item>
+              )}
+              
+              {/* Boutons pour l'admin */}
+              {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
+                <ListGroup.Item>
+                  <Button type='button' className='btn btn-success w-100' onClick={deliverHandler} disabled={loadingDeliver}>
                     Marquer comme livré
                   </Button>
+                  {loadingDeliver && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
             </ListGroup>
