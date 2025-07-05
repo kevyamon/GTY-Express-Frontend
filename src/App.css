@@ -41,3 +41,25 @@
     align-items: center;
     color: rgba(255, 255, 255, 0.65);
 }
+/* Animation pour l'apparition d'une nouvelle page */
+.fade-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+/* Animation pour la disparition de l'ancienne page */
+.fade-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+.fade-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
