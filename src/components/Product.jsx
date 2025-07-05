@@ -7,14 +7,12 @@ import {
   removeFromFavorites,
 } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
+import StockStatus from './StockStatus'; // Utilise le composant mis à jour
 import './Product.css';
 
 const Product = ({ product }) => {
   const dispatch = useDispatch();
-
-  // On récupère les favoris depuis le state Redux
   const { favoriteItems } = useSelector((state) => state.favorites);
-  // On vérifie si ce produit est déjà dans les favoris
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
 
   const imageUrl = product.image.startsWith('/')
@@ -36,7 +34,6 @@ const Product = ({ product }) => {
     }
   };
 
-  // Calcul de la promotion
   const hasPromo = product.originalPrice && product.originalPrice > product.price;
   const discountPercent = hasPromo
     ? Math.round(
@@ -45,19 +42,14 @@ const Product = ({ product }) => {
     : 0;
 
   return (
-    <Card className="my-3 p-3 rounded h-100">
-      {/* On affiche le badge de promo si elle existe */}
+    <Card className="my-3 p-3 rounded h-100 position-relative">
       {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
-
-      {/* On affiche le bouton coeur */}
       <button onClick={toggleFavoriteHandler} className="favorite-btn">
         {isFavorite ? '❤️' : '🤍'}
       </button>
-
       <Link to={`/product/${product._id}`}>
         <Card.Img src={imageUrl} variant="top" className="card-img-top" />
       </Link>
-
       <Card.Body className="d-flex flex-column product-card-body">
         <Card.Title as="div" className="product-title flex-grow-1">
           <Link to={`/product/${product._id}`}>
@@ -65,10 +57,12 @@ const Product = ({ product }) => {
           </Link>
         </Card.Title>
 
+        <div className='my-2'>
+          <StockStatus countInStock={product.countInStock} />
+        </div>
+
         <div className="price-container">
-          {/* On affiche le prix de vente actuel */}
           <Card.Text as="h4">{product.price} FCFA</Card.Text>
-          {/* Si il y a une promo, on affiche le prix original barré */}
           {hasPromo && (
             <Card.Text as="span" className="original-price">
               {product.originalPrice} FCFA

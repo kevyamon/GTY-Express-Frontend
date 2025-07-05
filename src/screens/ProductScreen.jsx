@@ -5,16 +5,14 @@ import { useDispatch } from 'react-redux';
 import { useGetProductDetailsQuery } from '../slices/productsApiSlice.js';
 import { addToCart } from '../slices/cartSlice';
 import { toast } from 'react-toastify';
-import QtySelector from '../components/QtySelector'; 
-import Message from '../components/Message';
+import QtySelector from '../components/QtySelector';
+import StockStatus from '../components/StockStatus'; // Utilise le composant mis à jour
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [qty, setQty] = useState(1);
-
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
 
   useEffect(() => {
@@ -31,14 +29,10 @@ const ProductScreen = () => {
 
   return (
     <>
-      <Link className="btn btn-light my-3" to="/products">
-        Retour
-      </Link>
-      {isLoading ? (
-        <h2>Chargement...</h2>
-      ) : error ? (
-        <Message variant='danger'>{error?.data?.message || error.error}</Message>
-      ) : (
+      <Link className="btn btn-light my-3" to="/products">Retour</Link>
+      {isLoading ? (<h2>Chargement...</h2>) 
+      : error ? (<></>) 
+      : (
         <Row>
           <Col md={5}>
             <Image
@@ -53,9 +47,7 @@ const ProductScreen = () => {
           </Col>
           <Col md={4}>
             <ListGroup variant="flush">
-              <ListGroup.Item>
-                <h3>{product.name}</h3>
-              </ListGroup.Item>
+              <ListGroup.Item><h3>{product.name}</h3></ListGroup.Item>
               <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
               <ListGroup.Item>Description: {product.description}</ListGroup.Item>
             </ListGroup>
@@ -72,7 +64,9 @@ const ProductScreen = () => {
                 <ListGroup.Item>
                   <Row>
                     <Col>Statut:</Col>
-                    <Col>{product.countInStock > 0 ? 'En Stock' : 'Rupture de stock'}</Col>
+                    <Col>
+                      <StockStatus countInStock={product.countInStock} />
+                    </Col>
                   </Row>
                 </ListGroup.Item>
                 {product.countInStock > 0 && (
