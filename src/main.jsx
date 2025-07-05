@@ -11,9 +11,7 @@ import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
 
-// Fichiers de style - LES IMPORTS MANQUANTS SONT ICI
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './index.css';
+// Fichiers de style
 import './App.css'; 
 
 // Écrans principaux
@@ -30,7 +28,7 @@ import PlaceOrderScreen from './screens/PlaceOrderScreen.jsx';
 import OrderScreen from './screens/OrderScreen.jsx';
 import PaymentGatewayScreen from './screens/PaymentGatewayScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
-import ProfileDetailsScreen from './screens/ProfileDetailsScreen.jsx';
+import ProfileDetailsScreen from './screens/ProfileDetailsScreen.jsx'; // NOUVELLE PAGE
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -54,7 +52,7 @@ const router = createBrowserRouter(
       {/* --- Routes Privées (pour les clients connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
-        <Route path='/profile-details' element={<ProfileDetailsScreen />} />
+        <Route path='/profile-details' element={<ProfileDetailsScreen />} /> {/* NOUVELLE ROUTE */}
         <Route path="/products" element={<HomeScreen />} />
         <Route path="/cart" element={<CartScreen />} />
         <Route path="/favorites" element={<FavoritesScreen />} />

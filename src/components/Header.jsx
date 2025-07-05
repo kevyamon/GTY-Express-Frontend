@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
 import { useLogoutMutation } from '../slices/usersApiSlice';
-// CORRECTION ICI : On importe les deux hooks nécessaires
-import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice'; 
+import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { logout } from '../slices/authSlice';
 
 const Header = () => {
@@ -59,22 +58,20 @@ const Header = () => {
 
   return (
     <header>
-      <Navbar bg="dark" variant="dark" expand="md" collapseOnSelect>
+      <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
         <Container fluid>
-          <Navbar.Brand as={Link} to={userInfo ? "/products" : "/"}>
-            GTY Express
-          </Navbar.Brand>
+          <Navbar.Brand as={Link} to={userInfo ? "/products" : "/"}>GTY Express</Navbar.Brand>
           
-          <Form onSubmit={submitHandler} className="d-flex mx-auto">
-            <Form.Control
-              type='text' name='q' onChange={(e) => setKeyword(e.target.value)}
-              value={keyword} placeholder='Rechercher des produits...'
-              className='mr-sm-2 ml-sm-5'
-            ></Form.Control>
-            <Button type='submit' variant='outline-success' className='p-2 mx-2'>
-              Rechercher
-            </Button>
-          </Form>
+          <div className="d-flex flex-grow-1 justify-content-center">
+            <Form onSubmit={submitHandler} className="d-flex" style={{ maxWidth: '500px', width: '100%' }}>
+              <Form.Control
+                type='text' name='q' onChange={(e) => setKeyword(e.target.value)}
+                value={keyword} placeholder='Rechercher des produits...'
+                className='mr-sm-2'
+              ></Form.Control>
+              <Button type='submit' variant='outline-success' className='p-2 ms-2'>Rechercher</Button>
+            </Form>
+          </div>
 
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -90,23 +87,17 @@ const Header = () => {
 
               {userInfo ? (
                 <NavDropdown title={
-                    <>
-                      {userInfo.name}
-                      {userInfo.isAdmin && totalOrders > 0 && (
-                        <Badge pill style={{ marginLeft: '5px', backgroundColor: 'purple' }}>
-                          {totalOrders}
-                        </Badge>
-                      )}
-                      {userInfo.isAdmin && cancelledOrders > 0 && (
-                        <Badge pill bg='warning' text='dark' style={{ marginLeft: '5px' }}>
-                          {cancelledOrders}
-                        </Badge>
-                      )}
-                      {!userInfo.isAdmin && hasNotification && (
-                        <Badge pill bg="danger" style={{ marginLeft: '5px' }}> </Badge>
-                      )}
-                    </>
-                  } id="username">
+                    <div className='d-flex align-items-center'>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                      </svg>
+                      {userInfo.isAdmin && totalOrders > 0 && (<Badge pill style={{ marginLeft: '5px', backgroundColor: 'purple' }}>{totalOrders}</Badge>)}
+                      {userInfo.isAdmin && cancelledOrders > 0 && (<Badge pill bg='warning' text='dark' style={{ marginLeft: '5px' }}>{cancelledOrders}</Badge>)}
+                      {!userInfo.isAdmin && hasNotification && (<Badge pill bg="danger" style={{ marginLeft: '5px' }}> </Badge>)}
+                    </div>
+                  } id="username" align="end">
+                  <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>

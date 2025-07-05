@@ -23,7 +23,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
-    // NOUVELLES FONCTIONS
     getProfileDetails: builder.query({
       query: () => ({
         url: `${USERS_URL}/profile`,
@@ -44,6 +43,6 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-  useGetProfileDetailsQuery, // On exporte le nouveau hook
-  useUpdateProfileMutation, // On exporte le nouveau hook
+  useGetProfileDetailsQuery,
+  useUpdateProfileMutation,
 } = usersApiSlice;
