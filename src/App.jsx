@@ -1,5 +1,5 @@
 import { Container } from 'react-bootstrap';
-import { Outlet, useLocation, Link } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
@@ -31,12 +31,6 @@ const App = () => {
           </CSSTransition>
         </TransitionGroup>
       </main>
-
-      {/* BOUTON MAISON AJOUTÉ ICI */}
-      <Link to="/products" className="home-fab">
-        🏠
-      </Link>
-
       <Footer />
       <ToastContainer />
     </div>

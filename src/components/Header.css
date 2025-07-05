@@ -1,0 +1,38 @@
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-center-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.search-form {
+  max-width: 600px;
+  width: 100%;
+}
+
+.home-icon-link {
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 0.5rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.home-icon-link:hover {
+  color: white;
+}
+
+.profile-icon-container {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.profile-icon-container svg {
+    margin-right: 5px;
+}
