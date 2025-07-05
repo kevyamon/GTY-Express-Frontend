@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { toast } from 'react-toastify';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
   const [password, setPassword] = useState('');
 
   const dispatch = useDispatch();
@@ -15,10 +15,12 @@ const LoginScreen = () => {
 
   const [login, { isLoading }] = useLoginMutation();
 
+  const { userInfo } = useSelector((state) => state.auth);
+
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await login({ email, password }).unwrap();
+      const res = await login({ loginIdentifier, password }).unwrap();
       dispatch(setCredentials({ ...res }));
       navigate('/products');
     } catch (err) {
@@ -30,13 +32,14 @@ const LoginScreen = () => {
     <div>
       <h1>Se connecter</h1>
       <Form onSubmit={submitHandler}>
-        <Form.Group className='my-2' controlId='email'>
-          <Form.Label>Email</Form.Label>
+        <Form.Group className='my-2' controlId='loginIdentifier'>
+          <Form.Label>Email ou Numéro de téléphone</Form.Label>
           <Form.Control
-            type='email'
-            placeholder='Entrez votre email'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type='text'
+            placeholder='Entrez votre email ou numéro'
+            value={loginIdentifier}
+            onChange={(e) => setLoginIdentifier(e.target.value)}
+            required
           ></Form.Control>
         </Form.Group>
 
@@ -47,6 +50,7 @@ const LoginScreen = () => {
             placeholder='Entrez votre mot de passe'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           ></Form.Control>
         </Form.Group>
 

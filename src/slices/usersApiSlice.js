@@ -4,7 +4,7 @@ const USERS_URL = '/api/users';
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
-      query: (data) => ({
+      query: (data) => ({ // Le "data" contiendra maintenant { loginIdentifier, password }
         url: `${USERS_URL}/login`,
         method: 'POST',
         body: data,
@@ -23,12 +23,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
-    getProfileDetails: builder.query({
-      query: () => ({
-        url: `${USERS_URL}/profile`,
-      }),
-      keepUnusedDataFor: 5,
-    }),
     updateProfile: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/profile`,
@@ -43,6 +37,5 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-  useGetProfileDetailsQuery,
   useUpdateProfileMutation,
 } = usersApiSlice;
