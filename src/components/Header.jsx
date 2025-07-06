@@ -2,7 +2,6 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
-
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
@@ -10,27 +9,24 @@ import { logout } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [keyword, setKeyword] = useState('');
-  const [logoutApiCall] = useLogoutMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
+  const POLLING_INTERVAL = 5000;
+
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
-    pollingInterval: 5000,
+    pollingInterval: POLLING_INTERVAL,
   });
 
   const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
     skip: !userInfo || userInfo.isAdmin,
-    pollingInterval: 5000,
+    pollingInterval: POLLING_INTERVAL,
   });
 
   const { data: notifications } = useGetNotificationsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 5000,
+    pollingInterval: POLLING_INTERVAL,
   });
 
   const [markAsRead] = useMarkAsReadMutation();
@@ -43,7 +39,6 @@ const Header = () => {
     let newOrders = 0;
     let cancelledOrders = 0;
     let unreadNotifs = 0;
-
     const lastSeen = new Date(lastSeenAdminTimestamp);
 
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
@@ -74,11 +69,16 @@ const Header = () => {
     }
   };
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [keyword, setKeyword] = useState('');
+  const [logoutApiCall] = useLogoutMutation();
+
   const submitHandler = (e) => {
     e.preventDefault();
     const currentPath = window.location.pathname;
     const isSupermarket = currentPath.startsWith('/supermarket');
-
+    
     if (keyword.trim()) {
       const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
       navigate(searchPath);
@@ -94,9 +94,7 @@ const Header = () => {
       await logoutApiCall().unwrap();
       dispatch(logout());
       navigate('/');
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   return (
@@ -107,8 +105,9 @@ const Header = () => {
             <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="ms-auto">
-                {/* --- AMÉLIORATION : Panier visible uniquement si connecté --- */}
+              <Nav className="ms-auto d-flex align-items-center">
+                
+                {/* Le Panier est maintenant toujours visible si l'utilisateur est connecté */}
                 {userInfo && (
                   <Nav.Link as={Link} to="/cart">
                     🛒 Panier
@@ -120,42 +119,36 @@ const Header = () => {
                   </Nav.Link>
                 )}
 
+                {userInfo && (
+                  <Nav.Link as={Link} to="/notifications" onClick={handleNotificationClick}>
+                    🔔
+                    {unreadNotifsCount > 0 && <Badge pill bg="danger">{unreadNotifsCount}</Badge>}
+                  </Nav.Link>
+                )}
+
                 {userInfo ? (
-                  <NavDropdown
-                    title={
+                  <NavDropdown title={
                       <div className='profile-icon-container'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                          className="bi bi-person-fill" viewBox="0 0 16 16">
-                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
                       </div>
-                    }
-                    id="username"
-                    align="end"
-                  >
+                    } id="username" align="end">
                     <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
-
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
                         <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
                           Gestion Produits
-                          {newOrdersCount > 0 && (
-                            <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>
-                          )}
+                          {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}
                         </NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
                           Gestion Commandes
-                          {cancelledOrdersCount > 0 && (
-                            <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>
-                          )}
+                          {cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}
                         </NavDropdown.Item>
                       </>
                     )}
-
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
@@ -167,42 +160,19 @@ const Header = () => {
           </div>
         </Container>
       </Navbar>
-
       <div className="header-center-row bg-dark">
         <Form onSubmit={submitHandler} className="d-flex search-form">
-          <Form.Control
-            type='text'
-            name='q'
-            onChange={(e) => setKeyword(e.target.value)}
-            value={keyword}
-            placeholder='Rechercher...'
-            className='mr-sm-2'
-          />
-          <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
+          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2'></Form.Control>
+          <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
         </Form>
-
-        {/* --- AMÉLIORATION : Cette section est maintenant visible uniquement si connecté --- */}
-        {userInfo && (
-          <div className="d-flex align-items-center mt-3">
-            <Link to="/notifications" onClick={handleNotificationClick} className="me-4">
-              🔔
-              {unreadNotifsCount > 0 && (
-                <Badge pill bg="danger">{unreadNotifsCount}</Badge>
-              )}
-            </Link>
-
-            <Link to="/products" className="home-icon-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
-                className="bi bi-house-door-fill" viewBox="0 0 16 16">
-                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/>
-              </svg>
-            </Link>
-
-            <Link to="/supermarket" className="supermarket-btn ms-4">
-              🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
-            </Link>
-          </div>
-        )}
+        <div className="d-flex align-items-center mt-3">
+          <Link to="/products" className="home-icon-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg>
+          </Link>
+          <Link to="/supermarket" className="supermarket-btn ms-4">
+            🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
+          </Link>
+        </div>
       </div>
     </header>
   );
