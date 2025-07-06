@@ -1,27 +1,21 @@
 import { apiSlice } from './apiSlice';
-const NOTIFICATIONS_URL = '/api/notifications';
 
 export const notificationApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getNotifications: builder.query({
-      query: () => ({
-        url: NOTIFICATIONS_URL,
-        method: 'GET',
-      }),
+      query: () => '/api/notifications',
       providesTags: ['Notifications'],
-      keepUnusedDataFor: 5,
-      pollingInterval: 10000,
     }),
     markAsRead: builder.mutation({
       query: () => ({
-        url: `${NOTIFICATIONS_URL}/mark-as-read`,
+        url: '/api/notifications/mark-as-read',
         method: 'PUT',
       }),
       invalidatesTags: ['Notifications'],
     }),
     deleteNotification: builder.mutation({
       query: (notificationId) => ({
-        url: `${NOTIFICATIONS_URL}/${notificationId}`,
+        url: `/api/notifications/${notificationId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Notifications'],

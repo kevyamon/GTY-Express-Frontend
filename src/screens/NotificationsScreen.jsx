@@ -1,57 +1,45 @@
 import { useGetNotificationsQuery, useDeleteNotificationMutation } from '../slices/notificationApiSlice';
-import { ListGroup, Spinner, Button, Badge, Row, Col, Card } from 'react-bootstrap';
-import Message from '../components/Message';
+import { ListGroup, Spinner, Button } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
+import Message from '../components/Message';
 
 const NotificationsScreen = () => {
-  const { data: notifications, isLoading, error } = useGetNotificationsQuery();
+  const { data: notifications, isLoading, error, refetch } = useGetNotificationsQuery();
   const [deleteNotification] = useDeleteNotificationMutation();
 
-  const handleDelete = async (notifId) => {
+  const handleDelete = async (notificationId) => {
     try {
-      await deleteNotification(notifId);
-    } catch (err) {
-      console.error('Erreur suppression notification:', err);
+      await deleteNotification(notificationId).unwrap();
+      refetch(); // 👈 recharger la liste après suppression
+    } catch (error) {
+      console.error('Erreur suppression:', error);
     }
   };
 
   return (
     <div>
-      <h2 className="mb-4">🔔 Centre de Notifications</h2>
+      <h1>Notifications</h1>
       {isLoading ? (
         <Spinner animation="border" />
       ) : error ? (
-        <Message variant="danger">{error?.data?.message || error.error}</Message>
+        <Message variant='danger'>{error?.data?.message || error.error}</Message>
       ) : (
-        <Row>
-          {notifications.length === 0 && (
-            <Message variant="info">Aucune nouvelle notification</Message>
-          )}
+        <ListGroup>
+          {notifications.length === 0 && <Message>Aucune nouvelle notification</Message>}
           {notifications.map((notif) => (
-            <Col key={notif.notificationId} sm={12} md={12} className="mb-3">
-              <Card
-                bg={!notif.isRead ? 'light' : 'dark'}
-                text={!notif.isRead ? 'dark' : 'white'}
-                className="shadow-sm"
-              >
-                <Card.Body className="d-flex justify-content-between align-items-start">
-                  <div onClick={() => window.location.href = notif.link} style={{ cursor: 'pointer', flex: 1 }}>
-                    <Card.Text className="mb-1">{notif.message}</Card.Text>
-                    <small className="text-muted">{new Date(notif.createdAt).toLocaleString('fr-FR')}</small>
-                  </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="ms-3"
-                    onClick={() => handleDelete(notif.notificationId)}
-                  >
-                    <FaTrash />
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
+            <ListGroup.Item key={notif.notificationId} className="d-flex justify-content-between align-items-start" variant={!notif.isRead ? 'light' : ''}>
+              <div>
+                <a href={notif.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <p className="mb-1">{notif.message}</p>
+                  <small className="text-muted">{new Date(notif.createdAt).toLocaleString('fr-FR')}</small>
+                </a>
+              </div>
+              <Button variant="outline-danger" size="sm" onClick={() => handleDelete(notif.notificationId)}>
+                <FaTrash />
+              </Button>
+            </ListGroup.Item>
           ))}
-        </Row>
+        </ListGroup>
       )}
     </div>
   );
