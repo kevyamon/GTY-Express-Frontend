@@ -3,19 +3,21 @@ import { apiSlice } from './slices/apiSlice';
 import cartSliceReducer from './slices/cartSlice';
 import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
-import { notificationApiSlice } from './slices/notificationApiSlice'; // On importe l'API des notifs
 
 const store = configureStore({
   reducer: {
+    // Tous les reducers de nos API (produits, commandes, utilisateurs, notifications)
+    // sont maintenant gérés par cette seule ligne :
     [apiSlice.reducerPath]: apiSlice.reducer,
-    [notificationApiSlice.reducerPath]: notificationApiSlice.reducer, // On déclare son reducer
+    
+    // Nos reducers "classiques"
     cart: cartSliceReducer,
     auth: authReducer,
     favorites: favoritesReducer,
   },
-  // On ajoute le middleware des notifications à la chaîne
+  // On ne déclare que le middleware de l'apiSlice principal
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware, notificationApiSlice.middleware),
+    getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true,
 });
 
