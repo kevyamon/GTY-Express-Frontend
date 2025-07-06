@@ -1,7 +1,7 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -12,13 +12,11 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // Notifications pour l'admin
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
     pollingInterval: 15000,
   });
 
-  // Notifications pour le client
   const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
     skip: !userInfo || userInfo.isAdmin,
     pollingInterval: 15000,
@@ -31,32 +29,35 @@ const Header = () => {
   
   const [markAsRead] = useMarkAsReadMutation();
 
-  // Calcul des compteurs et notifications
+  const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
+    () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
+  );
+
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     let newOrders = 0;
     let cancelledOrders = 0;
     let unreadNotifs = 0;
 
-    const lastSeenTimestamp = localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString();
-
     if (userInfo?.isAdmin && adminOrders) {
-      newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenTimestamp)).length;
-      cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenTimestamp)).length;
+      newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenAdminTimestamp)).length;
+      cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenAdminTimestamp)).length;
     } 
     
     if (userInfo && notifications) {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return { newOrdersCount: newOrders, cancelledOrdersCount: cancelledOrders, unreadNotifsCount: unreadNotifs };
+    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
   const handleAdminMenuClick = () => {
-    localStorage.setItem('lastSeenAdminTimestamp', new Date().toISOString());
+    const now = new Date().toISOString();
+    localStorage.setItem('lastSeenAdminTimestamp', now);
+    setLastSeenAdminTimestamp(now);
   };
 
   const handleNotificationClick = () => {
-    if (unreadCount > 0) {
+    if (unreadNotifsCount > 0) {
       markAsRead();
     }
   };
@@ -102,21 +103,25 @@ const Header = () => {
                   🛒 Panier
                   {cartItems.length > 0 && (<Badge pill bg="success" style={{ marginLeft: '5px' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}
                 </Nav.Link>
+
                 {userInfo && (
                   <Nav.Link as={Link} to="/notifications" onClick={handleNotificationClick}>
                     🔔
                     {unreadNotifsCount > 0 && <Badge pill bg="danger">{unreadNotifsCount}</Badge>}
                   </Nav.Link>
                 )}
+
                 {userInfo ? (
                   <NavDropdown title={
                       <div className='profile-icon-container'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
                       </div>
                     } id="username" align="end">
-                    <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
+                    
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
@@ -130,6 +135,7 @@ const Header = () => {
                         </NavDropdown.Item>
                       </>
                     )}
+
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
