@@ -1,36 +1,37 @@
 import { apiSlice } from './apiSlice';
-const NOTIFICATION_URL = '/api/notifications';
+const NOTIFICATIONS_URL = '/api/notifications';
 
 export const notificationApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getNotifications: builder.query({
       query: () => ({
-        url: `${NOTIFICATION_URL}`,
-        method: 'GET',
+        url: NOTIFICATIONS_URL,
       }),
-      providesTags: ['Notifications'],
+      keepUnusedDataFor: 5,
+      providesTags: ['Notification'],
     }),
 
-    markAllAsRead: builder.mutation({
+    markAsRead: builder.mutation({
       query: () => ({
-        url: `${NOTIFICATION_URL}/read-all`,
+        url: `${NOTIFICATIONS_URL}/mark-as-read`,
         method: 'PUT',
       }),
-      invalidatesTags: ['Notifications'],
+      invalidatesTags: ['Notification'],
     }),
 
     deleteNotification: builder.mutation({
       query: (notificationId) => ({
-        url: `${NOTIFICATION_URL}/${notificationId}`,
+        url: `${NOTIFICATIONS_URL}/${notificationId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Notifications'],
+      invalidatesTags: ['Notification'],
     }),
   }),
 });
 
+// LA CORRECTION EST SUR LA LIGNE SUIVANTE
 export const {
   useGetNotificationsQuery,
-  useMarkAllAsReadMutation,
+  useMarkAsReadMutation, // L'exportation était manquante ou incorrecte
   useDeleteNotificationMutation,
 } = notificationApiSlice;
