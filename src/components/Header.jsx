@@ -1,10 +1,11 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
-import { useMarkAsReadMutation } from '../slices/notificationApiSlice';
+import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice'; // ✅ Import corrigé ici
 import { logout } from '../slices/authSlice';
 import './Header.css';
 
@@ -26,7 +27,7 @@ const Header = () => {
     skip: !userInfo,
     pollingInterval: 15000,
   });
-  
+
   const [markAsRead] = useMarkAsReadMutation();
 
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
@@ -41,8 +42,8 @@ const Header = () => {
     if (userInfo?.isAdmin && adminOrders) {
       newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenAdminTimestamp)).length;
       cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenAdminTimestamp)).length;
-    } 
-    
+    }
+
     if (userInfo && notifications) {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
@@ -61,7 +62,7 @@ const Header = () => {
       markAsRead();
     }
   };
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
@@ -71,7 +72,7 @@ const Header = () => {
     e.preventDefault();
     const currentPath = window.location.pathname;
     const isSupermarket = currentPath.startsWith('/supermarket');
-    
+
     if (keyword.trim()) {
       const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
       navigate(searchPath);
@@ -87,7 +88,9 @@ const Header = () => {
       await logoutApiCall().unwrap();
       dispatch(logout());
       navigate('/');
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -101,7 +104,11 @@ const Header = () => {
               <Nav className="ms-auto">
                 <Nav.Link as={Link} to="/cart">
                   🛒 Panier
-                  {cartItems.length > 0 && (<Badge pill bg="success" style={{ marginLeft: '5px' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}
+                  {cartItems.length > 0 && (
+                    <Badge pill bg="success" style={{ marginLeft: '5px' }}>
+                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                    </Badge>
+                  )}
                 </Nav.Link>
 
                 {userInfo && (
@@ -121,17 +128,21 @@ const Header = () => {
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
-                    
+
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
                         <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
-                          Gestion Produits 
-                          {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}
+                          Gestion Produits
+                          {newOrdersCount > 0 && (
+                            <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>
+                          )}
                         </NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
                           Gestion Commandes
-                          {cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}
+                          {cancelledOrdersCount > 0 && (
+                            <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>
+                          )}
                         </NavDropdown.Item>
                       </>
                     )}
@@ -147,13 +158,25 @@ const Header = () => {
           </div>
         </Container>
       </Navbar>
+
       <div className="header-center-row bg-dark">
         <Form onSubmit={submitHandler} className="d-flex search-form">
-          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2'></Form.Control>
+          <Form.Control
+            type='text'
+            name='q'
+            onChange={(e) => setKeyword(e.target.value)}
+            value={keyword}
+            placeholder='Rechercher...'
+            className='mr-sm-2'
+          />
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
         </Form>
         <div className="d-flex align-items-center mt-3">
-          <Link to="/products" className="home-icon-link"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg></Link>
+          <Link to="/products" className="home-icon-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16">
+              <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/>
+            </svg>
+          </Link>
           <Link to="/supermarket" className="supermarket-btn ms-4">
             🛍️
             <span className="ms-2 d-none d-lg-block">Supermarché</span>
