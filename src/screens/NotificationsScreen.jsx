@@ -1,52 +1,57 @@
 import { useGetNotificationsQuery, useDeleteNotificationMutation } from '../slices/notificationApiSlice';
-import { ListGroup, Spinner, Button } from 'react-bootstrap';
+import { ListGroup, Spinner, Button, Badge, Row, Col, Card } from 'react-bootstrap';
 import Message from '../components/Message';
+import { FaTrash } from 'react-icons/fa';
 
 const NotificationsScreen = () => {
-  const { data: notifications, isLoading, error, refetch } = useGetNotificationsQuery();
+  const { data: notifications, isLoading, error } = useGetNotificationsQuery();
   const [deleteNotification] = useDeleteNotificationMutation();
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (notifId) => {
     try {
-      await deleteNotification(id);
-      refetch(); // met à jour après suppression
+      await deleteNotification(notifId);
     } catch (err) {
-      console.error(err);
+      console.error('Erreur suppression notification:', err);
     }
   };
 
   return (
     <div>
-      <h1>Notifications</h1>
+      <h2 className="mb-4">🔔 Centre de Notifications</h2>
       {isLoading ? (
         <Spinner animation="border" />
       ) : error ? (
         <Message variant="danger">{error?.data?.message || error.error}</Message>
       ) : (
-        <ListGroup>
-          {notifications.length === 0 && <Message>Aucune nouvelle notification</Message>}
+        <Row>
+          {notifications.length === 0 && (
+            <Message variant="info">Aucune nouvelle notification</Message>
+          )}
           {notifications.map((notif) => (
-            <ListGroup.Item
-              key={notif._id}
-              as="div"
-              variant={!notif.isRead ? 'light' : ''}
-              className="d-flex justify-content-between align-items-start"
-            >
-              <a href={notif.link} className="flex-grow-1 text-decoration-none text-reset">
-                <p className="mb-1">{notif.message}</p>
-                <small className="text-muted">{new Date(notif.createdAt).toLocaleString('fr-FR')}</small>
-              </a>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => handleDelete(notif._id)}
-                className="ms-3"
+            <Col key={notif.notificationId} sm={12} md={12} className="mb-3">
+              <Card
+                bg={!notif.isRead ? 'light' : 'dark'}
+                text={!notif.isRead ? 'dark' : 'white'}
+                className="shadow-sm"
               >
-                🗑️
-              </Button>
-            </ListGroup.Item>
+                <Card.Body className="d-flex justify-content-between align-items-start">
+                  <div onClick={() => window.location.href = notif.link} style={{ cursor: 'pointer', flex: 1 }}>
+                    <Card.Text className="mb-1">{notif.message}</Card.Text>
+                    <small className="text-muted">{new Date(notif.createdAt).toLocaleString('fr-FR')}</small>
+                  </div>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="ms-3"
+                    onClick={() => handleDelete(notif.notificationId)}
+                  >
+                    <FaTrash />
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
           ))}
-        </ListGroup>
+        </Row>
       )}
     </div>
   );
