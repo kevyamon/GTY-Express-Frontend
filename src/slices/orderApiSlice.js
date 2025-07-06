@@ -6,6 +6,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createOrder: builder.mutation({
       query: (order) => ({ url: ORDERS_URL, method: 'POST', body: order }),
+      invalidatesTags: ['Order'],
     }),
     getOrderDetails: builder.query({
       query: (id) => ({ url: `${ORDERS_URL}/${id}` }),
@@ -18,7 +19,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: details,
       }),
-      // CORRECTION : On invalide le cache de cette commande pour forcer le rafraîchissement
       invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
     }),
     getPaypalClientId: builder.query({
