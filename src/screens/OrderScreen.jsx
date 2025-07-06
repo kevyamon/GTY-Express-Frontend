@@ -17,7 +17,6 @@ const OrderScreen = () => {
 
   const {
     data: order,
-    refetch,
     isLoading,
     error,
   } = useGetOrderDetailsQuery(orderId, {
@@ -29,6 +28,16 @@ const OrderScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    if (order) {
+      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
+      if (!seenOrders[order._id] || new Date(order.updatedAt) > new Date(seenOrders[order._id])) {
+          seenOrders[order._id] = order.updatedAt;
+          localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
+      }
+    }
+  }, [order]);
+
+  useEffect(() => {
     if (error) {
       toast.error(error?.data?.message || error.error);
     }
@@ -37,7 +46,6 @@ const OrderScreen = () => {
   const updateStatusHandler = async (newStatus) => {
     try {
       await updateOrderStatus({ orderId, status: newStatus }).unwrap();
-      refetch(); // On garde ce refetch pour l'admin pour forcer la mise à jour immédiate
       toast.success('Statut mis à jour');
     } catch (err) {
       toast.error(err?.data?.message || err.error);
@@ -106,18 +114,7 @@ const OrderScreen = () => {
                   {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
-              {userInfo && !userInfo.isAdmin && (
-                <ListGroup.Item>
-                   <Button
-                    type='button'
-                    className='btn btn-danger w-100'
-                    onClick={deleteHandler}
-                    disabled={loadingDelete}
-                  >
-                    Supprimer la commande
-                  </Button>
-                </ListGroup.Item>
-              )}
+              {/* Le bouton supprimer est maintenant sur la page ProfileScreen */}
             </ListGroup>
           </Card>
         </Col>
