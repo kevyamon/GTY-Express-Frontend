@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap'; import { Link, useNavigate } from 'react-router-dom'; import { useSelector, useDispatch } from 'react-redux'; import { useState, useEffect, useMemo } from 'react';
+import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap'; import { Link, useNavigate } from 'react-router-dom'; import { useSelector, useDispatch } from 'react-redux'; import { useState, useMemo } from 'react';
 
 import { useLogoutMutation } from '../slices/usersApiSlice'; import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice'; import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice'; import { logout } from '../slices/authSlice'; import './Header.css';
 
@@ -10,7 +10,7 @@ const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.is
 
 const { data: clientOrders } = useGetMyOrdersQuery(undefined, { skip: !userInfo || userInfo.isAdmin, pollingInterval: 5000, });
 
-const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !userInfo, pollingInterval: 5000, });
+const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo, pollingInterval: 5000, });
 
 const [markAsRead] = useMarkAsReadMutation();
 
@@ -39,7 +39,7 @@ return {
 
 const handleAdminMenuClick = () => { const now = new Date().toISOString(); localStorage.setItem('lastSeenAdminTimestamp', now); setLastSeenAdminTimestamp(now); };
 
-const handleNotificationClick = async () => { if (unreadNotifsCount > 0) { await markAsRead(); refetchNotifications(); } };
+const handleNotificationClick = () => { if (unreadNotifsCount > 0) { markAsRead(); } };
 
 const submitHandler = (e) => { e.preventDefault(); const currentPath = window.location.pathname; const isSupermarket = currentPath.startsWith('/supermarket');
 
@@ -56,27 +56,10 @@ if (keyword.trim()) {
 
 const logoutHandler = async () => { try { await logoutApiCall().unwrap(); dispatch(logout()); navigate('/'); } catch (err) { console.error(err); } };
 
-return ( <header className="header-layout"> <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'> <Container fluid> <div className="header-top-row"> <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand> <Navbar.Toggle aria-controls="basic-navbar-nav" /> <Navbar.Collapse id="basic-navbar-nav"> <Nav className="ms-auto"> <Nav.Link as={Link} to="/cart"> 🛒 Panier {cartItems.length > 0 && ( <Badge pill bg="success" style={{ marginLeft: '5px' }}> {cartItems.reduce((acc, item) => acc + item.qty, 0)} </Badge> )} </Nav.Link>
+return ( <header className="header-layout"> <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'> <Container fluid> <div className="header-top-row"> <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand> <Navbar.Toggle aria-controls="basic-navbar-nav" /> <Navbar.Collapse id="basic-navbar-nav"> <Nav className="ms-auto"> {userInfo ? ( <NavDropdown title={ <div className='profile-icon-container'> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+className="bi bi-person-fill" viewBox="0 0 16 16"> <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /> </svg> </div> } id="username" align="end" > <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item> <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item> <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item> <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
 
-{userInfo ? (
-              <NavDropdown
-                title={
-                  <div className='profile-icon-container'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                      className="bi bi-person-fill" viewBox="0 0 16 16">
-                      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                    </svg>
-                  </div>
-                }
-                id="username"
-                align="end"
-              >
-                <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
-
-                {userInfo.isAdmin && (
+{userInfo.isAdmin && (
                   <>
                     <NavDropdown.Divider />
                     <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
@@ -116,10 +99,19 @@ return ( <header className="header-layout"> <Navbar bg="dark" variant="dark" exp
         placeholder='Rechercher...'
         className='mr-sm-2'
       />
-      <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
+      <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
     </Form>
 
     <div className="d-flex align-items-center mt-3">
+      <Link to="/cart" className="me-4">
+        🛒
+        {cartItems.length > 0 && (
+          <Badge pill bg="success" style={{ marginLeft: '5px' }}>
+            {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+          </Badge>
+        )}
+      </Link>
+
       {userInfo && (
         <Link to="/notifications" onClick={handleNotificationClick} className="me-4">
           🔔
