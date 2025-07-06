@@ -1,20 +1,14 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useEffect, useMemo } from 'react';
-
+import { useState, useMemo } from 'react';
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
-import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
+import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { logout } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [keyword, setKeyword] = useState('');
-  const [logoutApiCall] = useLogoutMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
@@ -34,7 +28,6 @@ const Header = () => {
   });
 
   const [markAsRead] = useMarkAsReadMutation();
-
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
   );
@@ -44,22 +37,16 @@ const Header = () => {
     let cancelledOrders = 0;
     let unreadNotifs = 0;
 
-    const lastSeen = new Date(lastSeenAdminTimestamp);
-
-    if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
-      newOrders = adminOrders.filter(o => new Date(o.createdAt) > lastSeen).length;
-      cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length;
+    if (userInfo?.isAdmin && adminOrders) {
+      newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenAdminTimestamp)).length;
+      cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenAdminTimestamp)).length;
     }
 
-    if (userInfo && Array.isArray(notifications)) {
+    if (userInfo && notifications) {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return {
-      newOrdersCount: newOrders,
-      cancelledOrdersCount: cancelledOrders,
-      unreadNotifsCount: unreadNotifs,
-    };
+    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
   const handleAdminMenuClick = () => {
@@ -73,6 +60,11 @@ const Header = () => {
       markAsRead();
     }
   };
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [keyword, setKeyword] = useState('');
+  const [logoutApiCall] = useLogoutMutation();
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -117,22 +109,12 @@ const Header = () => {
                   )}
                 </Nav.Link>
 
-                {userInfo && (
-                  <Nav.Link as={Link} to="/notifications" onClick={handleNotificationClick}>
-                    🔔
-                    {unreadNotifsCount > 0 && (
-                      <Badge pill bg="danger">{unreadNotifsCount}</Badge>
-                    )}
-                  </Nav.Link>
-                )}
-
                 {userInfo ? (
                   <NavDropdown
                     title={
                       <div className='profile-icon-container'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                          className="bi bi-person-fill" viewBox="0 0 16 16">
-                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
+                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
                         </svg>
                       </div>
                     }
@@ -183,18 +165,27 @@ const Header = () => {
             value={keyword}
             placeholder='Rechercher...'
             className='mr-sm-2'
-          />
+          ></Form.Control>
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
         </Form>
+
         <div className="d-flex align-items-center mt-3">
+          {userInfo && (
+            <Link to="/notifications" onClick={handleNotificationClick} className="notification-btn me-4">
+              🔔
+              {unreadNotifsCount > 0 && <Badge pill bg="danger">{unreadNotifsCount}</Badge>}
+            </Link>
+          )}
+
           <Link to="/products" className="home-icon-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
-              className="bi bi-house-door-fill" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16">
               <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/>
             </svg>
           </Link>
+
           <Link to="/supermarket" className="supermarket-btn ms-4">
-            🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
+            🛍️
+            <span className="ms-2 d-none d-lg-block">Supermarché</span>
           </Link>
         </div>
       </div>
