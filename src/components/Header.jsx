@@ -12,44 +12,55 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // Logique pour les notifications
+  // Notifications pour l'admin
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
     pollingInterval: 15000,
   });
 
+  // Notifications pour le client
   const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
     skip: !userInfo || userInfo.isAdmin,
     pollingInterval: 15000,
   });
 
-  const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
-    () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
-  );
+  const { data: notifications } = useGetNotificationsQuery(undefined, {
+    skip: !userInfo,
+    pollingInterval: 15000,
+  });
+  
+  const [markAsRead] = useMarkAsReadMutation();
 
-  const { newOrdersCount, hasNotification } = useMemo(() => {
+  // Calcul des compteurs et notifications
+  const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     let newOrders = 0;
-    let notification = false;
+    let cancelledOrders = 0;
+    let unreadNotifs = 0;
+
+    const lastSeenTimestamp = localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString();
 
     if (userInfo?.isAdmin && adminOrders) {
-      newOrders = adminOrders.filter(
-        (o) => new Date(o.createdAt) > new Date(lastSeenAdminTimestamp)
-      ).length;
-    } else if (userInfo && !userInfo.isAdmin && clientOrders) {
-      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
-      notification = clientOrders.some((order) => {
-        return !seenOrders[order._id] || new Date(order.updatedAt) > new Date(seenOrders[order._id]);
-      });
+      newOrders = adminOrders.filter(o => new Date(o.createdAt) > new Date(lastSeenTimestamp)).length;
+      cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > new Date(lastSeenTimestamp)).length;
+    } 
+    
+    if (userInfo && notifications) {
+      unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
-    return { newOrdersCount, hasNotification };
-  }, [userInfo, adminOrders, clientOrders, lastSeenAdminTimestamp]);
+
+    return { newOrdersCount: newOrders, cancelledOrdersCount: cancelledOrders, unreadNotifsCount: unreadNotifs };
+  }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
   const handleAdminMenuClick = () => {
-    const now = new Date().toISOString();
-    localStorage.setItem('lastSeenAdminTimestamp', now);
-    setLastSeenAdminTimestamp(now);
+    localStorage.setItem('lastSeenAdminTimestamp', new Date().toISOString());
   };
 
+  const handleNotificationClick = () => {
+    if (unreadCount > 0) {
+      markAsRead();
+    }
+  };
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
@@ -75,9 +86,7 @@ const Header = () => {
       await logoutApiCall().unwrap();
       dispatch(logout());
       navigate('/');
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   return (
@@ -93,23 +102,32 @@ const Header = () => {
                   🛒 Panier
                   {cartItems.length > 0 && (<Badge pill bg="success" style={{ marginLeft: '5px' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}
                 </Nav.Link>
+                {userInfo && (
+                  <Nav.Link as={Link} to="/notifications" onClick={handleNotificationClick}>
+                    🔔
+                    {unreadNotifsCount > 0 && <Badge pill bg="danger">{unreadNotifsCount}</Badge>}
+                  </Nav.Link>
+                )}
                 {userInfo ? (
                   <NavDropdown title={
                       <div className='profile-icon-container'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>
-                        {userInfo.isAdmin && newOrdersCount > 0 && (<Badge pill bg='danger' style={{ marginLeft: '5px' }}>{newOrdersCount}</Badge>)}
-                        {!userInfo.isAdmin && hasNotification && (<Badge pill bg="danger" style={{ marginLeft: '5px' }}> </Badge>)}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
                       </div>
                     } id="username" align="end">
-                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
-                        <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>Gestion Produits</NavDropdown.Item>
-                        <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>Gestion Commandes</NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
+                          Gestion Produits 
+                          {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}
+                        </NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
+                          Gestion Commandes
+                          {cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}
+                        </NavDropdown.Item>
                       </>
                     )}
                     <NavDropdown.Divider />
