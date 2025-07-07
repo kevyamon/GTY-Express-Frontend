@@ -10,7 +10,9 @@ import {
 } from '../../slices/productsApiSlice';
 
 const ProductListScreen = () => {
-  const { data: products, isLoading, error } = useGetProductsQuery({});
+  // CORRECTION : On demande tous les produits sans filtre de catégorie
+  const { data: products, isLoading, error, refetch } = useGetProductsQuery({ category: 'all' });
+  
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
 
@@ -56,8 +58,7 @@ const ProductListScreen = () => {
       {isLoading ? (
         <p>Chargement...</p>
       ) : error ? (
-        // GESTION D'ERREUR CORRIGÉE ICI
-        <Message variant='danger'>{error?.data?.message || error.error}</Message>
+        <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>
       ) : (
         <Table striped bordered hover responsive className='table-sm'>
           <thead>
@@ -65,15 +66,17 @@ const ProductListScreen = () => {
               <th>ID</th>
               <th>NOM</th>
               <th>PRIX</th>
+              <th>CATÉGORIE</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {products.map((product) => (
               <tr key={product._id}>
-                <td>{product._id}</td>
+                <td>{product._id.substring(0, 10)}...</td>
                 <td>{product.name}</td>
-                <td>{product.price} €</td>
+                <td>{product.price} FCFA</td>
+                <td>{product.isSupermarket ? 'Supermarché' : 'Normal'}</td>
                 <td>
                   <LinkContainer to={`/admin/product/${product._id}/edit`}>
                     <Button variant='light' className='btn-sm mx-2'>
