@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Button } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
 import { 
@@ -53,7 +54,8 @@ const OrderListScreen = () => {
     return <p>Chargement des commandes...</p>;
   }
 
-  if (error) {
+  // CORRECTION : On n'affiche le message d'erreur que si le chargement initial échoue
+  if (error && !orders) {
     return <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>;
   }
 
@@ -67,7 +69,7 @@ const OrderListScreen = () => {
           <tr>
             <th>ID</th>
             <th>CLIENT</th>
-            <th>DATE ET HEURE</th> {/* MODIFIÉ */}
+            <th>DATE ET HEURE</th>
             <th>TOTAL</th>
             <th>PAYÉ</th>
             <th>STATUT</th>
@@ -80,7 +82,6 @@ const OrderListScreen = () => {
               <tr key={order._id}>
                 <td>{order._id.substring(0, 10)}...</td>
                 <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
-                {/* CORRECTION ICI pour afficher l'heure */}
                 <td>{new Date(order.createdAt).toLocaleString('fr-FR')}</td>
                 <td>{order.totalPrice.toFixed(2)} FCFA</td>
                 <td>{order.isPaid ? '✅' : '❌'}</td>
