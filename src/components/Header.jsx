@@ -2,6 +2,7 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
+import { toast } from 'react-toastify';
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
@@ -54,9 +55,9 @@ const Header = () => {
     }
 
     return {
-      newOrdersCount: newOrders,
-      cancelledOrdersCount: cancelledOrders,
-      unreadNotifsCount: unreadNotifs,
+      newOrdersCount,
+      cancelledOrdersCount,
+      unreadNotifsCount,
     };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
@@ -79,15 +80,13 @@ const Header = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    const currentPath = window.location.pathname;
-    const isSupermarket = currentPath.startsWith('/supermarket');
-
     if (!userInfo) {
-      toast.error('Veuillez vous connecter ou vous inscrire pour effectuer une recherche.');
+      toast.error('Veuillez vous connecter pour faire une recherche.');
       navigate('/login');
       return;
     }
-
+    const currentPath = window.location.pathname;
+    const isSupermarket = currentPath.startsWith('/supermarket');
     if (keyword.trim()) {
       const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
       navigate(searchPath);
@@ -134,25 +133,19 @@ const Header = () => {
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
-
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
                         <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
                           Gestion Produits
-                          {newOrdersCount > 0 && (
-                            <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>
-                          )}
+                          {newOrdersCount > 0 && ( <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge> )}
                         </NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
                           Gestion Commandes
-                          {cancelledOrdersCount > 0 && (
-                            <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>
-                          )}
+                          {cancelledOrdersCount > 0 && ( <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge> )}
                         </NavDropdown.Item>
                       </>
                     )}
-
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
@@ -177,11 +170,11 @@ const Header = () => {
           />
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
         </Form>
-
-        {/* --- CORRECTION : TOUTE LA SECTION DES ICÔNES EST MAINTENANT CONDITIONNELLE --- */}
+        
+        {/* TOUTE LA LOGIQUE DES ICÔNES EST MAINTENANT ICI */}
         {userInfo && (
           <div className="d-flex align-items-center mt-3">
-            <Link to="/cart" className="home-icon-link me-4">
+            <Link to="/cart" className="home-icon-link">
               <span style={{ position: 'relative' }}>
                 🛒
                 {cartItems.length > 0 && (
@@ -192,7 +185,7 @@ const Header = () => {
               </span>
             </Link>
 
-            <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link me-4">
+            <Link to="/notifications" className="home-icon-link ms-4" onClick={handleNotificationClick}>
               <span style={{ position: 'relative' }}>
                 🔔
                 {unreadNotifsCount > 0 && (
@@ -201,7 +194,7 @@ const Header = () => {
               </span>
             </Link>
 
-            <Link to="/products" className="home-icon-link">
+            <Link to="/products" className="home-icon-link ms-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
                 className="bi bi-house-door-fill" viewBox="0 0 16 16">
                 <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z" />

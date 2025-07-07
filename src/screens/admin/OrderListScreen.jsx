@@ -49,13 +49,11 @@ const OrderListScreen = () => {
     }
   };
 
-  // On sépare la logique d'affichage
   if (isLoading) {
     return <p>Chargement des commandes...</p>;
   }
 
-  // On n'affiche l'erreur que si le chargement initial a échoué
-  if (error && !orders) {
+  if (error) {
     return <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>;
   }
 
@@ -69,7 +67,7 @@ const OrderListScreen = () => {
           <tr>
             <th>ID</th>
             <th>CLIENT</th>
-            <th>DATE</th>
+            <th>DATE ET HEURE</th> {/* MODIFIÉ */}
             <th>TOTAL</th>
             <th>PAYÉ</th>
             <th>STATUT</th>
@@ -82,7 +80,8 @@ const OrderListScreen = () => {
               <tr key={order._id}>
                 <td>{order._id.substring(0, 10)}...</td>
                 <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
-                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                {/* CORRECTION ICI pour afficher l'heure */}
+                <td>{new Date(order.createdAt).toLocaleString('fr-FR')}</td>
                 <td>{order.totalPrice.toFixed(2)} FCFA</td>
                 <td>{order.isPaid ? '✅' : '❌'}</td>
                 <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>

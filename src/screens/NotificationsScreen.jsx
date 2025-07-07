@@ -1,40 +1,80 @@
-import { useGetNotificationsQuery, useDeleteNotificationMutation } from '../slices/notificationApiSlice';
-import { ListGroup, Spinner, Button } from 'react-bootstrap';
-import { FaTrash } from 'react-icons/fa';
+import { useGetNotificationsQuery, useDeleteNotificationMutation, useDeleteAllNotificationsMutation } from '../slices/notificationApiSlice';
+import { ListGroup, Spinner, Button, Row, Col } from 'react-bootstrap';
 import Message from '../components/Message';
+import { FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const NotificationsScreen = () => {
-  const { data: notifications, isLoading, error, refetch } = useGetNotificationsQuery();
+  const { data: notifications, isLoading, error } = useGetNotificationsQuery();
   const [deleteNotification] = useDeleteNotificationMutation();
+  const [deleteAllNotifications, { isLoading: loadingDeleteAll }] = useDeleteAllNotificationsMutation();
 
   const handleDelete = async (notificationId) => {
     try {
       await deleteNotification(notificationId).unwrap();
-      refetch(); // 👈 recharger la liste après suppression
     } catch (error) {
-      console.error('Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer toutes vos notifications ?')) {
+        try {
+            await deleteAllNotifications().unwrap();
+            toast.success('Toutes les notifications ont été supprimées');
+        } catch (error) {
+            toast.error('Erreur lors de la suppression');
+        }
     }
   };
 
   return (
-    <div>
-      <h1>Notifications</h1>
+    <div className="container mt-4">
+      <Row className="align-items-center mb-3">
+        <Col>
+            <h2 className="mb-0">📨 Mes Notifications</h2>
+        </Col>
+        <Col xs="auto">
+            {notifications && notifications.length > 0 && (
+                <Button variant="outline-danger" size="sm" onClick={handleDeleteAll} disabled={loadingDeleteAll}>
+                    Tout supprimer
+                </Button>
+            )}
+        </Col>
+      </Row>
+      
       {isLoading ? (
         <Spinner animation="border" />
       ) : error ? (
-        <Message variant='danger'>{error?.data?.message || error.error}</Message>
+        <Message variant="danger">{error?.data?.message || error.error}</Message>
       ) : (
-        <ListGroup>
-          {notifications.length === 0 && <Message>Aucune nouvelle notification</Message>}
-          {notifications.map((notif) => (
-            <ListGroup.Item key={notif.notificationId} className="d-flex justify-content-between align-items-start" variant={!notif.isRead ? 'light' : ''}>
+        <ListGroup className="shadow-sm">
+          {notifications.length === 0 ? <Message>Aucune nouvelle notification</Message> 
+          : notifications.map((notif) => (
+            <ListGroup.Item
+              key={notif._id}
+              as="a"
+              href={notif.link}
+              action
+              variant={!notif.isRead ? 'light' : ''}
+              className="d-flex justify-content-between align-items-start"
+            >
               <div>
-                <a href={notif.link} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <p className="mb-1">{notif.message}</p>
-                  <small className="text-muted">{new Date(notif.createdAt).toLocaleString('fr-FR')}</small>
-                </a>
+                <div className="fw-bold">{notif.message}</div>
+                <small className="text-muted">
+                  {new Date(notif.createdAt).toLocaleString('fr-FR')}
+                </small>
               </div>
-              <Button variant="outline-danger" size="sm" onClick={() => handleDelete(notif.notificationId)}>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                className="ms-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDelete(notif._id);
+                }}
+              >
                 <FaTrash />
               </Button>
             </ListGroup.Item>
