@@ -1,7 +1,7 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
@@ -72,7 +72,7 @@ const Header = () => {
     if (unreadNotifsCount > 0) {
       try {
         await markAsRead();
-        refetch(); // 🔄 met à jour immédiatement les notifs après lecture
+        refetch();
       } catch (err) {
         console.error('Erreur markAsRead:', err);
       }
@@ -83,6 +83,12 @@ const Header = () => {
     e.preventDefault();
     const currentPath = window.location.pathname;
     const isSupermarket = currentPath.startsWith('/supermarket');
+
+    if (!userInfo) {
+      alert('Veuillez vous connecter ou vous inscrire pour afficher les produits.');
+      navigate('/login');
+      return;
+    }
 
     if (keyword.trim()) {
       const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
@@ -174,38 +180,36 @@ const Header = () => {
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
         </Form>
 
-        <div className="d-flex align-items-center mt-3">
-          {userInfo && (
-            <>
-              <Link to="/cart" className="me-4">
-                🛒
-                {cartItems.length > 0 && (
-                  <Badge pill bg="success" style={{ marginLeft: '5px' }}>
-                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                  </Badge>
-                )}
-              </Link>
+        {userInfo && (
+          <div className="d-flex align-items-center mt-3">
+            <Link to="/cart" className="me-4">
+              🛒
+              {cartItems.length > 0 && (
+                <Badge pill bg="success" style={{ marginLeft: '5px' }}>
+                  {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                </Badge>
+              )}
+            </Link>
 
-              <Link to="/notifications" onClick={handleNotificationClick} className="me-4">
-                🔔
-                {unreadNotifsCount > 0 && (
-                  <Badge pill bg="danger">{unreadNotifsCount}</Badge>
-                )}
-              </Link>
-            </>
-          )}
+            <Link to="/notifications" onClick={handleNotificationClick} className="me-4">
+              🔔
+              {unreadNotifsCount > 0 && (
+                <Badge pill bg="danger">{unreadNotifsCount}</Badge>
+              )}
+            </Link>
 
-          <Link to="/products" className="home-icon-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
-              className="bi bi-house-door-fill" viewBox="0 0 16 16">
-              <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z" />
-            </svg>
-          </Link>
+            <Link to="/products" className="home-icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                className="bi bi-house-door-fill" viewBox="0 0 16 16">
+                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z" />
+              </svg>
+            </Link>
 
-          <Link to="/supermarket" className="supermarket-btn ms-4">
-            🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
-          </Link>
-        </div>
+            <Link to="/supermarket" className="supermarket-btn ms-4">
+              🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
