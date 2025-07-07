@@ -2,8 +2,6 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
-import { toast } from 'react-toastify'; // On importe toast
-
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
@@ -21,17 +19,17 @@ const Header = () => {
 
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
     skip: !userInfo || userInfo.isAdmin,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const { data: notifications, refetch } = useGetNotificationsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const [markAsRead] = useMarkAsReadMutation();
@@ -44,7 +42,6 @@ const Header = () => {
     let newOrders = 0;
     let cancelledOrders = 0;
     let unreadNotifs = 0;
-
     const lastSeen = new Date(lastSeenAdminTimestamp);
 
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
@@ -78,7 +75,6 @@ const Header = () => {
         console.error('Erreur markAsRead:', err);
       }
     }
-    navigate('/notifications');
   };
 
   const submitHandler = (e) => {
@@ -86,9 +82,8 @@ const Header = () => {
     const currentPath = window.location.pathname;
     const isSupermarket = currentPath.startsWith('/supermarket');
 
-    // CORRECTION ICI
     if (!userInfo) {
-      toast.error('Veuillez vous connecter ou vous inscrire pour afficher les produits.');
+      toast.error('Veuillez vous connecter ou vous inscrire pour effectuer une recherche.');
       navigate('/login');
       return;
     }
@@ -122,24 +117,6 @@ const Header = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto">
-                <Link to="/cart" className="nav-link">
-                  🛒 Panier
-                  {cartItems.length > 0 && (
-                    <Badge pill bg="success" style={{ marginLeft: '5px' }}>
-                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                    </Badge>
-                  )}
-                </Link>
-
-                {userInfo && (
-                  <Link to="/notifications" className="nav-link" onClick={handleNotificationClick}>
-                    🔔
-                    {unreadNotifsCount > 0 && (
-                      <Badge pill bg="danger">{unreadNotifsCount}</Badge>
-                    )}
-                  </Link>
-                )}
-
                 {userInfo ? (
                   <NavDropdown
                     title={
@@ -201,8 +178,29 @@ const Header = () => {
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
         </Form>
 
+        {/* --- CORRECTION : TOUTE LA SECTION DES ICÔNES EST MAINTENANT CONDITIONNELLE --- */}
         {userInfo && (
           <div className="d-flex align-items-center mt-3">
+            <Link to="/cart" className="home-icon-link me-4">
+              <span style={{ position: 'relative' }}>
+                🛒
+                {cartItems.length > 0 && (
+                  <Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>
+                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                  </Badge>
+                )}
+              </span>
+            </Link>
+
+            <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link me-4">
+              <span style={{ position: 'relative' }}>
+                🔔
+                {unreadNotifsCount > 0 && (
+                  <Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>
+                )}
+              </span>
+            </Link>
+
             <Link to="/products" className="home-icon-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
                 className="bi bi-house-door-fill" viewBox="0 0 16 16">
