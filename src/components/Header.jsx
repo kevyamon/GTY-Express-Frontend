@@ -177,7 +177,7 @@ const Header = () => {
             placeholder='Rechercher...'
             className='mr-sm-2'
           />
-          <Button type='submit' variant='outline-success' className='p-2 ms-2'>OK</Button>
+          <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
         </Form>
 
         {userInfo && (
