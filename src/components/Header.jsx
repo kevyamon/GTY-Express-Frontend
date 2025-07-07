@@ -2,6 +2,7 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
+import { toast } from 'react-toastify'; // On importe toast
 
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
@@ -77,6 +78,7 @@ const Header = () => {
         console.error('Erreur markAsRead:', err);
       }
     }
+    navigate('/notifications');
   };
 
   const submitHandler = (e) => {
@@ -84,8 +86,9 @@ const Header = () => {
     const currentPath = window.location.pathname;
     const isSupermarket = currentPath.startsWith('/supermarket');
 
+    // CORRECTION ICI
     if (!userInfo) {
-      alert('Veuillez vous connecter ou vous inscrire pour afficher les produits.');
+      toast.error('Veuillez vous connecter ou vous inscrire pour afficher les produits.');
       navigate('/login');
       return;
     }
@@ -119,6 +122,24 @@ const Header = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto">
+                <Link to="/cart" className="nav-link">
+                  🛒 Panier
+                  {cartItems.length > 0 && (
+                    <Badge pill bg="success" style={{ marginLeft: '5px' }}>
+                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                    </Badge>
+                  )}
+                </Link>
+
+                {userInfo && (
+                  <Link to="/notifications" className="nav-link" onClick={handleNotificationClick}>
+                    🔔
+                    {unreadNotifsCount > 0 && (
+                      <Badge pill bg="danger">{unreadNotifsCount}</Badge>
+                    )}
+                  </Link>
+                )}
+
                 {userInfo ? (
                   <NavDropdown
                     title={
@@ -182,22 +203,6 @@ const Header = () => {
 
         {userInfo && (
           <div className="d-flex align-items-center mt-3">
-            <Link to="/cart" className="me-4">
-              🛒
-              {cartItems.length > 0 && (
-                <Badge pill bg="success" style={{ marginLeft: '5px' }}>
-                  {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                </Badge>
-              )}
-            </Link>
-
-            <Link to="/notifications" onClick={handleNotificationClick} className="me-4">
-              🔔
-              {unreadNotifsCount > 0 && (
-                <Badge pill bg="danger">{unreadNotifsCount}</Badge>
-              )}
-            </Link>
-
             <Link to="/products" className="home-icon-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
                 className="bi bi-house-door-fill" viewBox="0 0 16 16">
