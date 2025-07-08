@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, InputGroup } from 'react-bootstrap'; // Ajouter InputGroup
+import { Form, Button, Row, Col, InputGroup, Image } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const ProfileDetailsScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // État pour voir/cacher le mdp
+  const [showPassword, setShowPassword] = useState(false);
+  const [loadingUpload, setLoadingUpload] = useState(false);
 
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
@@ -21,9 +27,31 @@ const ProfileDetailsScreen = () => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
-      setPhone(userInfo.phone || ''); // On pré-remplit le téléphone
+      setPhone(userInfo.phone || '');
+      setProfilePicture(userInfo.profilePicture || '');
     }
   }, [userInfo]);
+
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    setLoadingUpload(true);
+    try {
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      const { data } = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        formData, config
+      );
+      toast.success('Image téléversée');
+      setProfilePicture(data.secure_url);
+      setLoadingUpload(false);
+    } catch (error) {
+      toast.error("Le téléversement a échoué");
+      setLoadingUpload(false);
+    }
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -32,7 +60,7 @@ const ProfileDetailsScreen = () => {
     } else {
       try {
         const res = await updateProfile({
-          _id: userInfo._id, name, email, phone, password,
+          _id: userInfo._id, name, email, phone, password, profilePicture,
         }).unwrap();
         dispatch(setCredentials(res));
         toast.success('Profil mis à jour avec succès');
@@ -49,6 +77,22 @@ const ProfileDetailsScreen = () => {
       <Col md={6}>
         <h2>Informations Personnelles</h2>
         <Form onSubmit={submitHandler}>
+          <Form.Group controlId='profilePicture' className='my-3 text-center'>
+            <Image 
+              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
+              alt={name}
+              roundedCircle 
+              style={{ width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #eee' }} 
+            />
+            <Form.Control 
+              label='Choisir une nouvelle photo' 
+              onChange={uploadFileHandler} 
+              type='file' 
+              className="mt-2" 
+            />
+            {loadingUpload && <p>Téléversement...</p>}
+          </Form.Group>
+
           <Form.Group className='my-3' controlId='name'>
             <Form.Label>Nom</Form.Label>
             <Form.Control type='text' placeholder='Entrez votre nom' value={name} onChange={(e) => setName(e.target.value)}></Form.Control>
@@ -63,7 +107,7 @@ const ProfileDetailsScreen = () => {
             <Form.Label>Numéro de téléphone</Form.Label>
             <Form.Control type='tel' placeholder='Ajoutez votre numéro' value={phone} onChange={(e) => setPhone(e.target.value)}></Form.Control>
           </Form.Group>
-          
+
           <hr />
 
           <Form.Group className='my-3' controlId='password'>

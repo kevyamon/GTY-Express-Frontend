@@ -12,7 +12,7 @@
   width: 100%;
 }
 
-/* Deuxième rangée : Recherche et Icône Maison */
+/* Deuxième rangée : Recherche et Icônes */
 .header-center-row {
   display: flex;
   flex-direction: column;
@@ -27,13 +27,28 @@
 }
 
 .home-icon-link {
-  color: rgba(255, 255, 255, 0.65); /* Couleur gris clair */
-  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
   transition: color 0.2s ease-in-out;
 }
 
 .home-icon-link:hover {
-  color: white; /* Changement de couleur au survol */
+  color: white;
+}
+
+.supermarket-btn {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #ffc107;
+  color: #212529;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+.supermarket-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
 }
 
 .profile-icon-container {
@@ -42,6 +57,10 @@
     color: rgba(255, 255, 255, 0.65);
 }
 
-.profile-icon-container svg {
-    margin-right: 5px;
+/* NOUVEAU STYLE POUR L'IMAGE DE PROFIL DANS LE HEADER */
+.profile-image {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover; /* S'assure que l'image remplit bien le cercle */
 }

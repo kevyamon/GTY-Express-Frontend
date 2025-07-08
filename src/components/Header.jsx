@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
@@ -20,17 +20,17 @@ const Header = () => {
 
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
     skip: !userInfo || userInfo.isAdmin,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const { data: notifications, refetch } = useGetNotificationsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 10000,
+    pollingInterval: 5000,
   });
 
   const [markAsRead] = useMarkAsReadMutation();
@@ -43,7 +43,6 @@ const Header = () => {
     let newOrders = 0;
     let cancelledOrders = 0;
     let unreadNotifs = 0;
-
     const lastSeen = new Date(lastSeenAdminTimestamp);
 
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
@@ -77,13 +76,12 @@ const Header = () => {
         console.error('Erreur markAsRead:', err);
       }
     }
-    navigate('/notifications');
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
     if (!userInfo) {
-      toast.error('Veuillez vous connecter ou vous inscrire pour effectuer une recherche.');
+      toast.error('Veuillez vous connecter pour faire une recherche.');
       navigate('/login');
       return;
     }
@@ -117,23 +115,24 @@ const Header = () => {
             <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="ms-auto">
+              <Nav className="ms-auto align-items-center">
                 {userInfo ? (
                   <NavDropdown
                     title={
                       <div className='profile-icon-container'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                          className="bi bi-person-fill" viewBox="0 0 16 16">
-                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                        </svg>
+                        {/* AFFICHE L'IMAGE DE PROFIL OU L'ICÔNE PAR DÉFAUT */}
+                        {userInfo.profilePicture ? (
+                          <Image src={userInfo.profilePicture} alt={userInfo.name} className="profile-image" />
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                        )}
                       </div>
                     }
                     id="username"
                     align="end"
                   >
-                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/products">Produits</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
 
                     {userInfo.isAdmin && (
@@ -144,16 +143,11 @@ const Header = () => {
                         </NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
                           Gestion Commandes
-                          {newOrdersCount > 0 && (
-                            <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>
-                          )}
-                          {cancelledOrdersCount > 0 && (
-                            <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>
-                          )}
+                          {newOrdersCount > 0 && (<Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>)}
+                          {cancelledOrdersCount > 0 && (<Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>)}
                         </NavDropdown.Item>
                       </>
                     )}
-
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
@@ -168,17 +162,9 @@ const Header = () => {
 
       <div className="header-center-row bg-dark">
         <Form onSubmit={submitHandler} className="d-flex search-form">
-          <Form.Control
-            type='text'
-            name='q'
-            onChange={(e) => setKeyword(e.target.value)}
-            value={keyword}
-            placeholder='Rechercher...'
-            className='mr-sm-2'
-          />
+          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
           <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
         </Form>
-
         {userInfo && (
           <div className="d-flex align-items-center mt-3">
             <Link to="/cart" className="home-icon-link me-4">
@@ -191,23 +177,15 @@ const Header = () => {
                 )}
               </span>
             </Link>
-
             <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link me-4">
               <span style={{ position: 'relative' }}>
                 🔔
-                {unreadNotifsCount > 0 && (
-                  <Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>
-                )}
+                {unreadNotifsCount > 0 && (<Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>)}
               </span>
             </Link>
-
             <Link to="/products" className="home-icon-link">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
-                className="bi bi-house-door-fill" viewBox="0 0 16 16">
-                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg>
             </Link>
-
             <Link to="/supermarket" className="supermarket-btn ms-4">
               🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
             </Link>
