@@ -16,6 +16,13 @@ export const notificationApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Notification'],
     }),
+    deleteNotification: builder.mutation({
+      query: (notificationId) => ({
+        url: `${NOTIFICATIONS_URL}/${notificationId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
     deleteAllNotifications: builder.mutation({
       query: () => ({
         url: NOTIFICATIONS_URL,
@@ -29,5 +36,6 @@ export const notificationApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetNotificationsQuery,
   useMarkAsReadMutation,
+  useDeleteNotificationMutation, // CORRECTION : On l'ajoute à la liste des exports
   useDeleteAllNotificationsMutation,
 } = notificationApiSlice;
