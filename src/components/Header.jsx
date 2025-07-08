@@ -1,4 +1,4 @@
- import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
@@ -27,19 +27,28 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // 4. Initialisation des requêtes API (useQuery) qui dépendent de userInfo
+  // 4. Initialisation des requêtes API (useQuery)
   useGetProfileDetailsQuery(undefined, {
     skip: !userInfo,
     pollingInterval: 30000,
     onSuccess: (data) => {
-      if (data && JSON.stringify(data) !== JSON.stringify({ name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture })) {
-        dispatch(setCredentials({ ...userInfo, ...data }));
+      if (data) {
+        // Pour éviter une boucle infinie de re-render, on compare les données
+        const oldData = { name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture };
+        if (JSON.stringify(data) !== JSON.stringify(oldData)) {
+          dispatch(setCredentials({ ...userInfo, ...data }));
+        }
       }
     },
   });
 
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
+    pollingInterval: 5000,
+  });
+
+  const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
+    skip: !userInfo || userInfo.isAdmin,
     pollingInterval: 5000,
   });
 
@@ -149,10 +158,10 @@ const Header = () => {
                         <NavDropdown.Divider />
                         <NavDropdown.Item as={Link} to="/admin/productlist" onClick={handleAdminMenuClick}>
                           Gestion Produits
+                          {newOrdersCount > 0 && (<Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>)}
                         </NavDropdown.Item>
                         <NavDropdown.Item as={Link} to="/admin/orderlist" onClick={handleAdminMenuClick}>
                           Gestion Commandes
-                          {newOrdersCount > 0 && (<Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>)}
                           {cancelledOrdersCount > 0 && (<Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>)}
                         </NavDropdown.Item>
                       </>
