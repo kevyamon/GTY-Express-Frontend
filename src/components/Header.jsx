@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-// On importe tous les hooks nécessaires de manière propre
+// On importe toutes les fonctions nécessaires
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -12,53 +12,46 @@ import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
-  // 1. Hooks de base
+  // 1. Initialisation des hooks de base
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // 2. État local (useState)
+  // 2. Initialisation des états locaux simples
   const [keyword, setKeyword] = useState('');
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
   );
 
-  // 3. Sélection depuis le "cerveau" Redux (useSelector)
+  // 3. Sélection des données depuis le "cerveau" Redux
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // 4. Requêtes API pour récupérer des données (useQuery)
-  const { data: profileData } = useGetProfileDetailsQuery(undefined, {
+  // 4. Initialisation des mutations (les actions qui modifient les données)
+  const [logoutApiCall] = useLogoutMutation();
+  const [markAsRead] = useMarkAsReadMutation();
+
+  // 5. Initialisation des requêtes (qui dépendent de userInfo)
+  useGetProfileDetailsQuery(undefined, {
     skip: !userInfo,
     pollingInterval: 30000,
+    onSuccess: (data) => {
+      if (data) {
+        dispatch(setCredentials({ ...userInfo, ...data }));
+      }
+    },
   });
 
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
-    pollingInterval: 5000,
-  });
-
-  const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
-    skip: !userInfo || userInfo.isAdmin,
-    pollingInterval: 5000,
+    pollingInterval: 10000,
   });
 
   const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 5000,
+    pollingInterval: 10000,
   });
 
-  // 5. Mutations API pour modifier des données (useMutation)
-  const [logoutApiCall] = useLogoutMutation();
-  const [markAsRead] = useMarkAsReadMutation();
-
-  // 6. Logique de synchronisation du profil
-  useEffect(() => {
-    if (profileData) {
-      dispatch(setCredentials({ ...userInfo, ...profileData }));
-    }
-  }, [profileData, dispatch]);
-
-  // 7. Calculs mémoïsés (useMemo) - après que toutes les données sont disponibles
+  // 6. Calcul des valeurs après que toutes les données sont disponibles
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     let newOrders = 0;
     let cancelledOrders = 0;
@@ -70,18 +63,14 @@ const Header = () => {
       cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length;
     }
 
-    if (userInfo && !userInfo.isAdmin && Array.isArray(notifications)) {
-        const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
-        unreadNotifs = notifications.filter(notif => {
-            const lastSeenTime = seenOrders[notif.link?.split('/').pop()];
-            return !lastSeenTime || new Date(notif.createdAt) > new Date(lastSeenTime);
-        }).length;
+    if (userInfo && Array.isArray(notifications)) {
+      unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
     return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
-  }, [userInfo, adminOrders, clientOrders, notifications, lastSeenAdminTimestamp]);
+  }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
-  // 8. Fonctions de gestion d'événements
+  // 7. Définition des fonctions qui utilisent les hooks et les états
   const handleAdminMenuClick = () => {
     const now = new Date().toISOString();
     localStorage.setItem('lastSeenAdminTimestamp', now);
@@ -93,7 +82,9 @@ const Header = () => {
       try {
         await markAsRead().unwrap();
         refetchNotifications();
-      } catch (err) { console.error('Erreur markAsRead:', err); }
+      } catch (err) {
+        console.error('Erreur markAsRead:', err);
+      }
     }
     navigate('/notifications');
   };
@@ -122,10 +113,12 @@ const Header = () => {
       await logoutApiCall().unwrap();
       dispatch(logout());
       navigate('/');
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // 9. Rendu du composant
+  // 8. Rendu de l'interface
   return (
     <header className="header-layout">
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
@@ -149,8 +142,8 @@ const Header = () => {
                     id="username"
                     align="end"
                   >
-                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
                     {userInfo.isAdmin && (
                       <>
@@ -187,7 +180,11 @@ const Header = () => {
             <Link to="/cart" className="home-icon-link">
               <span style={{ position: 'relative' }}>
                 🛒
-                {cartItems.length > 0 && (<Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}
+                {cartItems.length > 0 && (
+                  <Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>
+                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                  </Badge>
+                )}
               </span>
             </Link>
             <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link ms-4">
