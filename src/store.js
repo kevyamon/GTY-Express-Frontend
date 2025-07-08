@@ -6,16 +6,11 @@ import favoritesReducer from './slices/favoritesSlice';
 
 const store = configureStore({
   reducer: {
-    // Tous les reducers de nos API (produits, commandes, utilisateurs, notifications)
-    // sont maintenant gérés par cette seule ligne :
     [apiSlice.reducerPath]: apiSlice.reducer,
-    
-    // Nos reducers "classiques"
     cart: cartSliceReducer,
     auth: authReducer,
     favorites: favoritesReducer,
   },
-  // On ne déclare que le middleware de l'apiSlice principal
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true,

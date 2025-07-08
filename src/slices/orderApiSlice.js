@@ -11,7 +11,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     getOrderDetails: builder.query({
       query: (id) => ({ url: `${ORDERS_URL}/${id}` }),
       providesTags: (result, error, id) => [{ type: 'Order', id }],
-      keepUnusedDataFor: 5,
     }),
     payOrder: builder.mutation({
       query: ({ orderId, details }) => ({
@@ -28,7 +27,6 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     getMyOrders: builder.query({
       query: () => ({ url: `${ORDERS_URL}/myorders` }),
       providesTags: ['Order'],
-      keepUnusedDataFor: 5,
     }),
     getOrders: builder.query({
       query: () => ({ url: ORDERS_URL }),
@@ -43,17 +41,11 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
     }),
     cancelOrder: builder.mutation({
-      query: (orderId) => ({
-        url: `${ORDERS_URL}/${orderId}/cancel`,
-        method: 'PUT',
-      }),
+      query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }),
       invalidatesTags: ['Order'],
     }),
     deleteOrder: builder.mutation({
-      query: (orderId) => ({
-        url: `${ORDERS_URL}/${orderId}`,
-        method: 'DELETE',
-      }),
+      query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}`, method: 'DELETE' }),
       invalidatesTags: ['Order'],
     }),
   }),

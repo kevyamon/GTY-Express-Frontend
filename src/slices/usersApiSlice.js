@@ -23,7 +23,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
-    // On s'assure que cette fonction est bien là
     getProfileDetails: builder.query({
       query: () => ({
         url: `${USERS_URL}/profile`,
@@ -47,5 +46,5 @@ export const {
   useLogoutMutation,
   useRegisterMutation,
   useUpdateProfileMutation,
-  useGetProfileDetailsQuery, // Et qu'elle est bien exportée ici
+  useGetProfileDetailsQuery,
 } = usersApiSlice;

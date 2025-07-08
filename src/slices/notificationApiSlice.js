@@ -7,36 +7,27 @@ export const notificationApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: NOTIFICATIONS_URL,
       }),
-      providesTags: ['Notifications'],
+      providesTags: ['Notification'],
     }),
     markAsRead: builder.mutation({
       query: () => ({
         url: `${NOTIFICATIONS_URL}/mark-as-read`,
         method: 'PUT',
       }),
-      invalidatesTags: ['Notifications'],
+      invalidatesTags: ['Notification'],
     }),
-    deleteNotification: builder.mutation({
-      query: (notificationId) => ({
-        url: `${NOTIFICATIONS_URL}/${notificationId}`,
+    deleteAllNotifications: builder.mutation({
+      query: () => ({
+        url: NOTIFICATIONS_URL,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Notifications'],
+      invalidatesTags: ['Notification'],
     }),
-    // NOUVELLE FONCTION
-    deleteAllNotifications: builder.mutation({
-        query: () => ({
-          url: NOTIFICATIONS_URL,
-          method: 'DELETE',
-        }),
-        invalidatesTags: ['Notifications'],
-      }),
   }),
 });
 
 export const {
   useGetNotificationsQuery,
   useMarkAsReadMutation,
-  useDeleteNotificationMutation,
-  useDeleteAllNotificationsMutation, // On exporte le nouveau hook
+  useDeleteAllNotificationsMutation,
 } = notificationApiSlice;
