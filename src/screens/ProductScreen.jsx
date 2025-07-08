@@ -2,17 +2,21 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery } from '../slices/productsApiSlice.js';
 import { addToCart } from '../slices/cartSlice';
-import { toast } from 'react-toastify';
 import QtySelector from '../components/QtySelector';
-import StockStatus from '../components/StockStatus'; // Utilise le composant mis à jour
+import StockStatus from '../components/StockStatus';
+import './ProductScreen.css'; // On importe notre nouveau style
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [qty, setQty] = useState(1);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // État pour la description
+
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
 
   useEffect(() => {
@@ -26,6 +30,12 @@ const ProductScreen = () => {
     dispatch(addToCart({ ...product, qty }));
     toast.success('Produit ajouté au panier !');
   };
+
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
+  const TRUNCATE_LENGTH = 250; // Nombre de caractères à afficher avant de tronquer
 
   return (
     <>
@@ -48,26 +58,33 @@ const ProductScreen = () => {
           <Col md={4}>
             <ListGroup variant="flush">
               <ListGroup.Item><h3>{product.name}</h3></ListGroup.Item>
+              <ListGroup.Item><StockStatus countInStock={product.countInStock} /></ListGroup.Item>
               <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
-              <ListGroup.Item>Description: {product.description}</ListGroup.Item>
+
+              {/* NOUVELLE LOGIQUE POUR LA DESCRIPTION */}
+              <ListGroup.Item className="description-box">
+                <strong>Description:</strong>
+                <p>
+                  {product.description.length > TRUNCATE_LENGTH && !isDescriptionExpanded
+                    ? `${product.description.substring(0, TRUNCATE_LENGTH)}...`
+                    : product.description}
+                </p>
+                {product.description.length > TRUNCATE_LENGTH && (
+                  <button onClick={toggleDescription} className="toggle-description-btn">
+                    {isDescriptionExpanded ? 'Réduire' : 'Lire la suite >'}
+                  </button>
+                )}
+              </ListGroup.Item>
             </ListGroup>
           </Col>
           <Col md={3}>
             <Card>
               <ListGroup variant="flush">
                 <ListGroup.Item>
-                  <Row>
-                    <Col>Prix:</Col>
-                    <Col><strong>{product.price} FCFA</strong></Col>
-                  </Row>
+                  <Row><Col>Prix:</Col><Col><strong>{product.price} FCFA</strong></Col></Row>
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  <Row>
-                    <Col>Statut:</Col>
-                    <Col>
-                      <StockStatus countInStock={product.countInStock} />
-                    </Col>
-                  </Row>
+                  <Row><Col>Statut:</Col><Col><StockStatus countInStock={product.countInStock} /></Col></Row>
                 </ListGroup.Item>
                 {product.countInStock > 0 && (
                   <ListGroup.Item>
