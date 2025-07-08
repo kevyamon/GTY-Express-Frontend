@@ -47,7 +47,7 @@ const ProductScreen = () => {
       : (
         <Row>
           <Col md={6}>
-            {/* LOGIQUE CONDITIONNELLE POUR LE DIAPORAMA */}
+            {/* LOGIQUE CONDITIONNELLE CORRIGÉE */}
             {product.images && product.images.length > 1 ? (
               <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover">
                 {product.images.map((imgUrl) => (
@@ -58,7 +58,7 @@ const ProductScreen = () => {
               </Carousel>
             ) : (
               <Image 
-                src={product.images && product.images.length === 1 ? getImageUrl(product.images[0]) : '/images/sample.jpg'} 
+                src={product.images && product.images.length === 1 ? getImageUrl(product.images[0]) : (product.image ? getImageUrl(product.image) : '/images/sample.jpg')} 
                 alt={product.name} 
                 fluid 
               />
@@ -74,7 +74,7 @@ const ProductScreen = () => {
               <ListGroup.Item className="description-box">
                 <strong>Description:</strong>
                 <p>{product.description}</p>
-                {/* La logique "Lire la suite" n'est pas incluse ici car elle n'a pas été demandée pour ce fichier */}
+                {/* La logique "Lire la suite" viendra ici plus tard */}
               </ListGroup.Item>
             </ListGroup>
             <Card className="mt-3">

@@ -15,13 +15,16 @@ const Product = ({ product }) => {
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
 
-  // LOGIQUE CORRIGÉE : On prend la première image s'il y en a, sinon une image par défaut.
-  const imageUrl =
-    product.images && product.images.length > 0
-      ? product.images[0].startsWith('/')
-        ? `${import.meta.env.VITE_BACKEND_URL}${product.images[0]}`
-        : product.images[0]
-      : '/images/sample.jpg';
+  // LOGIQUE CORRIGÉE ET RÉSISTANTE
+  let imageToDisplay = '/images/sample.jpg'; // Image par défaut
+  if (product.images && product.images.length > 0) {
+    imageToDisplay = product.images[0];
+  } else if (product.image) { // On vérifie l'ancien champ 'image'
+    imageToDisplay = product.image;
+  }
+  const imageUrl = imageToDisplay.startsWith('/')
+    ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+    : imageToDisplay;
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty: 1 }));
@@ -60,9 +63,11 @@ const Product = ({ product }) => {
             <strong>{product.name}</strong>
           </Link>
         </Card.Title>
+
         <div className='my-2'>
           <StockStatus countInStock={product.countInStock} />
         </div>
+
         <div className="price-container">
           <Card.Text as="h4">{product.price} FCFA</Card.Text>
           {hasPromo && (
@@ -71,6 +76,7 @@ const Product = ({ product }) => {
             </Card.Text>
           )}
         </div>
+
         <Button
           className="btn-violet"
           type="button"
