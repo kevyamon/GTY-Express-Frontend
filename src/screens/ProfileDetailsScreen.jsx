@@ -21,7 +21,7 @@ const ProfileDetailsScreen = () => {
 
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [updateProfile, { isLoading: loadingUpdateProfile }] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (userInfo) {
@@ -44,31 +44,40 @@ const ProfileDetailsScreen = () => {
         `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData, config
       );
-      toast.success('Image téléversée');
+
+      // L'upload a réussi, on met à jour le profil immédiatement avec la nouvelle image
+      const res = await updateProfile({
+        _id: userInfo._id,
+        profilePicture: data.secure_url,
+      }).unwrap();
+
+      dispatch(setCredentials(res));
+      toast.success('Photo de profil mise à jour !');
       setProfilePicture(data.secure_url);
-      setLoadingUpload(false);
+
     } catch (error) {
-      toast.error("Le téléversement a échoué");
+      toast.error("Le téléversement de l'image a échoué");
+    } finally {
       setLoadingUpload(false);
     }
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
+    if (password && password !== confirmPassword) {
       toast.error('Les mots de passe ne correspondent pas');
-    } else {
-      try {
-        const res = await updateProfile({
-          _id: userInfo._id, name, email, phone, password, profilePicture,
-        }).unwrap();
-        dispatch(setCredentials(res));
-        toast.success('Profil mis à jour avec succès');
-        setPassword('');
-        setConfirmPassword('');
-      } catch (err) {
-        toast.error(err?.data?.message || err.error);
-      }
+      return;
+    }
+    try {
+      const res = await updateProfile({
+        _id: userInfo._id, name, email, phone, password,
+      }).unwrap();
+      dispatch(setCredentials(res));
+      toast.success('Profil mis à jour avec succès');
+      setPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -79,7 +88,7 @@ const ProfileDetailsScreen = () => {
         <Form onSubmit={submitHandler}>
           <Form.Group controlId='profilePicture' className='my-3 text-center'>
             <Image 
-              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
+              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} // Affiche une image par défaut
               alt={name}
               roundedCircle 
               style={{ width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #eee' }} 
@@ -130,10 +139,10 @@ const ProfileDetailsScreen = () => {
             <Form.Control type='password' placeholder='Confirmez le mot de passe' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}></Form.Control>
           </Form.Group>
 
-          <Button type='submit' variant='primary' disabled={isLoading}>
-            Mettre à jour
+          <Button type='submit' variant='primary' disabled={loadingUpdateProfile}>
+            Mettre à jour les informations
           </Button>
-          {isLoading && <p>Mise à jour...</p>}
+          {loadingUpdateProfile && <p>Mise à jour...</p>}
         </Form>
       </Col>
     </Row>
