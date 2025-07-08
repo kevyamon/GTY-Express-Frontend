@@ -51,9 +51,9 @@ const ProfileDetailsScreen = () => {
         profilePicture: data.secure_url,
       }).unwrap();
 
-      dispatch(setCredentials(res));
+      dispatch(setCredentials(res)); // On met à jour l'état global
       toast.success('Photo de profil mise à jour !');
-      setProfilePicture(data.secure_url);
+      setProfilePicture(data.secure_url); // On met à jour l'affichage local
 
     } catch (error) {
       toast.error("Le téléversement de l'image a échoué");
@@ -69,11 +69,12 @@ const ProfileDetailsScreen = () => {
       return;
     }
     try {
+      // On met à jour uniquement les champs de texte ici
       const res = await updateProfile({
         _id: userInfo._id, name, email, phone, password,
       }).unwrap();
       dispatch(setCredentials(res));
-      toast.success('Profil mis à jour avec succès');
+      toast.success('Informations mises à jour avec succès');
       setPassword('');
       setConfirmPassword('');
     } catch (err) {
@@ -88,7 +89,7 @@ const ProfileDetailsScreen = () => {
         <Form onSubmit={submitHandler}>
           <Form.Group controlId='profilePicture' className='my-3 text-center'>
             <Image 
-              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} // Affiche une image par défaut
+              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} // Affiche une image par défaut si aucune photo
               alt={name}
               roundedCircle 
               style={{ width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #eee' }} 
@@ -99,7 +100,7 @@ const ProfileDetailsScreen = () => {
               type='file' 
               className="mt-2" 
             />
-            {loadingUpload && <p>Téléversement...</p>}
+            {loadingUpload && <p>Téléversement de l'image...</p>}
           </Form.Group>
 
           <Form.Group className='my-3' controlId='name'>
