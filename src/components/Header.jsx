@@ -3,51 +3,62 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
+
+// On importe tous les hooks nécessaires de manière propre
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
-import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
+import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
+  // 1. Hooks de base
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // 2. État local (useState)
   const [keyword, setKeyword] = useState('');
-
-  const { userInfo } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart);
-
-  const [logoutApiCall] = useLogoutMutation();
-  const [markAsRead] = useMarkAsReadMutation();
-
-  // --- LOGIQUE DE SYNCHRONISATION ET NOTIFICATIONS ---
-
-  // 1. On récupère le profil en continu pour le synchroniser
-  useGetProfileDetailsQuery(undefined, {
-    skip: !userInfo,
-    pollingInterval: 30000,
-    onSuccess: (data) => {
-      // On met à jour l'état seulement si les données du serveur sont différentes
-      if (JSON.stringify(data) !== JSON.stringify({ name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture })) {
-        dispatch(setCredentials({ ...userInfo, ...data }));
-      }
-    },
-  });
-
-  const { data: adminOrders } = useGetOrdersQuery(undefined, {
-    skip: !userInfo?.isAdmin,
-    pollingInterval: 10000,
-  });
-
-  const { data: notifications, refetch } = useGetNotificationsQuery(undefined, {
-    skip: !userInfo,
-    pollingInterval: 10000,
-  });
-
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
   );
 
+  // 3. Sélection depuis le "cerveau" Redux (useSelector)
+  const { userInfo } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+
+  // 4. Requêtes API pour récupérer des données (useQuery)
+  const { data: profileData } = useGetProfileDetailsQuery(undefined, {
+    skip: !userInfo,
+    pollingInterval: 30000,
+  });
+
+  const { data: adminOrders } = useGetOrdersQuery(undefined, {
+    skip: !userInfo?.isAdmin,
+    pollingInterval: 5000,
+  });
+
+  const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
+    skip: !userInfo || userInfo.isAdmin,
+    pollingInterval: 5000,
+  });
+
+  const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, {
+    skip: !userInfo,
+    pollingInterval: 5000,
+  });
+
+  // 5. Mutations API pour modifier des données (useMutation)
+  const [logoutApiCall] = useLogoutMutation();
+  const [markAsRead] = useMarkAsReadMutation();
+
+  // 6. Logique de synchronisation du profil
+  useEffect(() => {
+    if (profileData) {
+      dispatch(setCredentials({ ...userInfo, ...profileData }));
+    }
+  }, [profileData, dispatch]);
+
+  // 7. Calculs mémoïsés (useMemo) - après que toutes les données sont disponibles
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     let newOrders = 0;
     let cancelledOrders = 0;
@@ -59,17 +70,18 @@ const Header = () => {
       cancelledOrders = adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length;
     }
 
-    if (userInfo && Array.isArray(notifications)) {
-      unreadNotifs = notifications.filter(n => !n.isRead).length;
+    if (userInfo && !userInfo.isAdmin && Array.isArray(notifications)) {
+        const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
+        unreadNotifs = notifications.filter(notif => {
+            const lastSeenTime = seenOrders[notif.link?.split('/').pop()];
+            return !lastSeenTime || new Date(notif.createdAt) > new Date(lastSeenTime);
+        }).length;
     }
 
-    return {
-      newOrdersCount,
-      cancelledOrdersCount,
-      unreadNotifsCount,
-    };
-  }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
+    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
+  }, [userInfo, adminOrders, clientOrders, notifications, lastSeenAdminTimestamp]);
 
+  // 8. Fonctions de gestion d'événements
   const handleAdminMenuClick = () => {
     const now = new Date().toISOString();
     localStorage.setItem('lastSeenAdminTimestamp', now);
@@ -80,10 +92,8 @@ const Header = () => {
     if (unreadNotifsCount > 0) {
       try {
         await markAsRead().unwrap();
-        refetch();
-      } catch (err) {
-        console.error('Erreur markAsRead:', err);
-      }
+        refetchNotifications();
+      } catch (err) { console.error('Erreur markAsRead:', err); }
     }
     navigate('/notifications');
   };
@@ -95,11 +105,15 @@ const Header = () => {
       navigate('/login');
       return;
     }
+    const currentPath = window.location.pathname;
+    const isSupermarket = currentPath.startsWith('/supermarket');
     if (keyword.trim()) {
-      navigate(`/search/${keyword}`);
+      const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
+      navigate(searchPath);
       setKeyword('');
     } else {
-      navigate('/products');
+      const basePath = isSupermarket ? '/supermarket' : '/products';
+      navigate(basePath);
     }
   };
 
@@ -108,11 +122,10 @@ const Header = () => {
       await logoutApiCall().unwrap();
       dispatch(logout());
       navigate('/');
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
+  // 9. Rendu du composant
   return (
     <header className="header-layout">
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
@@ -174,11 +187,7 @@ const Header = () => {
             <Link to="/cart" className="home-icon-link">
               <span style={{ position: 'relative' }}>
                 🛒
-                {cartItems.length > 0 && (
-                  <Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>
-                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                  </Badge>
-                )}
+                {cartItems.length > 0 && (<Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}
               </span>
             </Link>
             <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link ms-4">
