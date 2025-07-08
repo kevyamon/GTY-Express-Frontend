@@ -4,7 +4,7 @@ const USERS_URL = '/api/users';
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
-      query: (data) => ({ // Le "data" contiendra maintenant { loginIdentifier, password }
+      query: (data) => ({
         url: `${USERS_URL}/login`,
         method: 'POST',
         body: data,
@@ -23,19 +23,29 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
+    // On s'assure que cette fonction est bien là
+    getProfileDetails: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/profile`,
+      }),
+      providesTags: ['User'],
+      keepUnusedDataFor: 5,
+    }),
     updateProfile: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/profile`,
         method: 'PUT',
         body: data,
       }),
+      invalidatesTags: ['User'],
     }),
   }),
 });
 
 export const {
   useLoginMutation,
-  useRegisterMutation,
   useLogoutMutation,
+  useRegisterMutation,
   useUpdateProfileMutation,
+  useGetProfileDetailsQuery, // Et qu'elle est bien exportée ici
 } = usersApiSlice;

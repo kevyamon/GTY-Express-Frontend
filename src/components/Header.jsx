@@ -1,39 +1,49 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useLogoutMutation } from '../slices/usersApiSlice';
-import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
+import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
+import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
-import { logout } from '../slices/authSlice';
+import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
-  const [logoutApiCall] = useLogoutMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  const { data: adminOrders } = useGetOrdersQuery(undefined, {
-    skip: !userInfo?.isAdmin,
-    pollingInterval: 5000,
+  // --- LOGIQUE DE SYNCHRONISATION ET NOTIFICATIONS ---
+
+  // 1. On récupère le profil en continu pour le synchroniser
+  const { data: profileData } = useGetProfileDetailsQuery(undefined, {
+    skip: !userInfo,
+    pollingInterval: 5000, // On vérifie toutes les 5 secondes
   });
 
-  const { data: clientOrders } = useGetMyOrdersQuery(undefined, {
-    skip: !userInfo || userInfo.isAdmin,
-    pollingInterval: 5000,
+  // 2. Si le profil a changé sur le serveur, on met à jour l'état local
+  useEffect(() => {
+    if (profileData) {
+      dispatch(setCredentials({ ...userInfo, ...profileData }));
+    }
+  }, [profileData, dispatch, userInfo]);
+
+  const { data: adminOrders } = useGetOrdersQuery(undefined, {
+    skip: !userInfo?.isAdmin,
+    pollingInterval: 10000,
   });
 
   const { data: notifications, refetch } = useGetNotificationsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 5000,
+    pollingInterval: 10000,
   });
 
   const [markAsRead] = useMarkAsReadMutation();
+  const [logoutApiCall] = useLogoutMutation();
 
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
@@ -54,11 +64,7 @@ const Header = () => {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return {
-      newOrdersCount: newOrders,
-      cancelledOrdersCount: cancelledOrders,
-      unreadNotifsCount: unreadNotifs,
-    };
+    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
   const handleAdminMenuClick = () => {
@@ -70,12 +76,13 @@ const Header = () => {
   const handleNotificationClick = async () => {
     if (unreadNotifsCount > 0) {
       try {
-        await markAsRead();
+        await markAsRead().unwrap();
         refetch();
       } catch (err) {
         console.error('Erreur markAsRead:', err);
       }
     }
+    navigate('/notifications');
   };
 
   const submitHandler = (e) => {
@@ -115,12 +122,11 @@ const Header = () => {
             <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="ms-auto align-items-center">
+              <Nav className="ms-auto">
                 {userInfo ? (
                   <NavDropdown
                     title={
                       <div className='profile-icon-container'>
-                        {/* AFFICHE L'IMAGE DE PROFIL OU L'ICÔNE PAR DÉFAUT */}
                         {userInfo.profilePicture ? (
                           <Image src={userInfo.profilePicture} alt={userInfo.name} className="profile-image" />
                         ) : (
@@ -134,7 +140,6 @@ const Header = () => {
                     <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
-
                     {userInfo.isAdmin && (
                       <>
                         <NavDropdown.Divider />
@@ -167,7 +172,7 @@ const Header = () => {
         </Form>
         {userInfo && (
           <div className="d-flex align-items-center mt-3">
-            <Link to="/cart" className="home-icon-link me-4">
+            <Link to="/cart" className="home-icon-link">
               <span style={{ position: 'relative' }}>
                 🛒
                 {cartItems.length > 0 && (
@@ -177,13 +182,13 @@ const Header = () => {
                 )}
               </span>
             </Link>
-            <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link me-4">
+            <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link ms-4">
               <span style={{ position: 'relative' }}>
                 🔔
                 {unreadNotifsCount > 0 && (<Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>)}
               </span>
             </Link>
-            <Link to="/products" className="home-icon-link">
+            <Link to="/products" className="home-icon-link ms-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg>
             </Link>
             <Link to="/supermarket" className="supermarket-btn ms-4">
