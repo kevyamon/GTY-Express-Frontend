@@ -7,7 +7,7 @@ import {
   removeFromFavorites,
 } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
-import StockStatus from './StockStatus'; // Utilise le composant mis à jour
+import StockStatus from './StockStatus';
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -15,9 +15,9 @@ const Product = ({ product }) => {
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
 
-  const imageUrl = product.image.startsWith('/')
-    ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`
-    : product.image;
+  const imageUrl = product.images && product.images.length > 0
+    ? (product.images[0].startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${product.images[0]}` : product.images[0])
+    : '/images/sample.jpg'; // Image par défaut si le tableau est vide
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty: 1 }));
@@ -36,9 +36,7 @@ const Product = ({ product }) => {
 
   const hasPromo = product.originalPrice && product.originalPrice > product.price;
   const discountPercent = hasPromo
-    ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100
-      )
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   return (
@@ -56,11 +54,7 @@ const Product = ({ product }) => {
             <strong>{product.name}</strong>
           </Link>
         </Card.Title>
-
-        <div className='my-2'>
-          <StockStatus countInStock={product.countInStock} />
-        </div>
-
+        <div className='my-2'><StockStatus countInStock={product.countInStock} /></div>
         <div className="price-container">
           <Card.Text as="h4">{product.price} FCFA</Card.Text>
           {hasPromo && (
@@ -69,13 +63,7 @@ const Product = ({ product }) => {
             </Card.Text>
           )}
         </div>
-
-        <Button
-          className="btn-violet"
-          type="button"
-          disabled={product.countInStock === 0}
-          onClick={addToCartHandler}
-        >
+        <Button className="btn-violet" type="button" disabled={product.countInStock === 0} onClick={addToCartHandler}>
           PANIER
         </Button>
       </Card.Body>

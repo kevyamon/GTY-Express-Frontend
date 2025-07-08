@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap';
+import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery } from '../slices/productsApiSlice.js';
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
-import './ProductScreen.css'; // On importe notre nouveau style
+import './ProductScreen.css';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
@@ -15,9 +15,13 @@ const ProductScreen = () => {
   const navigate = useNavigate();
 
   const [qty, setQty] = useState(1);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // État pour la description
+  const [index, setIndex] = useState(0);
 
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
+
+  const handleSelect = (selectedIndex, e) => {
+    setIndex(selectedIndex);
+  };
 
   useEffect(() => {
     if (error) {
@@ -31,12 +35,6 @@ const ProductScreen = () => {
     toast.success('Produit ajouté au panier !');
   };
 
-  const toggleDescription = () => {
-    setIsDescriptionExpanded(!isDescriptionExpanded);
-  };
-
-  const TRUNCATE_LENGTH = 250; // Nombre de caractères à afficher avant de tronquer
-
   return (
     <>
       <Link className="btn btn-light my-3" to="/products">Retour</Link>
@@ -44,41 +42,30 @@ const ProductScreen = () => {
       : error ? (<></>) 
       : (
         <Row>
-          <Col md={5}>
-            <Image
-              src={
-                product.image.startsWith('/')
-                  ? `${import.meta.env.VITE_BACKEND_URL}${product.image}`
-                  : product.image
-              }
-              alt={product.name}
-              fluid
-            />
+          <Col md={6}>
+            <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover">
+              {product.images.map((imgUrl) => (
+                <Carousel.Item key={imgUrl}>
+                  <Image
+                    src={imgUrl.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${imgUrl}` : imgUrl}
+                    alt={product.name}
+                    fluid
+                  />
+                </Carousel.Item>
+              ))}
+            </Carousel>
           </Col>
-          <Col md={4}>
+          <Col md={6}>
             <ListGroup variant="flush">
               <ListGroup.Item><h3>{product.name}</h3></ListGroup.Item>
               <ListGroup.Item><StockStatus countInStock={product.countInStock} /></ListGroup.Item>
               <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
-
-              {/* NOUVELLE LOGIQUE POUR LA DESCRIPTION */}
               <ListGroup.Item className="description-box">
                 <strong>Description:</strong>
-                <p>
-                  {product.description.length > TRUNCATE_LENGTH && !isDescriptionExpanded
-                    ? `${product.description.substring(0, TRUNCATE_LENGTH)}...`
-                    : product.description}
-                </p>
-                {product.description.length > TRUNCATE_LENGTH && (
-                  <button onClick={toggleDescription} className="toggle-description-btn">
-                    {isDescriptionExpanded ? 'Réduire' : 'Lire la suite >'}
-                  </button>
-                )}
+                <p>{product.description}</p>
               </ListGroup.Item>
             </ListGroup>
-          </Col>
-          <Col md={3}>
-            <Card>
+            <Card className="mt-3">
               <ListGroup variant="flush">
                 <ListGroup.Item>
                   <Row><Col>Prix:</Col><Col><strong>{product.price} FCFA</strong></Col></Row>
@@ -90,23 +77,12 @@ const ProductScreen = () => {
                   <ListGroup.Item>
                     <Row>
                       <Col>Qté</Col>
-                      <Col>
-                        <QtySelector 
-                          value={qty}
-                          onChange={setQty}
-                          max={product.countInStock}
-                        />
-                      </Col>
+                      <Col><QtySelector value={qty} onChange={setQty} max={product.countInStock} /></Col>
                     </Row>
                   </ListGroup.Item>
                 )}
                 <ListGroup.Item>
-                  <Button
-                    className="btn-block"
-                    type="button"
-                    disabled={product.countInStock === 0}
-                    onClick={addToCartHandler}
-                  >
+                  <Button className="btn-block" type="button" disabled={product.countInStock === 0} onClick={addToCartHandler}>
                     Ajouter au Panier
                   </Button>
                 </ListGroup.Item>
