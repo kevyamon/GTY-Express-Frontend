@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery } from '../slices/productsApiSlice.js';
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
-import './ProductScreen.css';
+import Message from '../components/Message';
+import './ProductScreen.css'; // On importe notre nouveau style
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
@@ -16,10 +17,11 @@ const ProductScreen = () => {
 
   const [qty, setQty] = useState(1);
   const [index, setIndex] = useState(0);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // État pour la description
 
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
 
-  const handleSelect = (selectedIndex, e) => {
+  const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex);
   };
 
@@ -35,19 +37,25 @@ const ProductScreen = () => {
     toast.success('Produit ajouté au panier !');
   };
 
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
   const getImageUrl = (url) => {
     return url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url;
   };
+
+  // On définit ici le nombre de caractères maximum avant de cacher le reste
+  const TRUNCATE_LENGTH = 250;
 
   return (
     <>
       <Link className="btn btn-light my-3" to="/products">Retour</Link>
       {isLoading ? (<h2>Chargement...</h2>) 
-      : error ? (<></>) 
+      : error ? (<Message variant='danger'>{error?.data?.message || error.error}</Message>) 
       : (
         <Row>
           <Col md={6}>
-            {/* LOGIQUE CONDITIONNELLE CORRIGÉE */}
             {product.images && product.images.length > 1 ? (
               <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover">
                 {product.images.map((imgUrl) => (
@@ -73,8 +81,17 @@ const ProductScreen = () => {
               <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
               <ListGroup.Item className="description-box">
                 <strong>Description:</strong>
-                <p>{product.description}</p>
-                {/* La logique "Lire la suite" viendra ici plus tard */}
+                <p>
+                  {/* LOGIQUE POUR AFFICHER/MASQUER LA DESCRIPTION */}
+                  {product.description.length > TRUNCATE_LENGTH && !isDescriptionExpanded
+                    ? `${product.description.substring(0, TRUNCATE_LENGTH)}...`
+                    : product.description}
+                </p>
+                {product.description.length > TRUNCATE_LENGTH && (
+                  <button onClick={toggleDescription} className="toggle-description-btn">
+                    {isDescriptionExpanded ? 'Réduire' : 'Lire la suite >'}
+                  </button>
+                )}
               </ListGroup.Item>
             </ListGroup>
             <Card className="mt-3">

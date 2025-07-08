@@ -1,5 +1,6 @@
 .description-box {
   line-height: 1.6;
+  white-space: pre-wrap; /* Respecte les sauts de ligne dans la description */
 }
 
 .toggle-description-btn {
