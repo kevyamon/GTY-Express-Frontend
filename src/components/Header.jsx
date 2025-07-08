@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
-import { useGetOrdersQuery } from '../slices/orderApiSlice';
+import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
 import { useMarkAsReadMutation, useGetNotificationsQuery } from '../slices/notificationApiSlice';
 import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
@@ -17,20 +17,22 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
+  const [logoutApiCall] = useLogoutMutation();
+  const [markAsRead] = useMarkAsReadMutation();
+
   // --- LOGIQUE DE SYNCHRONISATION ET NOTIFICATIONS ---
 
   // 1. On récupère le profil en continu pour le synchroniser
-  const { data: profileData } = useGetProfileDetailsQuery(undefined, {
+  useGetProfileDetailsQuery(undefined, {
     skip: !userInfo,
-    pollingInterval: 5000, // On vérifie toutes les 5 secondes
+    pollingInterval: 30000,
+    onSuccess: (data) => {
+      // On met à jour l'état seulement si les données du serveur sont différentes
+      if (JSON.stringify(data) !== JSON.stringify({ name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture })) {
+        dispatch(setCredentials({ ...userInfo, ...data }));
+      }
+    },
   });
-
-  // 2. Si le profil a changé sur le serveur, on met à jour l'état local
-  useEffect(() => {
-    if (profileData) {
-      dispatch(setCredentials({ ...userInfo, ...profileData }));
-    }
-  }, [profileData, dispatch, userInfo]);
 
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
@@ -41,9 +43,6 @@ const Header = () => {
     skip: !userInfo,
     pollingInterval: 10000,
   });
-
-  const [markAsRead] = useMarkAsReadMutation();
-  const [logoutApiCall] = useLogoutMutation();
 
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
@@ -64,7 +63,11 @@ const Header = () => {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
+    return {
+      newOrdersCount,
+      cancelledOrdersCount,
+      unreadNotifsCount,
+    };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
   const handleAdminMenuClick = () => {
@@ -92,15 +95,11 @@ const Header = () => {
       navigate('/login');
       return;
     }
-    const currentPath = window.location.pathname;
-    const isSupermarket = currentPath.startsWith('/supermarket');
     if (keyword.trim()) {
-      const searchPath = isSupermarket ? `/supermarket/search/${keyword}` : `/search/${keyword}`;
-      navigate(searchPath);
+      navigate(`/search/${keyword}`);
       setKeyword('');
     } else {
-      const basePath = isSupermarket ? '/supermarket' : '/products';
-      navigate(basePath);
+      navigate('/products');
     }
   };
 
@@ -137,8 +136,8 @@ const Header = () => {
                     id="username"
                     align="end"
                   >
-                    <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/profile">Mes Commandes</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/profile-details">Informations personnelles</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/favorites">Mes Favoris</NavDropdown.Item>
                     {userInfo.isAdmin && (
                       <>
