@@ -35,6 +35,10 @@ const ProductScreen = () => {
     toast.success('Produit ajouté au panier !');
   };
 
+  const getImageUrl = (url) => {
+    return url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url;
+  };
+
   return (
     <>
       <Link className="btn btn-light my-3" to="/products">Retour</Link>
@@ -43,26 +47,34 @@ const ProductScreen = () => {
       : (
         <Row>
           <Col md={6}>
-            <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover">
-              {product.images.map((imgUrl) => (
-                <Carousel.Item key={imgUrl}>
-                  <Image
-                    src={imgUrl.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${imgUrl}` : imgUrl}
-                    alt={product.name}
-                    fluid
-                  />
-                </Carousel.Item>
-              ))}
-            </Carousel>
+            {/* LOGIQUE CONDITIONNELLE POUR LE DIAPORAMA */}
+            {product.images && product.images.length > 1 ? (
+              <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover">
+                {product.images.map((imgUrl) => (
+                  <Carousel.Item key={imgUrl}>
+                    <Image src={getImageUrl(imgUrl)} alt={product.name} fluid />
+                  </Carousel.Item>
+                ))}
+              </Carousel>
+            ) : (
+              <Image 
+                src={product.images && product.images.length === 1 ? getImageUrl(product.images[0]) : '/images/sample.jpg'} 
+                alt={product.name} 
+                fluid 
+              />
+            )}
           </Col>
           <Col md={6}>
             <ListGroup variant="flush">
               <ListGroup.Item><h3>{product.name}</h3></ListGroup.Item>
-              <ListGroup.Item><StockStatus countInStock={product.countInStock} /></ListGroup.Item>
+              <ListGroup.Item>
+                <StockStatus countInStock={product.countInStock} />
+              </ListGroup.Item>
               <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
               <ListGroup.Item className="description-box">
                 <strong>Description:</strong>
                 <p>{product.description}</p>
+                {/* La logique "Lire la suite" n'est pas incluse ici car elle n'a pas été demandée pour ce fichier */}
               </ListGroup.Item>
             </ListGroup>
             <Card className="mt-3">
