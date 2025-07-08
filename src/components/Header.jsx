@@ -1,10 +1,11 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
+
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
-import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
+import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
@@ -13,9 +14,13 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
-  const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(() => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString());
+  const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
+    () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
+  );
+
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
+
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
 
@@ -24,8 +29,18 @@ const Header = () => {
     pollingInterval: 30000,
     onSuccess: (data) => {
       if (data) {
-        const relevantInfo = { name: data.name, email: data.email, phone: data.phone, profilePicture: data.profilePicture };
-        const relevantUserInfo = { name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture };
+        const relevantInfo = {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          profilePicture: data.profilePicture,
+        };
+        const relevantUserInfo = {
+          name: userInfo.name,
+          email: userInfo.email,
+          phone: userInfo.phone,
+          profilePicture: userInfo.profilePicture,
+        };
         if (JSON.stringify(relevantInfo) !== JSON.stringify(relevantUserInfo)) {
           dispatch(setCredentials({ ...userInfo, ...data }));
         }
@@ -33,14 +48,27 @@ const Header = () => {
     },
   });
 
-  const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin, pollingInterval: 10000 });
-  const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !userInfo, pollingInterval: 10000 });
+  const { data: adminOrders } = useGetOrdersQuery(undefined, {
+    skip: !userInfo?.isAdmin,
+    pollingInterval: 10000,
+  });
+
+  const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, {
+    skip: !userInfo,
+    pollingInterval: 10000,
+  });
 
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     const lastSeen = new Date(lastSeenAdminTimestamp);
-    let newOrders = userInfo?.isAdmin && Array.isArray(adminOrders) ? adminOrders.filter(o => new Date(o.createdAt) > lastSeen).length : 0;
-    let cancelledOrders = userInfo?.isAdmin && Array.isArray(adminOrders) ? adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length : 0;
-    let unreadNotifs = userInfo && Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0;
+    const newOrders = userInfo?.isAdmin && Array.isArray(adminOrders)
+      ? adminOrders.filter(o => new Date(o.createdAt) > lastSeen).length
+      : 0;
+    const cancelledOrders = userInfo?.isAdmin && Array.isArray(adminOrders)
+      ? adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length
+      : 0;
+    const unreadNotifs = userInfo && Array.isArray(notifications)
+      ? notifications.filter(n => !n.isRead).length
+      : 0;
     return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
@@ -54,11 +82,34 @@ const Header = () => {
     if (unreadNotifsCount > 0) {
       await markAsRead().unwrap().catch(err => console.error('Failed to mark as read:', err));
     }
+    refetchNotifications();
     navigate('/notifications');
   };
 
-  const submitHandler = (e) => { e.preventDefault(); if (!userInfo) { toast.error('Veuillez vous connecter pour faire une recherche.'); navigate('/login'); return; } if (keyword.trim()) { navigate(`/search/${keyword}`); setKeyword(''); } else { navigate('/products'); } };
-  const logoutHandler = async () => { try { await logoutApiCall().unwrap(); dispatch(logout()); navigate('/'); } catch (err) { console.error(err); } };
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (!userInfo) {
+      toast.error('Veuillez vous connecter pour faire une recherche.');
+      navigate('/login');
+      return;
+    }
+    if (keyword.trim()) {
+      navigate(`/search/${keyword}`);
+      setKeyword('');
+    } else {
+      navigate('/products');
+    }
+  };
+
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <header className="header-layout">
@@ -91,8 +142,34 @@ const Header = () => {
         </Container>
       </Navbar>
       <div className="header-center-row bg-dark">
-        <Form onSubmit={submitHandler} className="d-flex search-form"><Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' /><Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button></Form>
-        {userInfo && (<div className="d-flex align-items-center mt-3"><Link to="/cart" className="home-icon-link"><span style={{ position: 'relative' }}>🛒{cartItems.length > 0 && (<Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</Badge>)}</span></Link><Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link ms-4"><span style={{ position: 'relative' }}>🔔{unreadNotifsCount > 0 && (<Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>)}</span></Link><Link to="/products" className="home-icon-link ms-4"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg></Link><Link to="/supermarket" className="supermarket-btn ms-4">🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span></Link></div>)}
+        <Form onSubmit={submitHandler} className="d-flex search-form">
+          <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
+          <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
+        </Form>
+        {userInfo && (
+          <div className="d-flex align-items-center mt-3">
+            <Link to="/cart" className="home-icon-link">
+              <span style={{ position: 'relative' }}>🛒
+                {cartItems.length > 0 && (
+                  <Badge pill bg="success" style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '0.6em' }}>
+                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                  </Badge>
+                )}
+              </span>
+            </Link>
+            <Link to="/notifications" onClick={handleNotificationClick} className="home-icon-link ms-4">
+              <span style={{ position: 'relative' }}>🔔
+                {unreadNotifsCount > 0 && (<Badge pill bg="danger" style={{ position: 'absolute', top: '-5px', right: '-8px' }}>{unreadNotifsCount}</Badge>)}
+              </span>
+            </Link>
+            <Link to="/products" className="home-icon-link ms-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" className="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/></svg>
+            </Link>
+            <Link to="/supermarket" className="supermarket-btn ms-4">
+              🛍️<span className="ms-2 d-none d-lg-block">Supermarché</span>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
