@@ -58,17 +58,22 @@ const Header = () => {
     pollingInterval: 10000,
   });
 
+  // ✅ BLOC CORRIGÉ
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     const lastSeen = new Date(lastSeenAdminTimestamp);
-    const newOrders = userInfo?.isAdmin && Array.isArray(adminOrders)
+
+    const newOrdersCount = userInfo?.isAdmin && Array.isArray(adminOrders)
       ? adminOrders.filter(o => new Date(o.createdAt) > lastSeen).length
       : 0;
-    const cancelledOrders = userInfo?.isAdmin && Array.isArray(adminOrders)
+
+    const cancelledOrdersCount = userInfo?.isAdmin && Array.isArray(adminOrders)
       ? adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length
       : 0;
-    const unreadNotifs = userInfo && Array.isArray(notifications)
+
+    const unreadNotifsCount = userInfo && Array.isArray(notifications)
       ? notifications.filter(n => !n.isRead).length
       : 0;
+
     return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
@@ -113,6 +118,7 @@ const Header = () => {
 
   return (
     <header className="header-layout">
+      {/* Le reste de votre code JSX reste inchangé */}
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
         <Container fluid>
           <div className="header-top-row">
