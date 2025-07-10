@@ -1,4 +1,4 @@
-mimport { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -13,18 +13,17 @@ const ShippingScreen = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  // On initialise l'état avec les données déjà existantes
   const [name, setName] = useState(shippingAddress?.name || userInfo?.name || '');
   const [country, setCountry] = useState(shippingAddress?.country || '');
   const [city, setCity] = useState(shippingAddress?.city || '');
-  const [phone, setPhone] = useState(shippingAddress?.phone || '');
+  const [phone, setPhone] = useState(shippingAddress?.phone || userInfo?.phone || '');
   const [address, setAddress] = useState(shippingAddress?.address || '');
   const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '');
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // On prépare la liste des pays pour le sélecteur
   const countryOptions = useMemo(() => getData().map(c => ({ value: c.code, label: c.name })), []);
   const selectedCountry = countryOptions.find(opt => opt.label === country);
 
@@ -36,7 +35,7 @@ const ShippingScreen = () => {
 
   return (
     <div>
-      <CheckoutSteps step={2} />
+      <CheckoutSteps step={1} />
       <h1>Adresse de Livraison</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className='my-2' controlId='name'>
@@ -87,7 +86,7 @@ const ShippingScreen = () => {
           <Form.Label>Adresse de livraison</Form.Label>
           <Form.Control
             type='text'
-            placeholder='Ex: quartier, rue, porte...'
+            placeholder='Ex: Quartier, rue, porte...'
             value={address}
             required
             onChange={(e) => setAddress(e.target.value)}
