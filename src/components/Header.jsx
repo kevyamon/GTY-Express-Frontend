@@ -1,33 +1,25 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
-
-// Imports des "outils" API
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
-import { useGetOrdersQuery, useGetMyOrdersQuery } from '../slices/orderApiSlice';
+import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
-// Imports des actions
 import { logout, setCredentials } from '../slices/authSlice';
 import './Header.css';
 
 const Header = () => {
-  // 1. Initialisation des hooks de base de React
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // 2. Initialisation des états locaux (useState)
   const [keyword, setKeyword] = useState('');
   const [lastSeenAdminTimestamp, setLastSeenAdminTimestamp] = useState(
     () => localStorage.getItem('lastSeenAdminTimestamp') || new Date(0).toISOString()
   );
 
-  // 3. Sélection des données depuis le "cerveau" Redux (useSelector)
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // 4. Initialisation des requêtes API (useQuery)
   useGetProfileDetailsQuery(undefined, {
     skip: !userInfo,
     pollingInterval: 30000,
@@ -52,11 +44,9 @@ const Header = () => {
     pollingInterval: 10000,
   });
 
-  // 5. Initialisation des actions API (useMutation)
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
 
-  // 6. Calcul des valeurs (useMemo)
   const { newOrdersCount, cancelledOrdersCount, unreadNotifsCount } = useMemo(() => {
     let newOrders = 0;
     let cancelledOrders = 0;
@@ -72,10 +62,13 @@ const Header = () => {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return { newOrdersCount, cancelledOrdersCount, unreadNotifsCount };
+    return { 
+      newOrdersCount: newOrders, 
+      cancelledOrdersCount: cancelledOrders, 
+      unreadNotifsCount: unreadNotifs 
+    };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
-  // 7. Définition des fonctions de gestion
   const handleAdminMenuClick = () => {
     const now = new Date().toISOString();
     localStorage.setItem('lastSeenAdminTimestamp', now);
@@ -119,7 +112,6 @@ const Header = () => {
     }
   };
 
-  // 8. Rendu du composant
   return (
     <header className="header-layout">
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
@@ -202,4 +194,4 @@ const Header = () => {
   );
 };
 
-export default Header; // Ne pas oublier cette ligne cruciale
+export default Header;
