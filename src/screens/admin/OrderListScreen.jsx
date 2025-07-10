@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../../components/Message';
@@ -11,7 +11,7 @@ import {
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
-  const { data: orders, isLoading, error } = useGetOrdersQuery();
+  const { data: orders, isLoading, error, refetch } = useGetOrdersQuery();
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
@@ -40,7 +40,7 @@ const OrderListScreen = () => {
   };
 
   const handleDeleteOrder = async (orderId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
         try {
             await deleteOrder(orderId).unwrap();
             toast.success('Commande supprimée');
@@ -50,14 +50,8 @@ const OrderListScreen = () => {
     }
   };
 
-  if (isLoading) {
-    return <p>Chargement des commandes...</p>;
-  }
-
-  // CORRECTION : On n'affiche le message d'erreur que si le chargement initial échoue
-  if (error && !orders) {
-    return <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>;
-  }
+  if (isLoading) { return <p>Chargement...</p>; }
+  if (error && !orders) { return <Message variant='danger'>{error?.data?.message || error.message || error.error}</Message>; }
 
   return (
     <>
@@ -67,13 +61,7 @@ const OrderListScreen = () => {
       <Table striped bordered hover responsive className='table-sm'>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>CLIENT</th>
-            <th>DATE ET HEURE</th>
-            <th>TOTAL</th>
-            <th>PAYÉ</th>
-            <th>STATUT</th>
-            <th></th>
+            <th>ID</th><th>CLIENT</th><th>DATE</th><th>TOTAL</th><th>PAYÉ</th><th>STATUT</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -85,23 +73,16 @@ const OrderListScreen = () => {
                 <td>{new Date(order.createdAt).toLocaleString('fr-FR')}</td>
                 <td>{order.totalPrice.toFixed(2)} FCFA</td>
                 <td>{order.isPaid ? '✅' : '❌'}</td>
-                <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>
-                  {order.status}
-                </td>
+                <td style={{ color: order.status === 'Annulée' ? 'red' : 'inherit' }}>{order.status}</td>
                 <td>
-                  <Button
-                    variant='secondary'
-                    className='btn-sm'
-                    onClick={() => handleToggleDetails(order._id)}
-                  >
-                    Gérer
-                  </Button>
+                  <Button variant='secondary' className='btn-sm' onClick={() => handleToggleDetails(order._id)}>Gérer</Button>
                 </td>
               </tr>
               {expandedOrderId === order._id && (
                 <tr className="details-row">
                   <td colSpan="7" className="details-cell">
                     <h5>Actions pour la commande {order._id.substring(0, 8)}...</h5>
+                    <p><strong>Téléphone du client :</strong> {order.shippingAddress.phone}</p>
                     <div className="actions-container">
                       <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>
                       <Button variant="info" size="sm" onClick={() => handleStatusChange(order._id, 'Expédiée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Expédier</Button>

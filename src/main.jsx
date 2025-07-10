@@ -13,7 +13,7 @@ import App from './App.jsx';
 
 // Fichiers de style
 import './index.css';
-import './App.css'; 
+import './App.css';
 
 // Écrans principaux
 import LandingScreen from './screens/LandingScreen.jsx';
@@ -40,6 +40,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
+import PromotionListScreen from './screens/admin/PromotionListScreen.jsx'; // NOUVELLE PAGE
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -64,14 +65,15 @@ const router = createBrowserRouter(
         <Route path="/payment" element={<PaymentScreen />} />
         <Route path="/placeorder" element={<PlaceOrderScreen />} />
         <Route path="/order/:id" element={<OrderScreen />} />
-        <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
-        <Route path='/notifications' element={<NotificationsScreen />} />
+        <Route path="/payment-gateway/:id" element={<PaymentGatewayScreen />} />
+        <Route path="/notifications" element={<NotificationsScreen />} />
       </Route>
 
       {/* --- Routes Admin (uniquement admins connectés) --- */}
       <Route path="" element={<AdminRoute />}>
         <Route path="/admin/productlist" element={<ProductListScreen />} />
         <Route path="/admin/orderlist" element={<OrderListScreen />} />
+        <Route path="/admin/promotionlist" element={<PromotionListScreen />} /> {/* NOUVELLE ROUTE */}
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
       </Route>
     </Route>
