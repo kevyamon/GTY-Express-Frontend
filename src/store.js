@@ -1,22 +1,24 @@
-import { apiSlice } from './apiSlice';
-const PROMOTIONS_URL = '/api/promotions';
+import { configureStore } from '@reduxjs/toolkit';
+// On corrige le chemin ici pour pointer vers le dossier 'slices'
+import { apiSlice } from './slices/apiSlice';
+import cartSliceReducer from './slices/cartSlice';
+import authReducer from './slices/authSlice';
+import favoritesReducer from './slices/favoritesSlice';
+import { promotionApiSlice } from './slices/promotionApiSlice';
+import { notificationApiSlice } from './slices/notificationApiSlice';
 
-export const promotionApiSlice = apiSlice.injectEndpoints({
-  endpoints: (builder) => ({
-    getPromotions: builder.query({
-      query: () => ({ url: PROMOTIONS_URL }),
-      providesTags: ['Promotion'],
-      keepUnusedDataFor: 5,
-    }),
-    createPromotion: builder.mutation({
-      query: (data) => ({ url: PROMOTIONS_URL, method: 'POST', body: data }),
-      invalidatesTags: ['Promotion'],
-    }),
-    deletePromotion: builder.mutation({
-      query: (promoId) => ({ url: `${PROMOTIONS_URL}/${promoId}`, method: 'DELETE' }),
-      invalidatesTags: ['Promotion'],
-    }),
-  }),
+const store = configureStore({
+  reducer: {
+    [apiSlice.reducerPath]: apiSlice.reducer,
+    [promotionApiSlice.reducerPath]: promotionApiSlice.reducer,
+    [notificationApiSlice.reducerPath]: notificationApiSlice.reducer,
+    cart: cartSliceReducer,
+    auth: authReducer,
+    favorites: favoritesReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware, promotionApiSlice.middleware, notificationApiSlice.middleware),
+  devTools: true,
 });
 
-export const { useGetPromotionsQuery, useCreatePromotionMutation, useDeletePromotionMutation } = promotionApiSlice;
+export default store;
