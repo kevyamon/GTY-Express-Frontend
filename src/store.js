@@ -1,23 +1,22 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { apiSlice } from './slices/apiSlice';
-import cartSliceReducer from './slices/cartSlice';
-import authReducer from './slices/authSlice';
-import favoritesReducer from './slices/favoritesSlice';
+import { apiSlice } from './apiSlice';
+const PROMOTIONS_URL = '/api/promotions';
 
-const store = configureStore({
-  reducer: {
-    // Tous les reducers de nos API sont gérés par cette seule ligne
-    [apiSlice.reducerPath]: apiSlice.reducer,
-    
-    // Nos reducers "classiques"
-    cart: cartSliceReducer,
-    auth: authReducer,
-    favorites: favoritesReducer,
-  },
-  // On ne déclare que le middleware de l'apiSlice principal
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
-  devTools: true,
+export const promotionApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    getPromotions: builder.query({
+      query: () => ({ url: PROMOTIONS_URL }),
+      providesTags: ['Promotion'],
+      keepUnusedDataFor: 5,
+    }),
+    createPromotion: builder.mutation({
+      query: (data) => ({ url: PROMOTIONS_URL, method: 'POST', body: data }),
+      invalidatesTags: ['Promotion'],
+    }),
+    deletePromotion: builder.mutation({
+      query: (promoId) => ({ url: `${PROMOTIONS_URL}/${promoId}`, method: 'DELETE' }),
+      invalidatesTags: ['Promotion'],
+    }),
+  }),
 });
 
-export default store;
+export const { useGetPromotionsQuery, useCreatePromotionMutation, useDeletePromotionMutation } = promotionApiSlice;

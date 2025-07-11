@@ -33,7 +33,7 @@ const Header = () => {
       }
     },
   });
-  
+
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
     pollingInterval: 10000,
@@ -62,10 +62,10 @@ const Header = () => {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return { 
-      newOrdersCount: newOrders, 
-      cancelledOrdersCount: cancelledOrders, 
-      unreadNotifsCount: unreadNotifs 
+    return {
+      newOrdersCount: newOrders,
+      cancelledOrdersCount: cancelledOrders,
+      unreadNotifsCount: unreadNotifs
     };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
@@ -86,7 +86,7 @@ const Header = () => {
     }
     navigate('/notifications');
   };
-  
+
   const submitHandler = (e) => {
     e.preventDefault();
     if (!userInfo) {
@@ -148,6 +148,9 @@ const Header = () => {
                           Gestion Commandes
                           {newOrdersCount > 0 && (<Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>)}
                           {cancelledOrdersCount > 0 && (<Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>)}
+                        </NavDropdown.Item>
+                        <NavDropdown.Item as={Link} to="/admin/promotionlist" onClick={handleAdminMenuClick}>
+                          Gestion Promotions
                         </NavDropdown.Item>
                       </>
                     )}
