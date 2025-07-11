@@ -4,7 +4,10 @@ const PRODUCTS_URL = '/api/products';
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: ({ keyword = '', category = 'general' }) => ({ url: PRODUCTS_URL, params: { keyword, category } }),
+      query: ({ keyword = '', category = 'general', promotion = 'false' }) => ({
+        url: PRODUCTS_URL,
+        params: { keyword, category, promotion },
+      }),
       providesTags: ['Product'],
     }),
     getProductDetails: builder.query({

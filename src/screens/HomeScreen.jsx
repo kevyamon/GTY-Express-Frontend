@@ -9,18 +9,37 @@ const HomeScreen = () => {
   const { keyword } = useParams();
   const location = useLocation();
 
-  const category = location.pathname.startsWith('/supermarket') ? 'supermarket' : 'general';
+  const isSupermarket = location.pathname.startsWith('/supermarket');
+  const isPromo = location.pathname.startsWith('/promotions');
+
+  let category = 'general';
+  let promotion = 'false';
+  let pageTitle = 'Derniers Produits';
+
+  if (isSupermarket) {
+    category = 'supermarket';
+    pageTitle = 'Supermarché';
+  } else if (isPromo) {
+    promotion = 'true';
+    pageTitle = 'Promotions';
+    category = 'all'; // On cherche dans toutes les catégories pour les promos
+  }
+
+  if (keyword) {
+    pageTitle = 'Résultats de la recherche';
+  }
 
   const { data: products, isLoading, error } = useGetProductsQuery({
     keyword,
     category,
+    promotion,
   });
 
   return (
     <div className='home-screen-background'>
-      {keyword && <Link to={category === 'supermarket' ? '/supermarket' : '/products'} className='btn btn-light mb-4'>Retour</Link>}
+      {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
       
-      <h1 className='home-screen-title'>{category === 'supermarket' ? 'Supermarché' : 'Derniers Produits'}</h1>
+      <h1 className='home-screen-title'>{pageTitle}</h1>
 
       {isLoading ? (<h2>Chargement...</h2>) 
       : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
