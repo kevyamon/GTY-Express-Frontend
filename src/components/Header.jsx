@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
+import { FaTag } from 'react-icons/fa'; // ✅ NOUVEL IMPORT
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -24,7 +25,7 @@ const Header = () => {
     skip: !userInfo,
     pollingInterval: 30000,
     onSuccess: (data) => {
-      if (data) {
+      if (data && userInfo) {
         const relevantInfo = { name: data.name, email: data.email, phone: data.phone, profilePicture: data.profilePicture };
         const relevantUserInfo = { name: userInfo.name, email: userInfo.email, phone: userInfo.phone, profilePicture: userInfo.profilePicture };
         if (JSON.stringify(relevantInfo) !== JSON.stringify(relevantUserInfo)) {
@@ -33,7 +34,7 @@ const Header = () => {
       }
     },
   });
-
+  
   const { data: adminOrders } = useGetOrdersQuery(undefined, {
     skip: !userInfo?.isAdmin,
     pollingInterval: 10000,
@@ -62,10 +63,10 @@ const Header = () => {
       unreadNotifs = notifications.filter(n => !n.isRead).length;
     }
 
-    return {
-      newOrdersCount: newOrders,
-      cancelledOrdersCount: cancelledOrders,
-      unreadNotifsCount: unreadNotifs
+    return { 
+      newOrdersCount: newOrders, 
+      cancelledOrdersCount: cancelledOrders, 
+      unreadNotifsCount: unreadNotifs 
     };
   }, [userInfo, adminOrders, notifications, lastSeenAdminTimestamp]);
 
@@ -86,7 +87,7 @@ const Header = () => {
     }
     navigate('/notifications');
   };
-
+  
   const submitHandler = (e) => {
     e.preventDefault();
     if (!userInfo) {
@@ -118,6 +119,14 @@ const Header = () => {
         <Container fluid>
           <div className="header-top-row">
             <Navbar.Brand as={Link} to="/">GTY Express</Navbar.Brand>
+            
+            {/* ✅ NOUVELLE FONCTIONNALITÉ AJOUTÉE ICI */}
+            {userInfo && userInfo.isAdmin && (
+              <Link to="/admin/promotionlist" className="nav-link text-danger fw-bold d-flex align-items-center ms-lg-3">
+                <FaTag className="me-1" /> PROMO
+              </Link>
+            )}
+
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto align-items-center">
@@ -149,7 +158,7 @@ const Header = () => {
                           {newOrdersCount > 0 && (<Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>)}
                           {cancelledOrdersCount > 0 && (<Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>)}
                         </NavDropdown.Item>
-                        <NavDropdown.Item as={Link} to="/admin/promotionlist" onClick={handleAdminMenuClick}>
+                        <NavDropdown.Item as={Link} to="/admin/promotionlist">
                           Gestion Promotions
                         </NavDropdown.Item>
                       </>

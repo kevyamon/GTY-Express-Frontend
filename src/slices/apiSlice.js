@@ -13,6 +13,7 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification'],
+  // ON AJOUTE 'Promotion' ICI
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion'],
   endpoints: (builder) => ({}),
 });
