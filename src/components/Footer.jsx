@@ -55,8 +55,8 @@ const Footer = () => {
             <h5>GTY Express</h5>
             <ul>
               <li><Link to="/about">Qui sommes nous ?</Link></li>
-              <li><a href="#!">Nos promotions</a></li>
-              <li><a href="#!">Nos magasins</a></li>
+              <li><Link to="/promotions">Nos promotions</Link></li>
+              <li><Link to="/stores">Nos magasins</Link></li>
             </ul>
           </Col>
           <Col md={3} sm={6}>
@@ -65,15 +65,15 @@ const Footer = () => {
               <li><Link to="/profile-details">Mon compte</Link></li>
               <li><Link to="/legal-notice">Mentions légales</Link></li>
               <li><Link to="/terms">CGU / CGV</Link></li>
-              <li><a href="#!">Données personnelles</a></li>
+              <li><Link to="/privacy">Données personnelles</Link></li>
             </ul>
           </Col>
           <Col md={3} sm={6}>
             <h5>Aide & Contact</h5>
             <ul>
-              <li><a href="#!">Comment acheter en ligne ?</a></li>
-              <li><a href="#!">FAQ</a></li>
-              <li><a href="#!">Nous contacter</a></li>
+              <li><Link to="/how-to-buy">Comment acheter en ligne ?</Link></li>
+              <li><Link to="/faq">FAQ</Link></li>
+              <li><Link to="/contact">Nous contacter</Link></li>
             </ul>
           </Col>
         </Row>
