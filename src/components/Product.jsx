@@ -1,13 +1,10 @@
-import { Card, Button } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../slices/cartSlice';
-import {
-  addToFavorites,
-  removeFromFavorites,
-} from '../slices/favoritesSlice';
+import { addToFavorites, removeFromFavorites } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
-import StockStatus from './StockStatus';
+import { FaCartPlus } from 'react-icons/fa';
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -15,18 +12,18 @@ const Product = ({ product }) => {
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
 
-  // LOGIQUE CORRIGÉE ET RÉSISTANTE
-  let imageToDisplay = '/images/sample.jpg'; // Image par défaut
+  let imageToDisplay = 'https://via.placeholder.com/300';
   if (product.images && product.images.length > 0) {
     imageToDisplay = product.images[0];
-  } else if (product.image) { // On vérifie l'ancien champ 'image'
+  } else if (product.image) {
     imageToDisplay = product.image;
   }
   const imageUrl = imageToDisplay.startsWith('/')
     ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
     : imageToDisplay;
 
-  const addToCartHandler = () => {
+  const addToCartHandler = (e) => {
+    e.preventDefault(); // Empêche la navigation si on clique sur l'icône
     dispatch(addToCart({ ...product, qty: 1 }));
     toast.success('Produit ajouté au panier !');
   };
@@ -43,48 +40,44 @@ const Product = ({ product }) => {
 
   const hasPromo = product.originalPrice && product.originalPrice > product.price;
   const discountPercent = hasPromo
-    ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100
-      )
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   return (
-    <Card className="my-3 p-3 rounded h-100 position-relative">
-      {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
-      <button onClick={toggleFavoriteHandler} className="favorite-btn">
-        {isFavorite ? '❤️' : '🤍'}
-      </button>
-      <Link to={`/product/${product._id}`}>
-        <Card.Img src={imageUrl} variant="top" className="card-img-top" />
-      </Link>
-      <Card.Body className="d-flex flex-column product-card-body">
-        <Card.Title as="div" className="product-title flex-grow-1">
-          <Link to={`/product/${product._id}`}>
-            <strong>{product.name}</strong>
-          </Link>
-        </Card.Title>
+    <Card className="product-card my-3 p-0">
+      <div className="product-image-container">
+        <Link to={`/product/${product._id}`}>
+          <Card.Img src={imageUrl} variant="top" className="product-card-img" />
+        </Link>
+        {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
+        <button onClick={toggleFavoriteHandler} className="favorite-btn">
+          {isFavorite ? '❤️' : '🤍'}
+        </button>
+        <button 
+          onClick={addToCartHandler} 
+          disabled={product.countInStock === 0} 
+          className="add-to-cart-icon"
+          aria-label="Ajouter au panier"
+        >
+          <FaCartPlus />
+        </button>
+      </div>
 
-        <div className='my-2'>
-          <StockStatus countInStock={product.countInStock} />
+      <Card.Body className="product-card-body">
+        <div className="product-title">
+          <Link to={`/product/${product._id}`}>
+            {product.name}
+          </Link>
         </div>
 
         <div className="price-container">
-          <Card.Text as="h4">{product.price} FCFA</Card.Text>
+          <span className="product-price">{product.price} FCFA</span>
           {hasPromo && (
-            <Card.Text as="span" className="original-price">
+            <span className="original-price">
               {product.originalPrice} FCFA
-            </Card.Text>
+            </span>
           )}
         </div>
-
-        <Button
-          className="btn-violet"
-          type="button"
-          disabled={product.countInStock === 0}
-          onClick={addToCartHandler}
-        >
-          PANIER
-        </Button>
       </Card.Body>
     </Card>
   );
