@@ -1,8 +1,8 @@
 .promo-banner-container {
-  background: linear-gradient(135deg, #2E7D32, #66BB6A); /* Dégradé de vert */
+  background: linear-gradient(135deg, #FFD600, #FFAB00); /* Dégradé de jaune impactant */
   border-radius: 12px;
   padding: 2rem;
-  color: white;
+  color: #333; /* Texte foncé pour être lisible sur fond jaune */
   overflow: hidden;
 }
 
@@ -10,6 +10,7 @@
   font-size: 0.9rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: #555; /* Couleur du timer légèrement adoucie */
 }
 
 .promo-left-section .main-offer {
@@ -17,6 +18,7 @@
   font-weight: 900;
   line-height: 1;
   margin-bottom: 1.5rem;
+  color: #111; /* Titre principal en noir pour un maximum de contraste */
 }
 
 .coupons-section .coupon-card {
@@ -59,6 +61,7 @@
 
 .promo-right-section .deal-of-the-month {
   background-color: #E53935; /* Rouge */
+  color: white; /* Texte en blanc sur fond rouge */
   padding: 1.5rem;
   border-radius: 8px;
   font-weight: bold;
@@ -72,13 +75,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.15;
+  opacity: 0.1; /* Opacité légèrement réduite pour le fond jaune */
   z-index: 1;
 }
 
 .promo-right-section .icon-background svg {
   position: absolute;
-  color: white;
+  color: #333; /* Icônes en noir pour contraster avec le jaune */
 }
 
 .promo-right-section .icon-1 {
