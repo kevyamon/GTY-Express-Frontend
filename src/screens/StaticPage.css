@@ -1,0 +1,13 @@
+.static-page-container {
+  background-color: rgba(255, 255, 255, 0.9); /* Fond blanc semi-transparent pour la lisibilité */
+  padding: 2rem;
+  border-radius: 8px;
+  color: #333; /* Texte noir pour un bon contraste sur le fond blanc */
+  max-width: 900px; /* Limite la largeur pour une meilleure lecture */
+  margin: 2rem auto; /* Centre le conteneur */
+}
+
+.static-page-container h1,
+.static-page-container h5 {
+  color: #111; /* Titres un peu plus foncés */
+}
