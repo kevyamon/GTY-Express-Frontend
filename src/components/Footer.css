@@ -1,0 +1,96 @@
+.footer-container {
+  background-color: #003366; /* Bleu foncé comme Decathlon */
+  color: white;
+  padding-top: 2.5rem;
+  padding-bottom: 1rem;
+}
+
+.service-blurbs {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+}
+
+.service-blurb {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.service-blurb svg {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.service-blurb h5 {
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.service-blurb p {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 200px;
+}
+
+.footer-links h5 {
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  color: #f8f9fa;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+.social-icons a {
+  color: white;
+  border: 1px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.5rem;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.social-icons a:hover {
+  background-color: white;
+  color: #003366;
+}
+
+.copyright {
+  text-align: center;
+  margin-top: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
