@@ -47,35 +47,48 @@ const CartScreen = () => {
           </Message>
         ) : (
           <ListGroup variant='flush'>
-            {cartItems.map((item) => (
-              <ListGroup.Item key={item._id}>
-                <Row className="align-items-center">
-                  <Col md={2}>
-                    <Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image} alt={item.name} fluid rounded />
-                  </Col>
-                  <Col md={3}>
-                    <Link to={`/product/${item._id}`}>{item.name}</Link>
-                  </Col>
-                  <Col md={2}>{item.price} FCFA</Col>
-                  <Col md={3}>
-                    <QtySelector
-                      value={item.qty}
-                      onChange={(newQty) => updateQtyHandler(item, newQty)}
-                      max={item.countInStock}
-                    />
-                  </Col>
-                  <Col md={2}>
-                    <Button
-                      type='button'
-                      variant='light'
-                      onClick={() => removeFromCartHandler(item._id)}
-                    >
-                      🗑️
-                    </Button>
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-            ))}
+            {cartItems.map((item) => {
+              // LOGIQUE D'IMAGE CORRIGÉE
+              let imageToDisplay = 'https://via.placeholder.com/150';
+              if (item.images && item.images.length > 0) {
+                imageToDisplay = item.images[0];
+              } else if (item.image) {
+                imageToDisplay = item.image;
+              }
+              const imageUrl = imageToDisplay.startsWith('/')
+                ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+                : imageToDisplay;
+
+              return (
+                <ListGroup.Item key={item._id}>
+                  <Row className="align-items-center">
+                    <Col md={2}>
+                      <Image src={imageUrl} alt={item.name} fluid rounded />
+                    </Col>
+                    <Col md={3}>
+                      <Link to={`/product/${item._id}`}>{item.name}</Link>
+                    </Col>
+                    <Col md={2}>{item.price} FCFA</Col>
+                    <Col md={3}>
+                      <QtySelector
+                        value={item.qty}
+                        onChange={(newQty) => updateQtyHandler(item, newQty)}
+                        max={item.countInStock}
+                      />
+                    </Col>
+                    <Col md={2}>
+                      <Button
+                        type='button'
+                        variant='light'
+                        onClick={() => removeFromCartHandler(item._id)}
+                      >
+                        🗑️
+                      </Button>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+              );
+            })}
           </ListGroup>
         )}
       </Col>
@@ -87,7 +100,6 @@ const CartScreen = () => {
                 Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 articles
               </h2>
-              {/* Correction du bug toFixed */}
               {(cart.itemsPrice || 0).toFixed(2)} FCFA
             </ListGroup.Item>
             <ListGroup.Item>
