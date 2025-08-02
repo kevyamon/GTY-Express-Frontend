@@ -2,6 +2,7 @@ entrypoint = "src/App.jsx"
 
 hidden = [".config"]
 run = "npm run dev"
+modules = ["nodejs-20"]
 
 [[hints]]
 regex = "Error \\[ERR_REQUIRE_ESM\\]"
@@ -74,3 +75,8 @@ support = true
       sourceMaps = true
       stopOnEntry = false
       type = "pwa-node"
+
+[[ports]]
+localPort = 5173
+externalPort = 80
+exposeLocalhost = true

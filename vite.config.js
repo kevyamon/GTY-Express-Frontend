@@ -10,5 +10,7 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    // AJOUT DE CETTE LIGNE POUR AUTORISER REPLIT
+    allowedHosts: ['.replit.dev'],
   },
 })
