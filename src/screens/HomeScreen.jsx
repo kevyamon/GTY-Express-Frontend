@@ -1,5 +1,5 @@
 import { Row, Col } from 'react-bootstrap';
-import { useParams, Link, useLocation } from 'react-router-dom'; // IMPORTATION DE useLocation AJOUTÉE
+import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
@@ -7,7 +7,7 @@ import './HomeScreen.css';
 
 const HomeScreen = () => {
   const { keyword, category: categoryFromUrl } = useParams();
-  const location = useLocation(); // DÉCLARATION DE location AJOUTÉE
+  const location = useLocation();
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
@@ -50,7 +50,8 @@ const HomeScreen = () => {
           ) : (
             <Row>
               {products && products.map((product) => (
-                <Col key={product._id} xs={6} md={6} lg={4} xl={3}>
+                // L'AJOUT DE `className="p-2"` RÈGLE L'ESPACEMENT
+                <Col key={product._id} xs={6} md={6} lg={4} xl={3} className="p-2">
                   <Product product={product} />
                 </Col>
               ))}

@@ -14,7 +14,7 @@ import { logout } from '../slices/authSlice';
 import { useSocketQuery } from '../slices/apiSlice';
 
 // Composants
-import CategoryMenu from './CategoryMenu'; // NOUVEL IMPORT
+import CategoryMenu from './CategoryMenu';
 
 // CSS
 import './Header.css';

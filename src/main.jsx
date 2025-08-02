@@ -12,7 +12,7 @@ import store from './store.js';
 import App from './App.jsx';
 
 // Fichiers de style
-import './App.css'; 
+import './App.css';
 import './index.css';
 
 // Écrans principaux
@@ -63,7 +63,8 @@ const router = createBrowserRouter(
       <Route path="/search/:keyword" element={<HomeScreen />} />
       <Route path="/supermarket" element={<HomeScreen />} />
       <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
-      <Route path="/category/:category" element={<HomeScreen />} /> {/* NOUVELLE ROUTE */}
+      <Route path="/category/:category" element={<HomeScreen />} />
+      <Route path="/promotions" element={<HomeScreen />} /> {/* NOUVELLE ROUTE */}
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
