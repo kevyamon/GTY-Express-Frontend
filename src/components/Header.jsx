@@ -118,6 +118,7 @@ const Header = () => {
                       <LinkContainer to="/admin/productlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Produits</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/orderlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Commandes {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}{cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/promotionlist"><NavDropdown.Item>Gestion Promotions</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to="/admin/promobannerlist"><NavDropdown.Item>Gestion Bannière Promo</NavDropdown.Item></LinkContainer> {/* NOUVEAU LIEN */}
                     </>
                   )}
                   <NavDropdown.Divider />

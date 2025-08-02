@@ -3,10 +3,10 @@ import { Row, Col } from 'react-bootstrap';
 import { FaCamera, FaHeadphones, FaShoppingBag } from 'react-icons/fa';
 import './PromoBanner.css';
 
-const PromoBanner = () => {
+const PromoBanner = ({ bannerData }) => {
   const calculateTimeLeft = () => {
-    // On met une date de fin de promotion dans le futur pour la démonstration
-    const difference = +new Date('2025-12-31T23:59:59') - +new Date();
+    // La date de fin vient maintenant de la base de données
+    const difference = +new Date(bannerData.endDate) - +new Date();
     let timeLeft = {};
 
     if (difference > 0) {
@@ -23,12 +23,13 @@ const PromoBanner = () => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
+    // Met à jour le timer uniquement si la date de fin change
     const timer = setTimeout(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearTimeout(timer);
-  });
+  }, [timeLeft, bannerData.endDate]);
 
   return (
     <div className="promo-banner-container my-4">
@@ -36,33 +37,23 @@ const PromoBanner = () => {
         {/* Section Gauche : Timer et Offre */}
         <Col md={8} className="promo-left-section">
           <div className="timer">
-            Fin de la promo : {timeLeft.jours}j {timeLeft.heures}h {timeLeft.minutes}m {timeLeft.secondes}s
+            {Object.keys(timeLeft).length > 0 ? 
+              `Fin de la promo : ${timeLeft.jours}j ${timeLeft.heures}h ${timeLeft.minutes}m ${timeLeft.secondes}s`
+              : "Promotion terminée !"}
           </div>
           <div className="main-offer">
-            Jusqu'à -60%
+            {bannerData.mainOfferText}
           </div>
           <Row className="coupons-section">
-            <Col xs={4}>
-              <div className="coupon-card">
-                <span>-5000 FCFA</span>
-                <small>dès 75000 FCFA d'achat</small>
-                <strong>Code: PROMO5K</strong>
-              </div>
-            </Col>
-            <Col xs={4}>
-              <div className="coupon-card">
-                <span>-10000 FCFA</span>
-                <small>dès 120000 FCFA d'achat</small>
-                <strong>Code: PROMO10K</strong>
-              </div>
-            </Col>
-            <Col xs={4}>
-              <div className="coupon-card">
-                <span>-25000 FCFA</span>
-                <small>dès 200000 FCFA d'achat</small>
-                <strong>Code: PROMO25K</strong>
-              </div>
-            </Col>
+            {bannerData.coupons.map((coupon, index) => (
+              <Col xs={4} key={index}>
+                <div className="coupon-card">
+                  <span>{coupon.title}</span>
+                  <small>{coupon.subtitle}</small>
+                  <strong>Code: {coupon.code}</strong>
+                </div>
+              </Col>
+            ))}
           </Row>
         </Col>
 

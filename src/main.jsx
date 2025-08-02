@@ -54,6 +54,7 @@ import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import ProductAddScreen from './screens/admin/ProductAddScreen.jsx';
 import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
+import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx'; // NOUVEL IMPORT
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -64,7 +65,7 @@ const router = createBrowserRouter(
       <Route path="/supermarket" element={<HomeScreen />} />
       <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
       <Route path="/category/:category" element={<HomeScreen />} />
-      <Route path="/promotions" element={<HomeScreen />} /> {/* NOUVELLE ROUTE */}
+      <Route path="/promotions" element={<HomeScreen />} />
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
@@ -103,6 +104,7 @@ const router = createBrowserRouter(
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
         <Route path="/admin/product/add" element={<ProductAddScreen />} />
         <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
+        <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} /> {/* NOUVELLE ROUTE */}
       </Route>
     </Route>
   )

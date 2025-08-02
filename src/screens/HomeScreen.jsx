@@ -2,21 +2,23 @@ import { Row, Col } from 'react-bootstrap';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
-import PromoBanner from '../components/PromoBanner'; // NOUVEL IMPORT
+import PromoBanner from '../components/PromoBanner';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
+import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice'; // NOUVEL IMPORT
 import './HomeScreen.css';
 
 const HomeScreen = () => {
   const { keyword, category: categoryFromUrl } = useParams();
   const location = useLocation();
 
+  // On récupère les données de la bannière active
+  const { data: activeBanner, isLoading: isLoadingBanner } = useGetActiveBannerQuery();
+
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
-
-  // On détermine si on est sur une page "générale" pour afficher le bandeau
   const isGeneralPage = !keyword && !categoryFromUrl && !isSupermarket && !isPromo;
 
-  let category = categoryFromUrl || 'general'; // Modifié pour passer "general" par défaut
+  let category = categoryFromUrl || 'general';
   let promotion = 'false';
   let pageTitle = categoryFromUrl || 'Derniers Produits';
 
@@ -41,8 +43,8 @@ const HomeScreen = () => {
 
   return (
     <div className='home-screen-background'>
-      {/* AFFICHAGE CONDITIONNEL DE LA BANNIÈRE */}
-      {isGeneralPage && <PromoBanner />}
+      {/* AFFICHAGE CONDITIONNEL BASÉ SUR LES VRAIES DONNÉES */}
+      {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
 
       {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
 
