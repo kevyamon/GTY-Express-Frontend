@@ -19,9 +19,7 @@ const OrderScreen = () => {
     data: order,
     isLoading,
     error,
-  } = useGetOrderDetailsQuery(orderId, {
-    pollingInterval: 5000,
-  });
+  } = useGetOrderDetailsQuery(orderId); // POLLING RETIRÉ ICI
 
   const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
@@ -114,7 +112,6 @@ const OrderScreen = () => {
                   {loadingUpdate && <p>Chargement...</p>}
                 </ListGroup.Item>
               )}
-              {/* Le bouton supprimer est maintenant sur la page ProfileScreen */}
             </ListGroup>
           </Card>
         </Col>

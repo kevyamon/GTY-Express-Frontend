@@ -11,12 +11,12 @@ import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApi
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { logout } from '../slices/authSlice';
+import { useSocketQuery } from '../slices/apiSlice'; // IMPORTATION AJOUTÉE
 
 // CSS
 import './Header.css';
 
 const Header = () => {
-  // ... (toute la logique des hooks reste la même)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
@@ -25,21 +25,70 @@ const Header = () => {
   );
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
-  useGetProfileDetailsQuery(undefined, { skip: !userInfo, pollingInterval: 30000 });
-  const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin, pollingInterval: 10000 });
-  const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !userInfo, pollingInterval: 10000 });
+
+  // Lancement de la connexion WebSocket si l'utilisateur est connecté
+  useSocketQuery(undefined, { skip: !userInfo });
+
+  // Requêtes API SANS POLLING
+  useGetProfileDetailsQuery(undefined, { skip: !userInfo });
+  const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
+  const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
+
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
-  const newOrdersCount = useMemo(() => { /* ... */ return 0; }, []);
-  const cancelledOrdersCount = useMemo(() => { /* ... */ return 0; }, []);
-  const unreadNotifsCount = useMemo(() => { /* ... */ return 0; }, []);
-  const handleAdminMenuClick = () => { /* ... */ };
-  const handleNotificationClick = async () => { /* ... */ };
-  const submitHandler = (e) => { /* ... */ };
-  const logoutHandler = async () => { /* ... */ };
 
-  // LOGIQUE AJOUTÉE : Détermine le bon chemin pour la page d'accueil
   const homePath = userInfo ? '/products' : '/';
+
+  // Le reste de la logique (useMemo, handlers, etc.) reste identique
+  const newOrdersCount = useMemo(() => {
+    const lastSeen = new Date(lastSeenAdminTimestamp);
+    if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
+      return adminOrders.filter(o => new Date(o.createdAt) > lastSeen).length;
+    }
+    return 0;
+  }, [userInfo, adminOrders, lastSeenAdminTimestamp]);
+  const cancelledOrdersCount = useMemo(() => {
+    const lastSeen = new Date(lastSeenAdminTimestamp);
+    if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
+      return adminOrders.filter(o => o.status === 'Annulée' && new Date(o.updatedAt) > lastSeen).length;
+    }
+    return 0;
+  }, [userInfo, adminOrders, lastSeenAdminTimestamp]);
+  const unreadNotifsCount = useMemo(() => {
+    if (userInfo && Array.isArray(notifications)) {
+      return notifications.filter(n => !n.isRead).length;
+    }
+    return 0;
+  }, [userInfo, notifications]);
+  const handleAdminMenuClick = () => {
+    const now = new Date().toISOString();
+    localStorage.setItem('lastSeenAdminTimestamp', now);
+    setLastSeenAdminTimestamp(now);
+  };
+  const handleNotificationClick = async () => {
+    if (unreadNotifsCount > 0) {
+      try {
+        await markAsRead().unwrap();
+        refetchNotifications();
+      } catch (err) {
+        toast.error("Erreur lors de la mise à jour des notifications.");
+        console.error('Erreur markAsRead:', err);
+      }
+    }
+    navigate('/notifications');
+  };
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (keyword.trim()) { navigate(`/search/${keyword}`); setKeyword(''); } 
+    else { navigate(homePath); }
+  };
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate('/login');
+    } catch (err) { console.error(err); }
+  };
 
   return (
     <header className="header-layout">
@@ -48,17 +97,14 @@ const Header = () => {
       {/* ================================================================ */}
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
         <Container fluid>
-          {/* CORRECTION ICI : Utilise le chemin dynamique */}
           <LinkContainer to={homePath}>
             <Navbar.Brand>GTY Express</Navbar.Brand>
           </LinkContainer>
-
           <LinkContainer to="/promotions">
             <Nav.Link className="text-danger fw-bold d-flex align-items-center">
               <FaTag className="me-1" /> PROMO
             </Nav.Link>
           </LinkContainer>
-
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
@@ -115,7 +161,6 @@ const Header = () => {
               <Badge pill bg="danger" className="icon-badge">{unreadNotifsCount}</Badge>
             )}
           </div>
-          {/* CORRECTION ICI : Utilise le chemin dynamique */}
           <Link to={homePath} className="home-icon-link">
             🏡
           </Link>
