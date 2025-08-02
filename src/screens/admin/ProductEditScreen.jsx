@@ -10,11 +10,24 @@ import { useGetPromotionsQuery } from '../../slices/promotionApiSlice';
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
+// LISTE DES CATÉGORIES
+const categories = [
+  'Électronique',
+  'Vêtements et Accessoires',
+  'Sports et Loisirs',
+  'Beauté et Santé',
+  'Maison et Cuisine',
+  'Supermarché',
+  'Autres',
+];
+
 const ProductEditScreen = () => {
   const { id: productId } = useParams();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
+  const [brand, setBrand] = useState('');
+  const [category, setCategory] = useState('Autres'); // NOUVEL ETAT
   const [images, setImages] = useState([]);
   const [countInStock, setCountInStock] = useState('');
   const [description, setDescription] = useState('');
@@ -25,7 +38,7 @@ const ProductEditScreen = () => {
   const { data: product, isLoading, error: productError } = useGetProductDetailsQuery(productId);
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
   const { data: promotions, isLoading: loadingPromotions } = useGetPromotionsQuery();
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +46,8 @@ const ProductEditScreen = () => {
       setName(product.name || '');
       setPrice(product.price || '');
       setOriginalPrice(product.originalPrice || '');
+      setBrand(product.brand || '');
+      setCategory(product.category || 'Autres');
       setImages(product.images || []);
       setCountInStock(product.countInStock || '');
       setDescription(product.description || '');
@@ -46,7 +61,7 @@ const ProductEditScreen = () => {
     try {
       await updateProduct({
         productId, name, price: Number(price), originalPrice: Number(originalPrice),
-        images, countInStock: Number(countInStock), description, isSupermarket, 
+        brand, category, images, countInStock: Number(countInStock), description, isSupermarket, 
         promotion: promotion === '' ? undefined : promotion,
       }).unwrap();
       toast.success('Produit mis à jour');
@@ -97,9 +112,19 @@ const ProductEditScreen = () => {
             <Form.Control type='text' placeholder='Entrez le nom' value={name} onChange={(e) => setName(e.target.value)} />
           </Form.Group>
           <Row>
+            <Col><Form.Group controlId='brand' className='my-2'><Form.Label>Marque</Form.Label><Form.Control type='text' placeholder='Entrez la marque' value={brand} onChange={(e) => setBrand(e.target.value)} /></Form.Group></Col>
+            <Col><Form.Group controlId='countInStock' className='my-2'><Form.Label>Stock</Form.Label><Form.Control type='number' placeholder='Entrez le stock' value={countInStock} onChange={(e) => setCountInStock(e.target.value)} /></Form.Group></Col>
+          </Row>
+          <Row>
             <Col><Form.Group controlId='originalPrice' className='my-2'><Form.Label>Prix Original</Form.Label><Form.Control type='number' placeholder='Prix original' value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} /></Form.Group></Col>
             <Col><Form.Group controlId='price' className='my-2'><Form.Label>Prix de Vente</Form.Label><Form.Control type='number' placeholder='Prix de vente' value={price} onChange={(e) => setPrice(e.target.value)} /></Form.Group></Col>
           </Row>
+          <Form.Group controlId='category' className='my-2'>
+            <Form.Label>Catégorie</Form.Label>
+            <Form.Select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </Form.Select>
+          </Form.Group>
           <Form.Group controlId='images' className='my-2'>
             <Form.Label>Images</Form.Label>
             <ListGroup variant="flush" className="mb-2">
@@ -114,7 +139,6 @@ const ProductEditScreen = () => {
             <Form.Control label='Ajouter une image' onChange={uploadFileHandler} type='file' />
             {loadingUpload && <p>Téléversement...</p>}
           </Form.Group>
-          <Form.Group controlId='countInStock' className='my-2'><Form.Label>Stock</Form.Label><Form.Control type='number' placeholder='Entrez le stock' value={countInStock} onChange={(e) => setCountInStock(e.target.value)} /></Form.Group>
           <Form.Group controlId='description' className='my-2'><Form.Label>Description</Form.Label><Form.Control as='textarea' rows={3} placeholder='Entrez la description' value={description} onChange={(e) => setDescription(e.target.value)} /></Form.Group>
           <Form.Group controlId='isSupermarket' className='my-3'><Form.Check type='checkbox' label='Produit de type Supermarché' checked={isSupermarket} onChange={(e) => setIsSupermarket(e.target.checked)} /></Form.Group>
           <Form.Group controlId='promotion' className='my-3'>
@@ -132,4 +156,5 @@ const ProductEditScreen = () => {
     </>
   );
 };
+
 export default ProductEditScreen;

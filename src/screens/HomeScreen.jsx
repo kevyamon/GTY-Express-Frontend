@@ -1,20 +1,19 @@
 import { Row, Col } from 'react-bootstrap';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 import './HomeScreen.css';
 
 const HomeScreen = () => {
-  const { keyword } = useParams();
-  const location = useLocation();
+  const { keyword, category: categoryFromUrl } = useParams();
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
 
-  let category = 'general';
+  let category = categoryFromUrl || '';
   let promotion = 'false';
-  let pageTitle = 'Derniers Produits';
+  let pageTitle = categoryFromUrl || 'Derniers Produits';
 
   if (isSupermarket) {
     category = 'supermarket';
@@ -22,11 +21,11 @@ const HomeScreen = () => {
   } else if (isPromo) {
     promotion = 'true';
     pageTitle = 'Promotions';
-    category = 'all'; // On cherche dans toutes les catégories pour les promos
+    category = 'all';
   }
 
   if (keyword) {
-    pageTitle = 'Résultats de la recherche';
+    pageTitle = `Recherche : ${keyword}`;
   }
 
   const { data: products, isLoading, error } = useGetProductsQuery({
@@ -38,7 +37,7 @@ const HomeScreen = () => {
   return (
     <div className='home-screen-background'>
       {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
-      
+
       <h1 className='home-screen-title'>{pageTitle}</h1>
 
       {isLoading ? (<h2>Chargement...</h2>) 
@@ -46,7 +45,7 @@ const HomeScreen = () => {
       : (
         <>
           {products.length === 0 ? (
-            <Message>Aucun produit trouvé</Message>
+            <Message>Aucun produit trouvé pour cette catégorie.</Message>
           ) : (
             <Row>
               {products.map((product) => (

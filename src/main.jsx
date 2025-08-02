@@ -41,10 +41,8 @@ import ReturnsScreen from './screens/ReturnsScreen.jsx';
 import HowToBuyScreen from './screens/HowToBuyScreen.jsx';
 import FAQScreen from './screens/FAQScreen.jsx';
 import ContactScreen from './screens/ContactScreen.jsx';
-// NOUVEAUX IMPORTS
 import StoresScreen from './screens/StoresScreen.jsx';
 import PrivacyScreen from './screens/PrivacyScreen.jsx';
-
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -65,6 +63,7 @@ const router = createBrowserRouter(
       <Route path="/search/:keyword" element={<HomeScreen />} />
       <Route path="/supermarket" element={<HomeScreen />} />
       <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
+      <Route path="/category/:category" element={<HomeScreen />} /> {/* NOUVELLE ROUTE */}
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
@@ -78,10 +77,8 @@ const router = createBrowserRouter(
       <Route path="/how-to-buy" element={<HowToBuyScreen />} />
       <Route path="/faq" element={<FAQScreen />} />
       <Route path="/contact" element={<ContactScreen />} />
-      {/* NOUVELLES ROUTES */}
       <Route path="/stores" element={<StoresScreen />} />
       <Route path="/privacy" element={<PrivacyScreen />} />
-
 
       {/* --- Routes Privées (clients et admins connectés) --- */}
       <Route path="" element={<PrivateRoute />}>

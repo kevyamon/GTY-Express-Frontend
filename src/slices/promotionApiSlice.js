@@ -1,35 +1,37 @@
 import { apiSlice } from './apiSlice';
-const PROMOTIONS_URL = '/api/promotions';
+const PRODUCTS_URL = '/api/products';
 
-export const promotionApiSlice = apiSlice.injectEndpoints({
+export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getPromotions: builder.query({
-      query: () => ({
-        url: PROMOTIONS_URL,
+    getProducts: builder.query({
+      query: ({ keyword = '', category = '', promotion = 'false' }) => ({ // VALEUR PAR DEFAUT DE CATEGORY MISE A JOUR
+        url: PRODUCTS_URL,
+        params: { keyword, category, promotion },
       }),
-      providesTags: ['Promotion'],
-      keepUnusedDataFor: 5,
+      providesTags: ['Product'],
     }),
-    createPromotion: builder.mutation({
-      query: (data) => ({
-        url: PROMOTIONS_URL,
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: ['Promotion'],
+    getProductDetails: builder.query({
+      query: (productId) => ({ url: `${PRODUCTS_URL}/${productId}` }),
     }),
-    deletePromotion: builder.mutation({
-      query: (id) => ({
-        url: `${PROMOTIONS_URL}/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['Promotion'],
+    createProduct: builder.mutation({
+      query: (data) => ({ url: PRODUCTS_URL, method: 'POST', body: data }),
+      invalidatesTags: ['Product'],
+    }),
+    updateProduct: builder.mutation({
+      query: (data) => ({ url: `${PRODUCTS_URL}/${data.productId}`, method: 'PUT', body: data }),
+      invalidatesTags: ['Product'],
+    }),
+    deleteProduct: builder.mutation({
+      query: (productId) => ({ url: `${PRODUCTS_URL}/${productId}`, method: 'DELETE' }),
+      invalidatesTags: ['Product'],
     }),
   }),
 });
 
 export const {
-  useGetPromotionsQuery,
-  useCreatePromotionMutation,
-  useDeletePromotionMutation,
-} = promotionApiSlice;
+  useGetProductsQuery,
+  useGetProductDetailsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productsApiSlice;

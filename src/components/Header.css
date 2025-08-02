@@ -1,13 +1,11 @@
-/* Conteneur principal pour toutes les lignes du header */
 .header-layout {
   background-color: #212529;
   padding-bottom: 0.75rem;
 }
 
-/* --- Ligne Centrale : Barre de recherche --- */
 .header-search-row {
   display: flex;
-  justify-content: center; /* Centre la barre de recherche */
+  justify-content: center;
   padding: 0.75rem 1rem;
 }
 
@@ -16,10 +14,9 @@
   width: 100%;
 }
 
-/* --- Ligne Inférieure : Icônes de navigation --- */
 .header-icon-row {
-  display: flex; /* Aligne les icônes horizontalement */
-  justify-content: space-around; /* Espace les icônes uniformément */
+  display: flex;
+  justify-content: space-around;
   align-items: center;
   padding: 0.25rem 1rem 0;
 }
@@ -27,7 +24,7 @@
 .home-icon-link {
   color: rgba(255, 255, 255, 0.65);
   transition: color 0.2s ease-in-out;
-  font-size: 1.5rem; /* Augmente la taille des icônes */
+  font-size: 1.5rem;
   text-decoration: none;
 }
 
@@ -43,7 +40,6 @@
   padding: 3px 6px;
 }
 
-/* --- Styles pour l'image de profil --- */
 .profile-icon-container {
   display: flex;
   align-items: center;

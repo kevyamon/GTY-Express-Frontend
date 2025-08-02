@@ -11,7 +11,10 @@ import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApi
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { logout } from '../slices/authSlice';
-import { useSocketQuery } from '../slices/apiSlice'; // IMPORTATION AJOUTÉE
+import { useSocketQuery } from '../slices/apiSlice';
+
+// Composants
+import CategoryMenu from './CategoryMenu'; // NOUVEL IMPORT
 
 // CSS
 import './Header.css';
@@ -25,21 +28,14 @@ const Header = () => {
   );
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
-
-  // Lancement de la connexion WebSocket si l'utilisateur est connecté
   useSocketQuery(undefined, { skip: !userInfo });
-
-  // Requêtes API SANS POLLING
   useGetProfileDetailsQuery(undefined, { skip: !userInfo });
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: notifications, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
-
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
-
   const homePath = userInfo ? '/products' : '/';
 
-  // Le reste de la logique (useMemo, handlers, etc.) reste identique
   const newOrdersCount = useMemo(() => {
     const lastSeen = new Date(lastSeenAdminTimestamp);
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
@@ -92,19 +88,22 @@ const Header = () => {
 
   return (
     <header className="header-layout">
-      {/* ================================================================ */}
-      {/* 1. LIGNE SUPÉRIEURE : LOGO, PROMO, PROFIL */}
-      {/* ================================================================ */}
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
         <Container fluid>
           <LinkContainer to={homePath}>
             <Navbar.Brand>GTY Express</Navbar.Brand>
           </LinkContainer>
+
+          <Nav className="me-auto">
+            {userInfo && <CategoryMenu />}
+          </Nav>
+
           <LinkContainer to="/promotions">
             <Nav.Link className="text-danger fw-bold d-flex align-items-center">
               <FaTag className="me-1" /> PROMO
             </Nav.Link>
           </LinkContainer>
+
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
@@ -132,9 +131,6 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      {/* ================================================================ */}
-      {/* 2. LIGNE CENTRALE : BARRE DE RECHERCHE */}
-      {/* ================================================================ */}
       <div className="header-search-row bg-dark">
         <Form onSubmit={submitHandler} className="d-flex search-form">
           <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
@@ -142,9 +138,6 @@ const Header = () => {
         </Form>
       </div>
 
-      {/* ================================================================ */}
-      {/* 3. LIGNE INFÉRIEURE : ICÔNES DE NAVIGATION */}
-      {/* ================================================================ */}
       {userInfo && (
         <div className="header-icon-row bg-dark">
           <Link to="/cart" className="home-icon-link position-relative">

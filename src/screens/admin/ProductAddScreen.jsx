@@ -10,6 +10,17 @@ import { useGetPromotionsQuery } from '../../slices/promotionApiSlice';
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
+// LISTE DES CATÉGORIES
+const categories = [
+  'Électronique',
+  'Vêtements et Accessoires',
+  'Sports et Loisirs',
+  'Beauté et Santé',
+  'Maison et Cuisine',
+  'Supermarché',
+  'Autres',
+];
+
 const ProductAddScreen = () => {
   const navigate = useNavigate();
 
@@ -17,6 +28,7 @@ const ProductAddScreen = () => {
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
   const [brand, setBrand] = useState('');
+  const [category, setCategory] = useState('Autres'); // NOUVEL ETAT
   const [images, setImages] = useState([]);
   const [countInStock, setCountInStock] = useState('');
   const [description, setDescription] = useState('');
@@ -35,6 +47,7 @@ const ProductAddScreen = () => {
         price: Number(price),
         originalPrice: Number(originalPrice),
         brand,
+        category, // NOUVEAU CHAMP
         images,
         countInStock: Number(countInStock),
         description,
@@ -91,6 +104,12 @@ const ProductAddScreen = () => {
           <Col><Form.Group controlId='originalPrice' className='my-2'><Form.Label>Prix Original (Optionnel)</Form.Label><Form.Control type='number' placeholder='Prix barré' value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} /></Form.Group></Col>
           <Col><Form.Group controlId='price' className='my-2'><Form.Label>Prix de Vente</Form.Label><Form.Control type='number' placeholder='Prix de vente' value={price} onChange={(e) => setPrice(e.target.value)} required/></Form.Group></Col>
         </Row>
+        <Form.Group controlId='category' className='my-2'>
+            <Form.Label>Catégorie</Form.Label>
+            <Form.Select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </Form.Select>
+        </Form.Group>
         <Form.Group controlId='images' className='my-2'>
           <Form.Label>Images</Form.Label>
           <ListGroup variant="flush" className="mb-2">

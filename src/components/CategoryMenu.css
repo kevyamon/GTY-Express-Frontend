@@ -1,0 +1,19 @@
+.category-menu .dropdown-toggle {
+  color: white !important;
+  font-weight: bold;
+}
+
+.category-menu .dropdown-menu {
+  margin-top: 0.5rem;
+}
+
+.category-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 500;
+}
+
+.category-menu .category-name {
+  white-space: normal;
+}
