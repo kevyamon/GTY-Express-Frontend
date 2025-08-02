@@ -45,10 +45,10 @@ const Footer = () => {
           <Col md={3} sm={6}>
             <h5>Nos Services</h5>
             <ul>
-              <li><a href="#!">Livraison</a></li>
-              <li><a href="#!">Garantie</a></li>
-              <li><a href="#!">Cliquez et retirez</a></li>
-              <li><a href="#!">Retour ou Échange</a></li>
+              <li><Link to="/delivery">Livraison</Link></li>
+              <li><Link to="/warranty">Garantie</Link></li>
+              <li><Link to="/click-and-collect">Cliquez et retirez</Link></li>
+              <li><Link to="/returns">Retour ou Échange</Link></li>
             </ul>
           </Col>
           <Col md={3} sm={6}>

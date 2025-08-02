@@ -31,10 +31,14 @@ import PaymentGatewayScreen from './screens/PaymentGatewayScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
 import ProfileDetailsScreen from './screens/ProfileDetailsScreen.jsx';
 import NotificationsScreen from './screens/NotificationsScreen.jsx';
-// NOUVEAUX IMPORTS
 import AboutScreen from './screens/AboutScreen.jsx';
 import LegalNoticeScreen from './screens/LegalNoticeScreen.jsx';
 import TermsScreen from './screens/TermsScreen.jsx';
+// NOUVEAUX IMPORTS
+import DeliveryScreen from './screens/DeliveryScreen.jsx';
+import WarrantyScreen from './screens/WarrantyScreen.jsx';
+import ClickAndCollectScreen from './screens/ClickAndCollectScreen.jsx';
+import ReturnsScreen from './screens/ReturnsScreen.jsx';
 
 
 // Composants de route
@@ -59,10 +63,15 @@ const router = createBrowserRouter(
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
-      {/* NOUVELLES ROUTES */}
       <Route path="/about" element={<AboutScreen />} />
       <Route path="/legal-notice" element={<LegalNoticeScreen />} />
       <Route path="/terms" element={<TermsScreen />} />
+      {/* NOUVELLES ROUTES */}
+      <Route path="/delivery" element={<DeliveryScreen />} />
+      <Route path="/warranty" element={<WarrantyScreen />} />
+      <Route path="/click-and-collect" element={<ClickAndCollectScreen />} />
+      <Route path="/returns" element={<ReturnsScreen />} />
+
 
       {/* --- Routes Privées (clients et admins connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
