@@ -6,16 +6,11 @@ import Message from '../../components/Message';
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
-  useCreateProductMutation,
 } from '../../slices/productsApiSlice';
 
 const ProductListScreen = () => {
-  // CORRECTION : On demande tous les produits sans filtre de catégorie
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery({ category: 'all' });
-  
-  const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
+  const { data: products, isLoading, error } = useGetProductsQuery({ category: 'all' });
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
-
   const navigate = useNavigate();
 
   const deleteHandler = async (id) => {
@@ -29,17 +24,6 @@ const ProductListScreen = () => {
     }
   };
 
-  const createProductHandler = async () => {
-    if (window.confirm('Un nouveau produit va être créé. Vous serez redirigé pour le modifier. Continuer ?')) {
-      try {
-        const newProduct = await createProduct().unwrap();
-        navigate(`/admin/product/${newProduct._id}/edit`);
-      } catch (err) {
-        toast.error(err?.data?.message || err.error);
-      }
-    }
-  };
-
   return (
     <>
       <Row className='align-items-center'>
@@ -47,13 +31,13 @@ const ProductListScreen = () => {
           <h1>Produits</h1>
         </Col>
         <Col className='text-end'>
-          <Button className='my-3' onClick={createProductHandler}>
+          {/* CORRECTION DU BOUTON */}
+          <Button className='my-3' onClick={() => navigate('/admin/product/add')}>
             <i className='fas fa-plus'></i> Créer un Produit
           </Button>
         </Col>
       </Row>
 
-      {loadingCreate && <p>Création...</p>}
       {loadingDelete && <p>Suppression...</p>}
       {isLoading ? (
         <p>Chargement...</p>
