@@ -1,122 +1,58 @@
-/* Conteneur principal pour nos deux rangées */
+/* Conteneur principal pour toutes les lignes du header */
 .header-layout {
-  background-color: #212529; /* Fond sombre de la barre de navigation */
+  background-color: #212529;
   padding-bottom: 0.75rem;
 }
 
-/* Première rangée : Logo et Menu Utilisateur */
-.header-top-row {
+/* --- Ligne Centrale : Barre de recherche --- */
+.header-search-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-/* Deuxième rangée : Recherche et Icônes */
-.header-center-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 0.75rem;
-  padding: 0 1rem;
+  justify-content: center; /* Centre la barre de recherche */
+  padding: 0.75rem 1rem;
 }
 
 .search-form {
   max-width: 600px;
   width: 100%;
-  /* ... styles existants ... */
+}
 
-  .profile-image {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  /* NOUVEAU STYLE POUR LE BOUTON PROMO */
-  .promo-btn-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.75rem;
-  }
-
-  .promo-btn {
-    display: inline-block;
-    background-color: #dc3545; /* Rouge */
-    color: white;
-    padding: 8px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    width: 50%;
-    max-width: 300px;
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .promo-btn:hover {
-    transform: scale(1.05);
-    color: white;
-  }
-
-  /* Effet de ticket */
-  .promo-btn::before,
-  .promo-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #212529; /* Couleur du fond du header */
-    transform: translateY(-50%);
-  }
-
-  .promo-btn::before {
-    left: -6px;
-  }
-
-  .promo-btn::after {
-    right: -6px;
-  }
+/* --- Ligne Inférieure : Icônes de navigation --- */
+.header-icon-row {
+  display: flex; /* Aligne les icônes horizontalement */
+  justify-content: space-around; /* Espace les icônes uniformément */
+  align-items: center;
+  padding: 0.25rem 1rem 0;
 }
 
 .home-icon-link {
   color: rgba(255, 255, 255, 0.65);
   transition: color 0.2s ease-in-out;
+  font-size: 1.5rem; /* Augmente la taille des icônes */
+  text-decoration: none;
 }
 
 .home-icon-link:hover {
   color: white;
 }
 
-.supermarket-btn {
+.icon-badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  font-size: 0.65rem;
+  padding: 3px 6px;
+}
+
+/* --- Styles pour l'image de profil --- */
+.profile-icon-container {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background-color: #ffc107;
-  color: #212529;
-  border-radius: 50px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.2s ease-in-out;
-}
-.supermarket-btn:hover {
-  opacity: 0.9;
-  transform: scale(1.03);
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.profile-icon-container {
-    display: flex;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.65);
-}
-
-/* NOUVEAU STYLE POUR L'IMAGE DE PROFIL DANS LE HEADER */
 .profile-image {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  object-fit: cover; /* S'assure que l'image remplit bien le cercle */
+  object-fit: cover;
 }
