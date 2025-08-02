@@ -1,5 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom'; // IMPORTATION AJOUTÉE
+import { Link } from 'react-router-dom';
 import { FaShippingFast, FaShieldAlt, FaHeadset, FaCheckCircle, FaFacebookF, FaYoutube, FaLinkedinIn } from 'react-icons/fa';
 import './Footer.css';
 
@@ -54,7 +54,7 @@ const Footer = () => {
           <Col md={3} sm={6}>
             <h5>GTY Express</h5>
             <ul>
-              <li><a href="#!">Qui sommes nous ?</a></li>
+              <li><Link to="/about">Qui sommes nous ?</Link></li>
               <li><a href="#!">Nos promotions</a></li>
               <li><a href="#!">Nos magasins</a></li>
             </ul>
@@ -62,10 +62,9 @@ const Footer = () => {
           <Col md={3} sm={6}>
             <h5>Utilisateur</h5>
             <ul>
-              {/* LIGNE MODIFIÉE CI-DESSOUS */}
               <li><Link to="/profile-details">Mon compte</Link></li>
-              <li><a href="#!">Mentions légales</a></li>
-              <li><a href="#!">CGU / CGV</a></li>
+              <li><Link to="/legal-notice">Mentions légales</Link></li>
+              <li><Link to="/terms">CGU / CGV</Link></li>
               <li><a href="#!">Données personnelles</a></li>
             </ul>
           </Col>

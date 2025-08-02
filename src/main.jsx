@@ -31,6 +31,11 @@ import PaymentGatewayScreen from './screens/PaymentGatewayScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
 import ProfileDetailsScreen from './screens/ProfileDetailsScreen.jsx';
 import NotificationsScreen from './screens/NotificationsScreen.jsx';
+// NOUVEAUX IMPORTS
+import AboutScreen from './screens/AboutScreen.jsx';
+import LegalNoticeScreen from './screens/LegalNoticeScreen.jsx';
+import TermsScreen from './screens/TermsScreen.jsx';
+
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -40,8 +45,8 @@ import AdminRoute from './components/AdminRoute.jsx';
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
+import ProductAddScreen from './screens/admin/ProductAddScreen.jsx';
 import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
-import ProductAddScreen from './screens/admin/ProductAddScreen.jsx'; // NOUVEL IMPORT
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -54,6 +59,10 @@ const router = createBrowserRouter(
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
+      {/* NOUVELLES ROUTES */}
+      <Route path="/about" element={<AboutScreen />} />
+      <Route path="/legal-notice" element={<LegalNoticeScreen />} />
+      <Route path="/terms" element={<TermsScreen />} />
 
       {/* --- Routes Privées (clients et admins connectés) --- */}
       <Route path="" element={<PrivateRoute />}>
@@ -75,7 +84,7 @@ const router = createBrowserRouter(
         <Route path="/admin/productlist" element={<ProductListScreen />} />
         <Route path='/admin/orderlist' element={<OrderListScreen />} />
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
-        <Route path="/admin/product/add" element={<ProductAddScreen />} /> {/* NOUVELLE ROUTE */}
+        <Route path="/admin/product/add" element={<ProductAddScreen />} />
         <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
       </Route>
     </Route>
