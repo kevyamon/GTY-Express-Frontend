@@ -1,6 +1,7 @@
 import { Container, Row, Col } from 'react-bootstrap';
+import { Link } from 'react-router-dom'; // IMPORTATION AJOUTÉE
 import { FaShippingFast, FaShieldAlt, FaHeadset, FaCheckCircle, FaFacebookF, FaYoutube, FaLinkedinIn } from 'react-icons/fa';
-import './Footer.css'; // Importation du nouveau fichier CSS
+import './Footer.css';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -61,7 +62,8 @@ const Footer = () => {
           <Col md={3} sm={6}>
             <h5>Utilisateur</h5>
             <ul>
-              <li><a href="#!">Mon compte</a></li>
+              {/* LIGNE MODIFIÉE CI-DESSOUS */}
+              <li><Link to="/profile-details">Mon compte</Link></li>
               <li><a href="#!">Mentions légales</a></li>
               <li><a href="#!">CGU / CGV</a></li>
               <li><a href="#!">Données personnelles</a></li>
