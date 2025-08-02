@@ -5,6 +5,7 @@ import { addToCart } from '../slices/cartSlice';
 import { addToFavorites, removeFromFavorites } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
+import StockStatus from './StockStatus'; // NOUVEL IMPORT
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -23,7 +24,7 @@ const Product = ({ product }) => {
     : imageToDisplay;
 
   const addToCartHandler = (e) => {
-    e.preventDefault(); // Empêche la navigation si on clique sur l'icône
+    e.preventDefault();
     dispatch(addToCart({ ...product, qty: 1 }));
     toast.success('Produit ajouté au panier !');
   };
@@ -77,6 +78,11 @@ const Product = ({ product }) => {
               {product.originalPrice} FCFA
             </span>
           )}
+        </div>
+
+        {/* STATUT DU STOCK RÉINTÉGRÉ ICI */}
+        <div className="stock-status-container">
+            <StockStatus countInStock={product.countInStock} />
         </div>
       </Card.Body>
     </Card>

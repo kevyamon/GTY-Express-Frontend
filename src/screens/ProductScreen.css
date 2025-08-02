@@ -14,5 +14,25 @@
 }
 
 .toggle-description-btn:hover {
-  text-decoration: uderline;
+  text-decoration: underline;
+}
+
+/* --- NOUVEAUX STYLES POUR LA GALERIE D'IMAGES --- */
+.product-image-gallery {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.product-image-gallery .carousel-item img,
+.product-image-gallery > img {
+  max-height: 400px;
+  width: auto !important;
+  max-width: 100%;
+  object-fit: contain;
+  margin: auto;
 }

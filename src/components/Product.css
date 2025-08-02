@@ -58,7 +58,6 @@
 }
 
 .price-container {
-  margin-top: auto; /* Pousse le prix vers le bas */
   margin-bottom: 0.5rem;
 }
 
@@ -73,6 +72,11 @@
   color: #888;
   text-decoration: line-through;
   margin-left: 0.5rem;
+}
+
+/* --- STYLE AJOUTÉ POUR LE STATUT DU STOCK --- */
+.stock-status-container {
+  margin-top: auto; /* Pousse vers le bas */
 }
 
 /* --- Badges (Favori, Promo) --- */
