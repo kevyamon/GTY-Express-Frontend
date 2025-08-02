@@ -2,6 +2,7 @@ import { Row, Col } from 'react-bootstrap';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
+import PromoBanner from '../components/PromoBanner'; // NOUVEL IMPORT
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 import './HomeScreen.css';
 
@@ -12,7 +13,10 @@ const HomeScreen = () => {
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
 
-  let category = categoryFromUrl || '';
+  // On détermine si on est sur une page "générale" pour afficher le bandeau
+  const isGeneralPage = !keyword && !categoryFromUrl && !isSupermarket && !isPromo;
+
+  let category = categoryFromUrl || 'general'; // Modifié pour passer "general" par défaut
   let promotion = 'false';
   let pageTitle = categoryFromUrl || 'Derniers Produits';
 
@@ -37,6 +41,9 @@ const HomeScreen = () => {
 
   return (
     <div className='home-screen-background'>
+      {/* AFFICHAGE CONDITIONNEL DE LA BANNIÈRE */}
+      {isGeneralPage && <PromoBanner />}
+
       {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
 
       <h1 className='home-screen-title'>{pageTitle}</h1>
@@ -46,11 +53,10 @@ const HomeScreen = () => {
       : (
         <>
           {products && products.length === 0 ? (
-            <Message>Aucun produit trouvé pour cette catégorie.</Message>
+            <Message>Aucun produit trouvé.</Message>
           ) : (
             <Row>
               {products && products.map((product) => (
-                // L'AJOUT DE `className="p-2"` RÈGLE L'ESPACEMENT
                 <Col key={product._id} xs={6} md={6} lg={4} xl={3} className="p-2">
                   <Product product={product} />
                 </Col>
