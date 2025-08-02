@@ -5,14 +5,15 @@ import { toast } from 'react-toastify';
 import {
   useGetPromotionsQuery,
   useCreatePromotionMutation,
-  useDeletePromotionMutation,
+  useRemovePromotionMutation, // MODIFIÉ ICI
 } from '../../slices/promotionApiSlice';
 import './PromotionListScreen.css';
 
 const PromotionListScreen = () => {
   const { data: promotions, isLoading, error } = useGetPromotionsQuery();
   const [createPromotion, { isLoading: loadingCreate }] = useCreatePromotionMutation();
-  const [deletePromotion, { isLoading: loadingDelete }] = useDeletePromotionMutation();
+  // ET ICI
+  const [removePromotion, { isLoading: loadingDelete }] = useRemovePromotionMutation();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -20,7 +21,8 @@ const PromotionListScreen = () => {
   const deleteHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette promotion ?')) {
       try {
-        await deletePromotion(id).unwrap();
+        // ET ICI
+        await removePromotion(id).unwrap();
         toast.success('Promotion supprimée');
       } catch (err) {
         toast.error(err?.data?.message || err.error);

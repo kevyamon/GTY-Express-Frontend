@@ -1,37 +1,36 @@
 import { apiSlice } from './apiSlice';
-const PRODUCTS_URL = '/api/products';
+const PROMOTIONS_URL = '/api/promotions';
 
-export const productsApiSlice = apiSlice.injectEndpoints({
+export const promotionApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getProducts: builder.query({
-      query: ({ keyword = '', category = '', promotion = 'false' }) => ({ // VALEUR PAR DEFAUT DE CATEGORY MISE A JOUR
-        url: PRODUCTS_URL,
-        params: { keyword, category, promotion },
+    getPromotions: builder.query({
+      query: () => ({
+        url: PROMOTIONS_URL,
       }),
-      providesTags: ['Product'],
+      providesTags: ['Promotion'],
+      keepUnusedDataFor: 5,
     }),
-    getProductDetails: builder.query({
-      query: (productId) => ({ url: `${PRODUCTS_URL}/${productId}` }),
+    createPromotion: builder.mutation({
+      query: (data) => ({
+        url: PROMOTIONS_URL,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Promotion'],
     }),
-    createProduct: builder.mutation({
-      query: (data) => ({ url: PRODUCTS_URL, method: 'POST', body: data }),
-      invalidatesTags: ['Product'],
-    }),
-    updateProduct: builder.mutation({
-      query: (data) => ({ url: `${PRODUCTS_URL}/${data.productId}`, method: 'PUT', body: data }),
-      invalidatesTags: ['Product'],
-    }),
-    deleteProduct: builder.mutation({
-      query: (productId) => ({ url: `${PRODUCTS_URL}/${productId}`, method: 'DELETE' }),
-      invalidatesTags: ['Product'],
+    // RENOMMÉ ICI
+    removePromotion: builder.mutation({
+      query: (id) => ({
+        url: `${PROMOTIONS_URL}/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Promotion'],
     }),
   }),
 });
 
 export const {
-  useGetProductsQuery,
-  useGetProductDetailsQuery,
-  useCreateProductMutation,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-} = productsApiSlice;
+  useGetPromotionsQuery,
+  useCreatePromotionMutation,
+  useRemovePromotionMutation, // ET ICI
+} = promotionApiSlice;
