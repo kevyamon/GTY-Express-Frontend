@@ -33,15 +33,13 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      
+
       dispatch(clearCartItems());
 
-      // CORRECTION DE LA LOGIQUE DE REDIRECTION
       if (res.paymentMethod === 'Cash') {
         toast.success('Votre commande a été validée !');
         navigate(`/order/${res._id}`);
       } else {
-        // On redirige vers la nouvelle page de paiement dédiée
         navigate(`/payment-gateway/${res._id}`);
       }
 
@@ -61,7 +59,34 @@ const PlaceOrderScreen = () => {
             <ListGroup.Item>
               <h2>Articles</h2>
               {cart.cartItems.length === 0 ? <Message>Votre panier est vide</Message>
-              : ( <ListGroup variant='flush'>{cart.cartItems.map((item, index) => (<ListGroup.Item key={index}><Row><Col md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}` : item.image} alt={item.name} fluid rounded /></Col><Col><Link to={`/product/${item._id}`}>{item.name}</Link></Col><Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col></Row></ListGroup.Item>))}</ListGroup>)}
+              : ( <ListGroup variant='flush'>{cart.cartItems.map((item, index) => {
+                // LOGIQUE D'IMAGE CORRIGÉE
+                let imageToDisplay = 'https://via.placeholder.com/150';
+                if (item.images && item.images.length > 0) {
+                  imageToDisplay = item.images[0];
+                } else if (item.image) {
+                  imageToDisplay = item.image;
+                }
+                const imageUrl = imageToDisplay.startsWith('/')
+                  ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+                  : imageToDisplay;
+
+                return (
+                  <ListGroup.Item key={index}>
+                    <Row>
+                      <Col md={1}>
+                        <Image src={imageUrl} alt={item.name} fluid rounded />
+                      </Col>
+                      <Col>
+                        <Link to={`/product/${item._id}`}>{item.name}</Link>
+                      </Col>
+                      <Col md={4} className="text-end">
+                        {item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                );
+              })}</ListGroup>)}
             </ListGroup.Item>
           </ListGroup>
         </Col>
