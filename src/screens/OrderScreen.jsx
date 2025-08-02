@@ -19,7 +19,7 @@ const OrderScreen = () => {
     data: order,
     isLoading,
     error,
-  } = useGetOrderDetailsQuery(orderId); // POLLING RETIRÉ ICI
+  } = useGetOrderDetailsQuery(orderId);
 
   const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
@@ -82,15 +82,34 @@ const OrderScreen = () => {
             </ListGroup.Item>
             <ListGroup.Item>
               <h2>Articles Commandés</h2>
-              {order.orderItems.map((item, index) => (
-                <ListGroup.Item key={index}>
-                  <Row className="align-items-center">
-                    <Col xs={2} md={1}><Image src={item.image.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${item.image}`: item.image} alt={item.name} fluid rounded /></Col>
-                    <Col><Link to={`/product/${item.product}`}>{item.name}</Link></Col>
-                    <Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
-                  </Row>
-                </ListGroup.Item>
-              ))}
+              {order.orderItems.map((item, index) => {
+                // LOGIQUE D'IMAGE CORRIGÉE
+                let imageToDisplay = 'https://via.placeholder.com/150';
+                if (item.images && item.images.length > 0) {
+                  imageToDisplay = item.images[0];
+                } else if (item.image) {
+                  imageToDisplay = item.image;
+                }
+                const imageUrl = imageToDisplay.startsWith('/')
+                  ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+                  : imageToDisplay;
+
+                return (
+                  <ListGroup.Item key={index}>
+                    <Row className="align-items-center">
+                      <Col xs={2} md={1}>
+                        <Image src={imageUrl} alt={item.name} fluid rounded />
+                      </Col>
+                      <Col>
+                        <Link to={`/product/${item.product}`}>{item.name}</Link>
+                      </Col>
+                      <Col md={4} className="text-end">
+                        {item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                );
+              })}
             </ListGroup.Item>
           </ListGroup>
         </Col>
