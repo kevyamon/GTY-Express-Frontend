@@ -59,11 +59,11 @@ import ProductAddScreen from './screens/admin/ProductAddScreen.jsx';
 import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
 import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
+import ComplaintListScreen from './screens/admin/ComplaintListScreen.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* Le Gardien enveloppe toutes les routes */}
       <Route element={<AuthGuard />}>
         {/* --- Routes Publiques --- */}
         <Route index={true} path="/" element={<LandingScreen />} />
@@ -89,7 +89,7 @@ const router = createBrowserRouter(
         <Route path="/stores" element={<StoresScreen />} />
         <Route path="/privacy" element={<PrivacyScreen />} />
 
-        {/* --- Routes Privées (clients et admins connectés) --- */}
+        {/* --- Routes Privées --- */}
         <Route path="" element={<PrivateRoute />}>
           <Route path='/profile' element={<ProfileScreen />} />
           <Route path='/profile-details' element={<ProfileDetailsScreen />} />
@@ -105,10 +105,11 @@ const router = createBrowserRouter(
           <Route path='/chat' element={<ChatScreen />} />
         </Route>
 
-        {/* --- Routes Admin (uniquement admins connectés) --- */}
+        {/* --- Routes Admin --- */}
         <Route path="" element={<AdminRoute />}>
           <Route path="/admin/productlist" element={<ProductListScreen />} />
           <Route path="/admin/userlist" element={<UserListScreen />} />
+          <Route path="/admin/complaintlist" element={<ComplaintListScreen />} />
           <Route path='/admin/orderlist' element={<OrderListScreen />} />
           <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
           <Route path="/admin/product/add" element={<ProductAddScreen />} />

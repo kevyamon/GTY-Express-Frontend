@@ -9,6 +9,7 @@ import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApi
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/messageApiSlice';
+import { useGetComplaintsQuery } from '../slices/adminApiSlice';
 import { logout } from '../slices/authSlice';
 import { useSocketQuery } from '../slices/apiSlice';
 import CategoryMenu from './CategoryMenu';
@@ -28,6 +29,7 @@ const Header = () => {
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
   const { data: conversations } = useGetConversationsQuery(undefined, { skip: !userInfo });
+  const { data: complaints } = useGetComplaintsQuery(undefined, { skip: !userInfo?.isAdmin });
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllMessagesAsRead] = useMarkAllAsReadMutation();
@@ -59,6 +61,12 @@ const Header = () => {
     }
     return 0;
   }, [userInfo, adminOrders, lastSeenAdminTimestamp]);
+  const unreadComplaintsCount = useMemo(() => {
+    if (userInfo?.isAdmin && Array.isArray(complaints)) {
+      return complaints.filter(c => c.status === 'pending').length;
+    }
+    return 0;
+  }, [complaints, userInfo]);
 
   const handleChatClick = () => {
     if (unreadMessagesCount > 0) {
@@ -72,7 +80,6 @@ const Header = () => {
         await markAsRead().unwrap();
       } catch (err) {
         toast.error("Erreur lors de la mise à jour des notifications.");
-        console.error('Erreur markAsRead:', err);
       }
     }
     navigate('/notifications');
@@ -121,8 +128,12 @@ const Header = () => {
                   {userInfo.isAdmin && (
                     <>
                       <NavDropdown.Divider />
-                      <LinkContainer to="/admin/productlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Produits</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to="/admin/productlist"><NavDropdown.Item>Gestion Produits</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/userlist"><NavDropdown.Item>Gestion Utilisateurs</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to="/admin/complaintlist"><NavDropdown.Item>
+                        Gestion Réclamations
+                        {unreadComplaintsCount > 0 && <Badge pill bg="danger" className="ms-2">{unreadComplaintsCount}</Badge>}
+                      </NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/orderlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Commandes {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}{cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/promotionlist"><NavDropdown.Item>Gestion Promotions</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/promobannerlist"><NavDropdown.Item>Gestion Bannière Promo</NavDropdown.Item></LinkContainer>
