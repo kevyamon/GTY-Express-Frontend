@@ -2,11 +2,12 @@ import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import ChatTrigger from './components/ChatTrigger'; // NOUVEL IMPORT
-import { useSelector } from 'react-redux'; // NOUVEL IMPORT
+import ChatTrigger from './components/ChatTrigger';
+import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import ScrollToTop from './components/ScrollToTop'; // NOUVEL IMPORT
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -24,6 +25,7 @@ const App = () => {
 
   return (
     <div style={appStyle}>
+      <ScrollToTop /> {/* ON AJOUTE LE COMPOSANT ICI */}
       <Header />
       <main className="py-3">
         <TransitionGroup component={null}>
@@ -35,7 +37,6 @@ const App = () => {
         </TransitionGroup>
       </main>
       <Footer />
-      {/* On affiche le bouton de chat si l'utilisateur est connecté et n'est pas admin */}
       {userInfo && !userInfo.isAdmin && <ChatTrigger />}
       <ToastContainer />
     </div>

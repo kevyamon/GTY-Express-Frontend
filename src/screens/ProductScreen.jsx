@@ -57,7 +57,8 @@ const ProductScreen = () => {
           <Col md={6} className="mb-3">
             <div className="product-image-gallery">
               {product.images && product.images.length > 1 ? (
-                <Carousel activeIndex={index} onSelect={handleSelect} interval={null} variant="dark">
+                // L'INTERVALLE EST CORRIGÉ ICI POUR RÉACTIVER LE DIAPORAMA
+                <Carousel activeIndex={index} onSelect={handleSelect} interval={3000} pause="hover" variant="dark">
                   {product.images.map((imgUrl) => (
                     <Carousel.Item key={imgUrl}>
                       <Image src={getImageUrl(imgUrl)} alt={product.name} />
