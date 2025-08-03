@@ -14,11 +14,10 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner'],
   endpoints: (builder) => ({
-    // Endpoint "virtuel" pour gérer le cycle de vie de la connexion WebSocket
     socket: builder.query({
-      queryFn: () => ({ data: 'connected' }), // Ne fait pas de vraie requête HTTP
+      queryFn: () => ({ data: 'connected' }),
       async onCacheEntryAdded(
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch, getState }
@@ -29,9 +28,7 @@ export const apiSlice = createApi({
           console.log('Socket.IO connecté !');
           const { userInfo } = getState().auth;
           if (userInfo) {
-            // L'utilisateur rejoint une "room" basée sur son ID pour les notifications personnelles
             socket.emit('joinRoom', userInfo._id);
-            // L'admin rejoint aussi une room "admin"
             if (userInfo.isAdmin) {
               socket.emit('joinRoom', 'admin');
             }
@@ -42,21 +39,25 @@ export const apiSlice = createApi({
           console.log('Socket.IO déconnecté.');
         });
 
-        // Listener pour les mises à jour de commandes
         socket.on('order_update', (data) => {
           console.log('Événement order_update reçu', data);
-          // Invalide le cache pour les commandes, ce qui déclenche un refetch automatique
           dispatch(apiSlice.util.invalidateTags(['Order']));
         });
 
-        // Listener pour les nouvelles notifications
         socket.on('notification', (data) => {
           console.log('Événement notification reçu', data);
-           // Invalide le cache pour les notifications
           dispatch(apiSlice.util.invalidateTags(['Notification']));
         });
 
-        // Attend que la connexion soit fermée pour nettoyer
+        // --- NOUVEL ÉCOUTEUR AJOUTÉ ICI ---
+        socket.on('product_update', (data) => {
+          console.log('Événement product_update reçu', data);
+          // Rafraîchit la liste générale des produits
+          dispatch(apiSlice.util.invalidateTags(['Product']));
+          // Rafraîchit la page de détail du produit spécifique s'il est en cache
+          dispatch(apiSlice.util.invalidateTags([{ type: 'Product', id: data.productId }]));
+        });
+
         await cacheEntryRemoved;
         socket.disconnect();
       },
@@ -64,5 +65,4 @@ export const apiSlice = createApi({
   }),
 });
 
-// Exporte le hook pour démarrer la connexion
 export const { useSocketQuery } = apiSlice;
