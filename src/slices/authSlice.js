@@ -1,6 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { apiSlice } from './apiSlice';
-import { usersApiSlice } from './usersApiSlice'; // L'import est maintenant sûr
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -28,16 +26,7 @@ const authSlice = createSlice({
       }
     },
   },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      // Cette ligne est maintenant correcte et ne plantera plus
-      usersApiSlice.endpoints.logout.matchFulfilled,
-      (state, action) => {
-        // On vide le cache de l'API à la déconnexion
-        action.dispatch(apiSlice.util.resetApiState());
-      }
-    );
-  },
+  // On retire le bloc extraReducers qui causait le problème
 });
 
 export const { setCredentials, logout, updateUserStatus } = authSlice.actions;
