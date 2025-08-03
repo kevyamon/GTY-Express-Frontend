@@ -16,6 +16,15 @@ export const adminApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    // NOUVELLE MUTATION
+    updateUserRole: builder.mutation({
+      query: ({ userId, isAdmin }) => ({
+        url: `${ADMIN_URL}/users/${userId}/role`,
+        method: 'PUT',
+        body: { isAdmin },
+      }),
+      invalidatesTags: ['User'],
+    }),
     getComplaints: builder.query({
         query: () => `${ADMIN_URL}/complaints`,
         providesTags: ['Complaint'],
@@ -26,5 +35,6 @@ export const adminApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetUsersQuery,
   useUpdateUserStatusMutation,
+  useUpdateUserRoleMutation, // NOUVEL EXPORT
   useGetComplaintsQuery,
 } = adminApiSlice;
