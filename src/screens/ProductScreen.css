@@ -41,6 +41,7 @@
     .product-image-gallery {
         min-height: 300px; /* Hauteur réduite pour l'image */
         padding: 0.5rem;
+        margin-bottom: 1rem; /* Espace sous l'image */
     }
     .product-image-gallery .carousel-item img,
     .product-image-gallery > img {
@@ -54,5 +55,9 @@
     .product-details-col .list-group-item {
         padding-left: 0;
         padding-right: 0;
+        border: none; /* Retire les lignes de séparation */
+    }
+    .product-details-col .card {
+        border-radius: 8px;
     }
 }
