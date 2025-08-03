@@ -8,11 +8,24 @@ import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
 import './Product.css';
 
-// On ne reçoit plus productIndex
 const Product = ({ product }) => {
   const dispatch = useDispatch();
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
+
+  // --- LOGIQUE "NOUVEAU" AMÉLIORÉE ET SÉCURISÉE ---
+  const isNew = () => {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    return new Date(product.createdAt) > threeDaysAgo;
+  };
+
+  const hasPromo = product.originalPrice && product.originalPrice > product.price;
+
+  // Calcul sécurisé du pourcentage
+  const discountPercent = hasPromo
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
 
   let imageToDisplay = 'https://via.placeholder.com/300';
   if (product.images && product.images.length > 0) {
@@ -40,11 +53,6 @@ const Product = ({ product }) => {
     }
   };
 
-  const hasPromo = product.originalPrice && product.originalPrice > product.price;
-  const discountPercent = hasPromo
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
-
   return (
     <Card className="product-card my-3 p-0">
       <div className="product-image-container">
@@ -52,8 +60,12 @@ const Product = ({ product }) => {
           <Card.Img src={imageUrl} variant="top" className="product-card-img" />
         </Link>
 
-        {/* On retire temporairement la logique "Nouveau" pour corriger le bug */}
-        {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
+        {/* Utilisation de ternaires pour un affichage 100% sûr */}
+        {hasPromo ? (
+          <div className="discount-badge">-{discountPercent}%</div>
+        ) : isNew() ? (
+          <div className="new-badge">Nouveau</div>
+        ) : null}
 
         <button onClick={toggleFavoriteHandler} className="favorite-btn">
           {isFavorite ? '❤️' : '🤍'}
@@ -77,15 +89,15 @@ const Product = ({ product }) => {
 
         <div className="price-container">
           <span className="product-price">{product.price} FCFA</span>
-          {hasPromo && (
+          {hasPromo ? (
             <span className="original-price">
               {product.originalPrice} FCFA
             </span>
-          )}
+          ) : null}
         </div>
 
         <div className="stock-status-container">
-            <StockStatus countInStock={product.countInStock} />
+          <StockStatus countInStock={product.countInStock} />
         </div>
       </Card.Body>
     </Card>
