@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { apiSlice } from './apiSlice'; // NOUVEL IMPORT
+import { apiSlice } from './apiSlice';
+import { usersApiSlice } from './usersApiSlice'; // On importe le bon slice
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -27,14 +28,12 @@ const authSlice = createSlice({
       }
     },
   },
-  // On ajoute un "extra reducer" pour écouter la mutation de déconnexion
   extraReducers: (builder) => {
     builder.addMatcher(
-      // On cible la mutation "logout" de l'API des utilisateurs
-      apiSlice.endpoints.logout.matchFulfilled,
+      // On cible la mutation "logout" dans le bon fichier : usersApiSlice
+      usersApiSlice.endpoints.logout.matchFulfilled,
       (state, action) => {
-        // Quand la déconnexion réussit, on vide le cache de l'API
-        // C'est cette ligne qui résout le bug
+        // On vide le cache de l'API à la déconnexion
         action.dispatch(apiSlice.util.resetApiState());
       }
     );
