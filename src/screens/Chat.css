@@ -41,7 +41,7 @@
   max-width: 70%;
   padding: 0.5rem 1rem;
   border-radius: 18px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem; /* Réduit pour accommoder l'heure */
   word-wrap: break-word;
 }
 
@@ -62,4 +62,33 @@
 .message-input-form {
   padding: 1rem;
   border-top: 1px solid #dee2e6;
+}
+
+/* --- NOUVEAUX STYLES --- */
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.message-wrapper.sent {
+  align-items: flex-end;
+}
+
+.message-wrapper.received {
+  align-items: flex-start;
+}
+
+.message-timestamp {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin: 0 0.8rem;
+}
+
+.date-separator {
+  text-align: center;
+  margin: 1rem 0;
+  color: #6c757d;
+  font-weight: bold;
+  font-size: 0.8rem;
 }
