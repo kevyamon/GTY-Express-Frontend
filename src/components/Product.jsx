@@ -5,13 +5,17 @@ import { addToCart } from '../slices/cartSlice';
 import { addToFavorites, removeFromFavorites } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
-import StockStatus from './StockStatus'; // NOUVEL IMPORT
+import StockStatus from './StockStatus';
 import './Product.css';
 
-const Product = ({ product }) => {
+// On reçoit productIndex en prop
+const Product = ({ product, productIndex }) => {
   const dispatch = useDispatch();
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
+
+  // Le produit est considéré comme "nouveau" s'il est dans les 3 premiers de la liste
+  const isNew = productIndex < 3;
 
   let imageToDisplay = 'https://via.placeholder.com/300';
   if (product.images && product.images.length > 0) {
@@ -50,7 +54,11 @@ const Product = ({ product }) => {
         <Link to={`/product/${product._id}`}>
           <Card.Img src={imageUrl} variant="top" className="product-card-img" />
         </Link>
+
+        {/* LOGIQUE D'AFFICHAGE DES BADGES */}
+        {isNew && !hasPromo && <div className="new-badge">Nouveau</div>}
         {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
+
         <button onClick={toggleFavoriteHandler} className="favorite-btn">
           {isFavorite ? '❤️' : '🤍'}
         </button>
@@ -80,7 +88,6 @@ const Product = ({ product }) => {
           )}
         </div>
 
-        {/* STATUT DU STOCK RÉINTÉGRÉ ICI */}
         <div className="stock-status-container">
             <StockStatus countInStock={product.countInStock} />
         </div>

@@ -4,14 +4,13 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import PromoBanner from '../components/PromoBanner';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
-import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice'; // NOUVEL IMPORT
+import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';
 
 const HomeScreen = () => {
   const { keyword, category: categoryFromUrl } = useParams();
   const location = useLocation();
 
-  // On récupère les données de la bannière active
   const { data: activeBanner, isLoading: isLoadingBanner } = useGetActiveBannerQuery();
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
@@ -43,7 +42,6 @@ const HomeScreen = () => {
 
   return (
     <div className='home-screen-background'>
-      {/* AFFICHAGE CONDITIONNEL BASÉ SUR LES VRAIES DONNÉES */}
       {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
 
       {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
@@ -58,9 +56,10 @@ const HomeScreen = () => {
             <Message>Aucun produit trouvé.</Message>
           ) : (
             <Row>
-              {products && products.map((product) => (
+              {products && products.map((product, index) => ( // On récupère l'index ici
                 <Col key={product._id} xs={6} md={6} lg={4} xl={3} className="p-2">
-                  <Product product={product} />
+                  {/* On passe l'index en prop */}
+                  <Product product={product} productIndex={index} />
                 </Col>
               ))}
             </Row>
