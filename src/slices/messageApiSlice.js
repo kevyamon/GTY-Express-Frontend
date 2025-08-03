@@ -26,13 +26,19 @@ export const messageApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Conversation'],
     }),
-    // NOUVELLE MUTATION
     deleteMessage: builder.mutation({
         query: (messageId) => ({
             url: `${MESSAGES_URL}/${messageId}`,
             method: 'DELETE',
         }),
-        // On ne met pas d'invalidatesTags ici, le WebSocket s'en chargera
+    }),
+    // NOUVELLE MUTATION
+    updateMessage: builder.mutation({
+        query: ({ messageId, text }) => ({
+            url: `${MESSAGES_URL}/${messageId}`,
+            method: 'PUT',
+            body: { text },
+        }),
     }),
   }),
 });
@@ -42,5 +48,6 @@ export const {
   useGetMessagesQuery,
   useSendMessageMutation,
   useMarkAsReadMutation,
-  useDeleteMessageMutation, // NOUVEL EXPORT
+  useDeleteMessageMutation,
+  useUpdateMessageMutation, // NOUVEL EXPORT
 } = messageApiSlice;

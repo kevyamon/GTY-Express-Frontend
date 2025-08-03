@@ -61,11 +61,16 @@ export const apiSlice = createApi({
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
         });
 
-        // ÉCOUTEUR POUR LA SUPPRESSION DE MESSAGE
         socket.on('messageDeleted', (data) => {
             console.log('Message supprimé en temps réel', data);
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: data.conversationId }]));
+        });
+
+        // ÉCOUTEUR POUR LA MODIFICATION DE MESSAGE AJOUTÉ ICI
+        socket.on('messageEdited', (editedMessage) => {
+            console.log('Message modifié en temps réel', editedMessage);
+            dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: editedMessage.conversationId }]));
         });
 
         await cacheEntryRemoved;

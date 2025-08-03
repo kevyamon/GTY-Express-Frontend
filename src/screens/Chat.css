@@ -116,7 +116,7 @@
 }
 .message-wrapper.sent:hover .message-actions {
   display: flex; /* Apparaît au survol */
-  left: -40px; /* Position à gauche du message envoyé */
+  left: -65px; /* Ajusté pour plus de place */
 }
 .message-actions button {
   background: none;
@@ -124,4 +124,15 @@
   color: white;
   cursor: pointer;
   padding: 2px 4px;
+}
+
+/* STYLES POUR LA MODIFICATION DE MESSAGE */
+.message-edited-indicator {
+    font-size: 0.7rem;
+    color: #aab;
+    margin-left: 5px;
+}
+.edit-message-form {
+    display: flex;
+    width: 100%;
 }
