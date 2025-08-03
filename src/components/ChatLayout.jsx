@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'; // Ajout de useEffect
-import { Row, Col, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { useGetConversationsQuery, useGetMessagesQuery, useSendMessageMutation, useMarkAsReadMutation } from '../slices/messageApiSlice'; // Ajout de useMarkAsReadMutation
+import { useGetConversationsQuery, useGetMessagesQuery, useSendMessageMutation, useMarkAsReadMutation } from '../slices/messageApiSlice';
 import ChatSidebar from './ChatSidebar';
 import MessageContainer from './MessageContainer';
 import Message from './Message';
@@ -12,13 +12,12 @@ const ChatLayout = () => {
   const [selectedConversationId, setSelectedConversationId] = useState(null);
 
   const { data: conversations, isLoading: isLoadingConvos } = useGetConversationsQuery();
-  const { data: messages, isLoading: isLoadingMessages } = useGetMessagesQuery(selectedConversationId, {
+  const { data: messages } = useGetMessagesQuery(selectedConversationId, {
     skip: !selectedConversationId,
   });
   const [sendMessage] = useSendMessageMutation();
-  const [markAsRead] = useMarkAsReadMutation(); // NOUVEAU HOOK
+  const [markAsRead] = useMarkAsReadMutation();
 
-  // EFFET POUR MARQUER COMME LU LORSQU'UNE CONVERSATION EST OUVERTE
   useEffect(() => {
     if (selectedConversationId) {
       const currentConvo = conversations?.find(c => c._id === selectedConversationId);
@@ -32,42 +31,58 @@ const ChatLayout = () => {
     let recipientId;
     const currentConvo = conversations?.find(c => c._id === selectedConversationId);
 
-    if (!currentConvo && !userInfo.isAdmin) {
-      // Cas du premier message du client
-      try {
-        await sendMessage({ text }).unwrap();
-      } catch (error) { console.error('Failed to send message:', error); }
-      return;
-    }
-
+    // Si c'est un admin qui envoie
     if (userInfo.isAdmin) {
+      if (!currentConvo) return; // Un admin doit sélectionner une conversation
       recipientId = currentConvo.participants.find(p => p._id !== userInfo._id)?._id;
-    } else {
-      recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
+    } 
+    // Si c'est un client qui envoie
+    else {
+      // S'il a déjà une conversation, on prend l'ID de l'admin dedans
+      if (currentConvo) {
+        recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
+      }
+      // S'il n'a pas de conversation, on n'envoie pas de recipientId, le backend le trouvera
     }
 
     try {
       await sendMessage({ recipientId, text }).unwrap();
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
+    } catch (error) { console.error('Failed to send message:', error); }
   };
+
+  // Logique d'affichage améliorée
+  const renderContent = () => {
+    if (isLoadingConvos) {
+      return <Spinner />;
+    }
+    // Si c'est un client et qu'il n'a pas de conversation, on lui montre directement l'interface de message
+    if (!userInfo.isAdmin && conversations?.length === 0) {
+      return <MessageContainer messages={[]} onSendMessage={handleSendMessage} />;
+    }
+    // Si une conversation est sélectionnée, on montre les messages
+    if (selectedConversationId) {
+      return <MessageContainer messages={messages} onSendMessage={handleSendMessage} />;
+    }
+    // Sinon, on invite à sélectionner une conversation
+    return (
+      <div className="d-flex align-items-center justify-content-center h-100">
+          <Message>Sélectionnez une conversation pour commencer à discuter.</Message>
+      </div>
+    );
+  }
 
   return (
     <div className="chat-layout">
-      <ChatSidebar 
-        conversations={conversations} 
-        onSelectConversation={setSelectedConversationId}
-        selectedConversationId={selectedConversationId}
-      />
+      {/* On n'affiche la barre latérale que si l'utilisateur est admin ou a des conversations */}
+      {(userInfo.isAdmin || conversations?.length > 0) && (
+        <ChatSidebar 
+          conversations={conversations} 
+          onSelectConversation={setSelectedConversationId}
+          selectedConversationId={selectedConversationId}
+        />
+      )}
       <div className="message-area-container">
-        {isLoadingConvos ? <Spinner /> : 
-         selectedConversationId ? 
-            <MessageContainer messages={messages} onSendMessage={handleSendMessage} /> :
-            <div className="d-flex align-items-center justify-content-center h-100">
-                <Message>Sélectionnez une conversation pour commencer à discuter.</Message>
-            </div>
-        }
+        {renderContent()}
       </div>
     </div>
   );
