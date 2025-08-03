@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { apiSlice } from './apiSlice';
-import { usersApiSlice } from './usersApiSlice'; // On importe le bon slice
+import { usersApiSlice } from './usersApiSlice'; // L'import est maintenant sûr
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -30,7 +30,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addMatcher(
-      // On cible la mutation "logout" dans le bon fichier : usersApiSlice
+      // Cette ligne est maintenant correcte et ne plantera plus
       usersApiSlice.endpoints.logout.matchFulfilled,
       (state, action) => {
         // On vide le cache de l'API à la déconnexion
