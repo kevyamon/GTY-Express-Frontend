@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Table, Button, Form, Row, Col } from 'react-bootstrap';
+import { Table, Button, Form, Row, Col, Image, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import Message from '../../components/Message';
 import { useGetAllBannersQuery, useCreateBannerMutation, useDeleteBannerMutation } from '../../slices/promoBannerApiSlice';
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const PromoBannerListScreen = () => {
   const { data: banners, isLoading, error } = useGetAllBannersQuery();
@@ -17,11 +21,32 @@ const PromoBannerListScreen = () => {
     { title: '-10000 FCFA', subtitle: "dès 120000 FCFA d'achat", code: 'PROMO10K' },
     { title: '-25000 FCFA', subtitle: "dès 200000 FCFA d'achat", code: 'PROMO25K' },
   ]);
+  const [images, setImages] = useState([]); // Nouvel état pour les images
+  const [loadingUpload, setLoadingUpload] = useState(false);
 
   const handleCouponChange = (index, field, value) => {
     const newCoupons = [...coupons];
     newCoupons[index][field] = value;
     setCoupons(newCoupons);
+  };
+
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    setLoadingUpload(true);
+    try {
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, formData, config);
+      setImages([...images, data.secure_url]);
+      toast.success('Image ajoutée');
+    } catch (error) {
+      toast.error("Le téléversement a échoué");
+    } finally {
+      setLoadingUpload(false);
+    }
   };
 
   const deleteHandler = async (id) => {
@@ -38,8 +63,12 @@ const PromoBannerListScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await createBanner({ mainOfferText, endDate, coupons }).unwrap();
+      await createBanner({ mainOfferText, endDate, coupons, images }).unwrap(); // On envoie les images
       toast.success('Nouvelle bannière créée et activée !');
+      // On réinitialise le formulaire
+      setMainOfferText("Jusqu'à -60%");
+      setEndDate('');
+      setImages([]);
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -63,12 +92,26 @@ const PromoBannerListScreen = () => {
         <h6>Coupons</h6>
         {coupons.map((coupon, index) => (
           <Row key={index} className="mb-2">
-            <Col><Form.Control type='text' placeholder='Titre (ex: -5000 FCFA)' value={coupon.title} onChange={(e) => handleCouponChange(index, 'title', e.target.value)} /></Col>
-            <Col><Form.Control type='text' placeholder='Sous-titre (ex: dès 75000...)' value={coupon.subtitle} onChange={(e) => handleCouponChange(index, 'subtitle', e.target.value)} /></Col>
-            <Col><Form.Control type='text' placeholder='Code (ex: PROMO5K)' value={coupon.code} onChange={(e) => handleCouponChange(index, 'code', e.target.value)} /></Col>
+            <Col><Form.Control type='text' placeholder='Titre' value={coupon.title} onChange={(e) => handleCouponChange(index, 'title', e.target.value)} /></Col>
+            <Col><Form.Control type='text' placeholder='Sous-titre' value={coupon.subtitle} onChange={(e) => handleCouponChange(index, 'subtitle', e.target.value)} /></Col>
+            <Col><Form.Control type='text' placeholder='Code' value={coupon.code} onChange={(e) => handleCouponChange(index, 'code', e.target.value)} /></Col>
           </Row>
         ))}
-        <Button type='submit' variant='primary' className='mt-2' disabled={loadingCreate}>
+         <hr />
+        <h6>Images de fond</h6>
+        <Form.Group controlId='images' className='my-2'>
+            <Form.Label>Ajouter des images (3 maximum recommandées)</Form.Label>
+            <Form.Control type='file' onChange={uploadFileHandler} />
+            {loadingUpload && <Spinner size="sm" />}
+        </Form.Group>
+        <Row>
+            {images.map(img => (
+                <Col xs={4} md={2} key={img}>
+                    <Image src={img} thumbnail />
+                </Col>
+            ))}
+        </Row>
+        <Button type='submit' variant='primary' className='mt-3' disabled={loadingCreate}>
           {loadingCreate ? 'Création...' : 'Créer et Activer'}
         </Button>
       </Form>

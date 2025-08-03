@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col } from 'react-bootstrap';
-import { FaCamera, FaHeadphones, FaShoppingBag } from 'react-icons/fa';
+import { Row, Col, Image } from 'react-bootstrap';
 import './PromoBanner.css';
 
 const PromoBanner = ({ bannerData }) => {
   const calculateTimeLeft = () => {
-    // La date de fin vient maintenant de la base de données
     const difference = +new Date(bannerData.endDate) - +new Date();
     let timeLeft = {};
 
@@ -23,7 +21,6 @@ const PromoBanner = ({ bannerData }) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
-    // Met à jour le timer uniquement si la date de fin change
     const timer = setTimeout(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
@@ -33,8 +30,12 @@ const PromoBanner = ({ bannerData }) => {
 
   return (
     <div className="promo-banner-container my-4">
+      {/* Affichage des images de fond */}
+      {bannerData.images && bannerData.images.map((img, index) => (
+        <Image key={index} src={img} className={`banner-image banner-image-${index + 1}`} />
+      ))}
+
       <Row>
-        {/* Section Gauche : Timer et Offre */}
         <Col md={8} className="promo-left-section">
           <div className="timer">
             {Object.keys(timeLeft).length > 0 ? 
@@ -57,13 +58,7 @@ const PromoBanner = ({ bannerData }) => {
           </Row>
         </Col>
 
-        {/* Section Droite : Images */}
         <Col md={4} className="promo-right-section">
-          <div className="icon-background">
-            <FaCamera className="icon-1" />
-            <FaHeadphones className="icon-2" />
-            <FaShoppingBag className="icon-3" />
-          </div>
           <div className="deal-of-the-month">
             LES OFFRES DU MOIS
           </div>

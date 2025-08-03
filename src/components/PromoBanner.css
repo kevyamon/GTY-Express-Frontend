@@ -1,16 +1,33 @@
+@keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-10px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
 .promo-banner-container {
-  background: linear-gradient(135deg, #FFD600, #FFAB00); /* Dégradé de jaune impactant */
+  background: linear-gradient(135deg, #FFD600, #FFAB00);
   border-radius: 12px;
   padding: 2rem;
-  color: #333; /* Texte foncé pour être lisible sur fond jaune */
+  color: #333;
   overflow: hidden;
+  position: relative; /* Important pour le positionnement des images */
+}
+
+.promo-left-section {
+    z-index: 2; /* Pour que le texte soit au-dessus des images */
 }
 
 .promo-left-section .timer {
   font-size: 0.9rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #555; /* Couleur du timer légèrement adoucie */
+  color: #555;
 }
 
 .promo-left-section .main-offer {
@@ -18,7 +35,7 @@
   font-weight: 900;
   line-height: 1;
   margin-bottom: 1.5rem;
-  color: #111; /* Titre principal en noir pour un maximum de contraste */
+  color: #111;
 }
 
 .coupons-section .coupon-card {
@@ -34,7 +51,7 @@
 .coupon-card span {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #d32f2f; /* Rouge pour le montant */
+  color: #d32f2f;
 }
 
 .coupon-card small {
@@ -57,11 +74,12 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
+  z-index: 2;
 }
 
 .promo-right-section .deal-of-the-month {
-  background-color: #E53935; /* Rouge */
-  color: white; /* Texte en blanc sur fond rouge */
+  background-color: #E53935;
+  color: white;
   padding: 1.5rem;
   border-radius: 8px;
   font-weight: bold;
@@ -69,38 +87,30 @@
   z-index: 2;
 }
 
-.promo-right-section .icon-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.1; /* Opacité légèrement réduite pour le fond jaune */
-  z-index: 1;
+/* --- STYLES DES IMAGES ANIMÉES --- */
+.banner-image {
+    position: absolute;
+    z-index: 1;
+    opacity: 0.9;
+    animation: float 6s ease-in-out infinite;
+    max-width: 150px;
+    height: auto;
 }
-
-.promo-right-section .icon-background svg {
-  position: absolute;
-  color: #333; /* Icônes en noir pour contraster avec le jaune */
+.banner-image-1 {
+    top: -20px;
+    right: 25%;
+    transform: rotate(-15deg);
+    animation-delay: 0s;
 }
-
-.promo-right-section .icon-1 {
-  font-size: 4rem;
-  top: 10%;
-  left: 15%;
-  transform: rotate(-15deg);
+.banner-image-2 {
+    bottom: -30px;
+    right: 5%;
+    transform: rotate(20deg);
+    animation-delay: 2s; /* Délai pour décaler les animations */
 }
-
-.promo-right-section .icon-2 {
-  font-size: 5rem;
-  bottom: 5%;
-  left: 25%;
-  transform: rotate(10deg);
-}
-
-.promo-right-section .icon-3 {
-  font-size: 6rem;
-  top: 20%;
-  right: 10%;
-  transform: rotate(15deg);
+.banner-image-3 {
+    top: 30%;
+    right: 35%;
+    transform: rotate(5deg);
+    animation-delay: 4s;
 }
