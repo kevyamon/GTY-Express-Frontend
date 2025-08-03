@@ -8,14 +8,11 @@ import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
 import './Product.css';
 
-// On reçoit productIndex en prop
-const Product = ({ product, productIndex }) => {
+// On ne reçoit plus productIndex
+const Product = ({ product }) => {
   const dispatch = useDispatch();
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
-
-  // Le produit est considéré comme "nouveau" s'il est dans les 3 premiers de la liste
-  const isNew = productIndex < 3;
 
   let imageToDisplay = 'https://via.placeholder.com/300';
   if (product.images && product.images.length > 0) {
@@ -55,8 +52,7 @@ const Product = ({ product, productIndex }) => {
           <Card.Img src={imageUrl} variant="top" className="product-card-img" />
         </Link>
 
-        {/* LOGIQUE D'AFFICHAGE DES BADGES */}
-        {isNew && !hasPromo && <div className="new-badge">Nouveau</div>}
+        {/* On retire temporairement la logique "Nouveau" pour corriger le bug */}
         {hasPromo && <div className="discount-badge">-{discountPercent}%</div>}
 
         <button onClick={toggleFavoriteHandler} className="favorite-btn">

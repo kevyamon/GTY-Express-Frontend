@@ -56,10 +56,10 @@ const HomeScreen = () => {
             <Message>Aucun produit trouvé.</Message>
           ) : (
             <Row>
-              {products && products.map((product, index) => ( // On récupère l'index ici
+              {products && products.map((product) => (
                 <Col key={product._id} xs={6} md={6} lg={4} xl={3} className="p-2">
-                  {/* On passe l'index en prop */}
-                  <Product product={product} productIndex={index} />
+                  {/* On ne passe plus l'index ici */}
+                  <Product product={product} />
                 </Col>
               ))}
             </Row>
