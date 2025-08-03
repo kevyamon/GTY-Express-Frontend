@@ -21,12 +21,9 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const [updateMessage] = useUpdateMessageMutation();
 
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    // On ne scrolle que si le dernier message n'est pas de nous (on a reçu un message)
-    if (lastMessage && lastMessage.sender._id !== userInfo._id) {
-        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, userInfo._id]);
+    // Scroll automatique à chaque nouveau message
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

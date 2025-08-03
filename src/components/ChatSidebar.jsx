@@ -22,8 +22,10 @@ const ChatSidebar = ({ conversations, onSelectConversation, selectedConversation
             <Image src={otherParticipant?.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} roundedCircle width={40} height={40} />
             <div className="ms-2 me-auto">
               <div className="fw-bold">{otherParticipant?.name || "Utilisateur"}</div>
+              {/* Le texte du dernier message est en gras si non lu */}
               <small className={convo.isUnread ? 'fw-bold' : ''}>{lastMessageText}</small>
             </div>
+            {/* La pastille est plus visible */}
             {convo.isUnread && <Badge bg="primary" pill>!</Badge>}
           </ListGroup.Item>
         );

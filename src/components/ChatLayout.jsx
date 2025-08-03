@@ -14,35 +14,23 @@ const ChatLayout = () => {
   const { data: conversations, isLoading: isLoadingConvos } = useGetConversationsQuery();
   const { data: messages } = useGetMessagesQuery(selectedConversationId, {
     skip: !selectedConversationId,
-    refetchOnMountOrArgChange: true,
   });
   const [sendMessage] = useSendMessageMutation();
-  const [markAsRead, { isLoading: isMarkingRead }] = useMarkAsReadMutation();
+  const [markAsRead] = useMarkAsReadMutation();
 
   useEffect(() => {
-    const markConversationAsRead = async () => {
-      if (selectedConversationId) {
-        const currentConvo = conversations?.find(c => c._id === selectedConversationId);
-        if (currentConvo?.isUnread && !isMarkingRead) {
-          try {
-            await markAsRead(selectedConversationId).unwrap();
-          } catch (error) {
-            console.error("Failed to mark as read", error);
-          }
-        }
+    // Logique simplifiée : dès qu'on sélectionne une conversation, on la marque comme lue.
+    if (selectedConversationId) {
+      const currentConvo = conversations?.find(c => c._id === selectedConversationId);
+      if (currentConvo?.isUnread) {
+        markAsRead(selectedConversationId);
       }
-    };
-    markConversationAsRead();
-  }, [selectedConversationId, conversations, markAsRead, isMarkingRead]);
+    }
+  }, [selectedConversationId, conversations, markAsRead]);
 
   const handleSendMessage = async (messageData) => {
     let recipientId;
-    let currentConvo = conversations?.find(c => c._id === selectedConversationId);
-    if (!currentConvo && !userInfo.isAdmin && conversations?.length === 0) {
-      // Cas du tout premier message d'un client, pas de conversation sélectionnée
-    } else {
-      currentConvo = conversations?.find(c => c._id === selectedConversationId);
-    }
+    const currentConvo = conversations?.find(c => c._id === selectedConversationId);
 
     if (userInfo.isAdmin) {
       if (!currentConvo) return;
