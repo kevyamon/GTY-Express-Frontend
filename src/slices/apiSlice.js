@@ -14,7 +14,7 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message'], // TAGS AJOUTÉS
   endpoints: (builder) => ({
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -22,17 +22,12 @@ export const apiSlice = createApi({
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch, getState }
       ) {
-        const socket = io(import.meta.env.VITE_BACKEND_URL);
+        const socket = io(import.meta.env.VITE_BACKEND_URL, {
+            query: { userId: getState().auth.userInfo?._id },
+        });
 
         socket.on('connect', () => {
           console.log('Socket.IO connecté !');
-          const { userInfo } = getState().auth;
-          if (userInfo) {
-            socket.emit('joinRoom', userInfo._id);
-            if (userInfo.isAdmin) {
-              socket.emit('joinRoom', 'admin');
-            }
-          }
         });
 
         socket.on('disconnect', () => {
@@ -49,13 +44,16 @@ export const apiSlice = createApi({
           dispatch(apiSlice.util.invalidateTags(['Notification']));
         });
 
-        // --- NOUVEL ÉCOUTEUR AJOUTÉ ICI ---
         socket.on('product_update', (data) => {
           console.log('Événement product_update reçu', data);
-          // Rafraîchit la liste générale des produits
           dispatch(apiSlice.util.invalidateTags(['Product']));
-          // Rafraîchit la page de détail du produit spécifique s'il est en cache
           dispatch(apiSlice.util.invalidateTags([{ type: 'Product', id: data.productId }]));
+        });
+
+        socket.on('newMessage', (newMessage) => {
+            console.log('Nouveau message reçu en temps réel', newMessage);
+            dispatch(apiSlice.util.invalidateTags(['Conversation']));
+            dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: newMessage.conversationId }]));
         });
 
         await cacheEntryRemoved;

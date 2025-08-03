@@ -43,6 +43,7 @@ import FAQScreen from './screens/FAQScreen.jsx';
 import ContactScreen from './screens/ContactScreen.jsx';
 import StoresScreen from './screens/StoresScreen.jsx';
 import PrivacyScreen from './screens/PrivacyScreen.jsx';
+import ChatScreen from './screens/ChatScreen.jsx'; // NOUVEL IMPORT
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -54,7 +55,7 @@ import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import ProductAddScreen from './screens/admin/ProductAddScreen.jsx';
 import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
-import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx'; // NOUVEL IMPORT
+import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -95,6 +96,7 @@ const router = createBrowserRouter(
         <Route path="/order/:id" element={<OrderScreen />} />
         <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
         <Route path='/notifications' element={<NotificationsScreen />} />
+        <Route path='/chat' element={<ChatScreen />} /> {/* NOUVELLE ROUTE */}
       </Route>
 
       {/* --- Routes Admin (uniquement admins connectés) --- */}
@@ -104,7 +106,7 @@ const router = createBrowserRouter(
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
         <Route path="/admin/product/add" element={<ProductAddScreen />} />
         <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
-        <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} /> {/* NOUVELLE ROUTE */}
+        <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
       </Route>
     </Route>
   )

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
-import { FaTag } from 'react-icons/fa';
+import { FaTag, FaComments } from 'react-icons/fa'; // NOUVELLE ICÔNE
 
 // Slices & Actions
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
@@ -93,17 +93,14 @@ const Header = () => {
           <LinkContainer to={homePath}>
             <Navbar.Brand>GTY Express</Navbar.Brand>
           </LinkContainer>
-
           <Nav className="me-auto">
             {userInfo && <CategoryMenu />}
           </Nav>
-
           <LinkContainer to="/promotions">
             <Nav.Link className="text-danger fw-bold d-flex align-items-center">
               <FaTag className="me-1" /> PROMO
             </Nav.Link>
           </LinkContainer>
-
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
@@ -118,7 +115,7 @@ const Header = () => {
                       <LinkContainer to="/admin/productlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Produits</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/orderlist" onClick={handleAdminMenuClick}><NavDropdown.Item>Gestion Commandes {newOrdersCount > 0 && <Badge pill bg="primary" className="ms-2">{newOrdersCount}</Badge>}{cancelledOrdersCount > 0 && <Badge pill bg="warning" text="dark" className="ms-2">{cancelledOrdersCount}</Badge>}</NavDropdown.Item></LinkContainer>
                       <LinkContainer to="/admin/promotionlist"><NavDropdown.Item>Gestion Promotions</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to="/admin/promobannerlist"><NavDropdown.Item>Gestion Bannière Promo</NavDropdown.Item></LinkContainer> {/* NOUVEAU LIEN */}
+                      <LinkContainer to="/admin/promobannerlist"><NavDropdown.Item>Gestion Bannière Promo</NavDropdown.Item></LinkContainer>
                     </>
                   )}
                   <NavDropdown.Divider />
@@ -148,6 +145,10 @@ const Header = () => {
                 {cartItems.reduce((acc, item) => acc + item.qty, 0)}
               </Badge>
             )}
+          </Link>
+          <Link to="/chat" className="home-icon-link position-relative">
+            <FaComments />
+            {/* Le compteur de messages non lus sera ajouté ici plus tard */}
           </Link>
           <div onClick={handleNotificationClick} className="home-icon-link position-relative" style={{cursor: 'pointer'}}>
             🔔
