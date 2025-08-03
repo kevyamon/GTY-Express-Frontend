@@ -16,11 +16,11 @@
   padding: 2rem;
   color: #333;
   overflow: hidden;
-  position: relative; /* Important pour le positionnement des images */
+  position: relative;
 }
 
 .promo-left-section {
-    z-index: 2; /* Pour que le texte soit au-dessus des images */
+    z-index: 2;
 }
 
 .promo-left-section .timer {
@@ -87,30 +87,31 @@
   z-index: 2;
 }
 
-/* --- STYLES DES IMAGES ANIMÉES --- */
-.banner-image {
+/* --- NOUVEAUX STYLES POUR LES IMAGES AU MILIEU --- */
+.banner-images-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
     position: absolute;
+    width: 60%; /* Occupe une bonne partie de la bannière */
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1;
-    opacity: 0.9;
+}
+
+.banner-image-item {
     animation: float 6s ease-in-out infinite;
-    max-width: 150px;
+    max-width: 120px; /* Taille contrôlée des images */
     height: auto;
+    opacity: 0.9;
 }
-.banner-image-1 {
-    top: -20px;
-    right: 25%;
-    transform: rotate(-15deg);
-    animation-delay: 0s;
+
+.banner-image-item:nth-child(2) {
+    animation-delay: 2s; /* Décale l'animation de la 2ème image */
 }
-.banner-image-2 {
-    bottom: -30px;
-    right: 5%;
-    transform: rotate(20deg);
-    animation-delay: 2s; /* Délai pour décaler les animations */
-}
-.banner-image-3 {
-    top: 30%;
-    right: 35%;
-    transform: rotate(5deg);
-    animation-delay: 4s;
+
+.banner-image-item:nth-child(3) {
+    animation-delay: 4s; /* Décale l'animation de la 3ème image */
 }

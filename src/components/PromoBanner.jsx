@@ -30,12 +30,8 @@ const PromoBanner = ({ bannerData }) => {
 
   return (
     <div className="promo-banner-container my-4">
-      {/* Affichage des images de fond */}
-      {bannerData.images && bannerData.images.map((img, index) => (
-        <Image key={index} src={img} className={`banner-image banner-image-${index + 1}`} />
-      ))}
-
       <Row>
+        {/* Section de Gauche avec Texte et Coupons */}
         <Col md={8} className="promo-left-section">
           <div className="timer">
             {Object.keys(timeLeft).length > 0 ? 
@@ -58,12 +54,20 @@ const PromoBanner = ({ bannerData }) => {
           </Row>
         </Col>
 
+        {/* Section de Droite avec le bouton rouge */}
         <Col md={4} className="promo-right-section">
           <div className="deal-of-the-month">
             LES OFFRES DU MOIS
           </div>
         </Col>
       </Row>
+
+      {/* Conteneur pour les images, positionné au-dessus de tout */}
+      <div className="banner-images-container">
+        {bannerData.images && bannerData.images.map((img, index) => (
+          <Image key={index} src={img} className="banner-image-item" />
+        ))}
+      </div>
     </div>
   );
 };
