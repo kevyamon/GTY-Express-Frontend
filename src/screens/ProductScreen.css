@@ -1,12 +1,12 @@
 .description-box {
   line-height: 1.6;
-  white-space: pre-wrap; /* Respecte les sauts de ligne dans la description */
+  white-space: pre-wrap;
 }
 
 .toggle-description-btn {
   background: none;
   border: none;
-  color: #0d6efd; /* Bleu Bootstrap */
+  color: #0d6efd;
   padding: 0;
   margin-top: 0.5rem;
   font-weight: bold;
@@ -17,7 +17,6 @@
   text-decoration: underline;
 }
 
-/* --- NOUVEAUX STYLES POUR LA GALERIE D'IMAGES --- */
 .product-image-gallery {
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -35,4 +34,25 @@
   max-width: 100%;
   object-fit: contain;
   margin: auto;
+}
+
+/* --- NOUVEAUX STYLES POUR MOBILE --- */
+@media (max-width: 767px) {
+    .product-image-gallery {
+        min-height: 300px; /* Hauteur réduite pour l'image */
+        padding: 0.5rem;
+    }
+    .product-image-gallery .carousel-item img,
+    .product-image-gallery > img {
+        max-height: 300px;
+    }
+
+    .product-details-col h3 {
+        font-size: 1.2rem; /* Titre plus petit */
+    }
+
+    .product-details-col .list-group-item {
+        padding-left: 0;
+        padding-right: 0;
+    }
 }

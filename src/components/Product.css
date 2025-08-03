@@ -150,12 +150,16 @@
   .product-title {
     font-size: 0.8rem; /* Titre plus petit */
     min-height: 38px; /* Hauteur pour 2 lignes */
+    margin-bottom: 0.25rem;
   }
   .product-price {
     font-size: 1rem; /* Prix plus petit */
   }
   .original-price {
     font-size: 0.75rem;
+  }
+  .stock-status-container {
+    margin-top: 0.25rem; /* Moins d'espace au-dessus du statut */
   }
   .stock-status-container .badge {
     font-size: 0.65rem; /* Badge de stock plus petit */
