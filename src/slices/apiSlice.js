@@ -14,7 +14,7 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message'], // TAGS AJOUTÉS
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message'],
   endpoints: (builder) => ({
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -54,6 +54,12 @@ export const apiSlice = createApi({
             console.log('Nouveau message reçu en temps réel', newMessage);
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: newMessage.conversationId }]));
+        });
+
+        // NOUVEL ÉCOUTEUR AJOUTÉ
+        socket.on('conversationRead', (data) => {
+            console.log('Conversation lue en temps réel', data);
+            dispatch(apiSlice.util.invalidateTags(['Conversation']));
         });
 
         await cacheEntryRemoved;

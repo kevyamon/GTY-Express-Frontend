@@ -19,6 +19,14 @@ export const messageApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Conversation', 'Message'],
     }),
+    // NOUVELLE MUTATION AJOUTÉE
+    markAsRead: builder.mutation({
+      query: (conversationId) => ({
+        url: `${MESSAGES_URL}/read/${conversationId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Conversation'],
+    }),
   }),
 });
 
@@ -26,4 +34,5 @@ export const {
   useGetConversationsQuery,
   useGetMessagesQuery,
   useSendMessageMutation,
+  useMarkAsReadMutation, // NOUVEL EXPORT
 } = messageApiSlice;
