@@ -23,24 +23,13 @@ export const apiSlice = createApi({
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch, getState }
       ) {
-        // On retire la query ici pour gérer la connexion manuellement
-        const socket = io(import.meta.env.VITE_BACKEND_URL);
-
-        // --- LOGIQUE DE CONNEXION CORRIGÉE ---
-        socket.on('connect', () => {
-          console.log('Socket.IO connecté !');
-          const { userInfo } = getState().auth;
-          if (userInfo) {
-            // L'utilisateur rejoint sa room personnelle
-            socket.emit('joinRoom', userInfo._id);
-            // Si c'est un admin, il rejoint aussi la room 'admin'
-            if (userInfo.isAdmin) {
-              socket.emit('joinRoom', 'admin');
-            }
-          }
+        const socket = io(import.meta.env.VITE_BACKEND_URL, {
+            query: { userId: getState().auth.userInfo?._id },
         });
 
+        socket.on('connect', () => { console.log('Socket.IO connecté !'); });
         socket.on('disconnect', () => { console.log('Socket.IO déconnecté.'); });
+
         socket.on('order_update', (data) => { dispatch(apiSlice.util.invalidateTags(['Order'])); });
         socket.on('notification', (data) => { dispatch(apiSlice.util.invalidateTags(['Notification'])); });
         socket.on('product_update', (data) => {
@@ -69,6 +58,12 @@ export const apiSlice = createApi({
         });
         socket.on('complaint_update', () => {
             dispatch(apiSlice.util.invalidateTags(['Complaint']));
+        });
+
+        // NOUVEL ÉCOUTEUR
+        socket.on('banner_update', () => {
+            console.log('Mise à jour de la bannière reçue');
+            dispatch(apiSlice.util.invalidateTags(['PromoBanner']));
         });
 
         await cacheEntryRemoved;
