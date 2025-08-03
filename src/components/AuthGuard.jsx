@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom'; // Outlet a été ajouté
 
 // Ce composant "entoure" les autres et vérifie le statut de l'utilisateur
-const AuthGuard = ({ children }) => {
+const AuthGuard = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,13 +13,14 @@ const AuthGuard = ({ children }) => {
     if (userInfo?.status === 'banned' && location.pathname !== '/banned') {
       navigate('/banned', { replace: true });
     }
-    // Si l'utilisateur n'est pas banni mais se trouve sur la page de bannissement
+    // Si l'utilisateur est réactivé et se trouve toujours sur la page de bannissement
     else if (userInfo?.status === 'active' && location.pathname === '/banned') {
       navigate('/', { replace: true });
     }
   }, [userInfo, navigate, location]);
 
-  return children; // Affiche la page demandée si tout va bien
+  // On affiche la page demandée si tout va bien
+  return <Outlet />; // Modifié ici, "children" a été remplacé par <Outlet />
 };
 
 export default AuthGuard;
