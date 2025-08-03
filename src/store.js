@@ -3,7 +3,6 @@ import { apiSlice } from './slices/apiSlice';
 import cartSliceReducer from './slices/cartSlice';
 import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
-// Les imports des autres slices d'API ne sont plus nécessaires ici
 
 const store = configureStore({
   reducer: {

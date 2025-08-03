@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { io } from 'socket.io-client';
+import { updateUserStatus } from './authSlice'; // NOUVEL IMPORT
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_URL,
@@ -14,7 +15,7 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint'],
   endpoints: (builder) => ({
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -67,10 +68,21 @@ export const apiSlice = createApi({
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: data.conversationId }]));
         });
 
-        // ÉCOUTEUR POUR LA MODIFICATION DE MESSAGE AJOUTÉ ICI
         socket.on('messageEdited', (editedMessage) => {
             console.log('Message modifié en temps réel', editedMessage);
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: editedMessage.conversationId }]));
+        });
+
+        // NOUVEL ÉCOUTEUR POUR LE STATUT UTILISATEUR
+        socket.on('status_update', (data) => {
+            console.log('Mise à jour du statut reçue', data);
+            dispatch(updateUserStatus({ _id: getState().auth.userInfo._id, ...data }));
+        });
+
+        // NOUVEL ÉCOUTEUR POUR LES NOUVELLES RÉCLAMATIONS
+        socket.on('new_complaint', (data) => {
+            console.log('Nouvelle réclamation reçue', data);
+            dispatch(apiSlice.util.invalidateTags(['Complaint']));
         });
 
         await cacheEntryRemoved;

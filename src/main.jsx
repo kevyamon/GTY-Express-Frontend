@@ -12,7 +12,7 @@ import store from './store.js';
 import App from './App.jsx';
 
 // Fichiers de style
-import './App.css';
+import './App.css'; 
 import './index.css';
 
 // Écrans principaux
@@ -43,11 +43,13 @@ import FAQScreen from './screens/FAQScreen.jsx';
 import ContactScreen from './screens/ContactScreen.jsx';
 import StoresScreen from './screens/StoresScreen.jsx';
 import PrivacyScreen from './screens/PrivacyScreen.jsx';
-import ChatScreen from './screens/ChatScreen.jsx'; // NOUVEL IMPORT
+import ChatScreen from './screens/ChatScreen.jsx';
+import BannedScreen from './screens/BannedScreen.jsx';
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+import AuthGuard from './components/AuthGuard.jsx';
 
 // Écrans Admin
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
@@ -56,57 +58,63 @@ import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import ProductAddScreen from './screens/admin/ProductAddScreen.jsx';
 import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
 import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
+import UserListScreen from './screens/admin/UserListScreen.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* --- Routes Publiques --- */}
-      <Route index={true} path="/" element={<LandingScreen />} />
-      <Route path="/search/:keyword" element={<HomeScreen />} />
-      <Route path="/supermarket" element={<HomeScreen />} />
-      <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
-      <Route path="/category/:category" element={<HomeScreen />} />
-      <Route path="/promotions" element={<HomeScreen />} />
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
-      <Route path="/product/:id" element={<ProductScreen />} />
-      <Route path="/about" element={<AboutScreen />} />
-      <Route path="/legal-notice" element={<LegalNoticeScreen />} />
-      <Route path="/terms" element={<TermsScreen />} />
-      <Route path="/delivery" element={<DeliveryScreen />} />
-      <Route path="/warranty" element={<WarrantyScreen />} />
-      <Route path="/click-and-collect" element={<ClickAndCollectScreen />} />
-      <Route path="/returns" element={<ReturnsScreen />} />
-      <Route path="/how-to-buy" element={<HowToBuyScreen />} />
-      <Route path="/faq" element={<FAQScreen />} />
-      <Route path="/contact" element={<ContactScreen />} />
-      <Route path="/stores" element={<StoresScreen />} />
-      <Route path="/privacy" element={<PrivacyScreen />} />
+      {/* Le Gardien enveloppe toutes les routes */}
+      <Route element={<AuthGuard />}>
+        {/* --- Routes Publiques --- */}
+        <Route index={true} path="/" element={<LandingScreen />} />
+        <Route path="/banned" element={<BannedScreen />} />
+        <Route path="/search/:keyword" element={<HomeScreen />} />
+        <Route path="/supermarket" element={<HomeScreen />} />
+        <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
+        <Route path="/category/:category" element={<HomeScreen />} />
+        <Route path="/promotions" element={<HomeScreen />} />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/product/:id" element={<ProductScreen />} />
+        <Route path="/about" element={<AboutScreen />} />
+        <Route path="/legal-notice" element={<LegalNoticeScreen />} />
+        <Route path="/terms" element={<TermsScreen />} />
+        <Route path="/delivery" element={<DeliveryScreen />} />
+        <Route path="/warranty" element={<WarrantyScreen />} />
+        <Route path="/click-and-collect" element={<ClickAndCollectScreen />} />
+        <Route path="/returns" element={<ReturnsScreen />} />
+        <Route path="/how-to-buy" element={<HowToBuyScreen />} />
+        <Route path="/faq" element={<FAQScreen />} />
+        <Route path="/contact" element={<ContactScreen />} />
+        <Route path="/stores" element={<StoresScreen />} />
+        <Route path="/privacy" element={<PrivacyScreen />} />
 
-      {/* --- Routes Privées (clients et admins connectés) --- */}
-      <Route path="" element={<PrivateRoute />}>
-        <Route path='/profile' element={<ProfileScreen />} />
-        <Route path='/profile-details' element={<ProfileDetailsScreen />} />
-        <Route path="/products" element={<HomeScreen />} />
-        <Route path="/cart" element={<CartScreen />} />
-        <Route path="/favorites" element={<FavoritesScreen />} />
-        <Route path="/shipping" element={<ShippingScreen />} />
-        <Route path="/payment" element={<PaymentScreen />} />
-        <Route path="/placeorder" element={<PlaceOrderScreen />} />
-        <Route path="/order/:id" element={<OrderScreen />} />
-        <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
-        <Route path='/notifications' element={<NotificationsScreen />} />
-        <Route path='/chat' element={<ChatScreen />} /> {/* NOUVELLE ROUTE */}
-      </Route>
+        {/* --- Routes Privées (clients et admins connectés) --- */}
+        <Route path="" element={<PrivateRoute />}>
+          <Route path='/profile' element={<ProfileScreen />} />
+          <Route path='/profile-details' element={<ProfileDetailsScreen />} />
+          <Route path="/products" element={<HomeScreen />} />
+          <Route path="/cart" element={<CartScreen />} />
+          <Route path="/favorites" element={<FavoritesScreen />} />
+          <Route path="/shipping" element={<ShippingScreen />} />
+          <Route path="/payment" element={<PaymentScreen />} />
+          <Route path="/placeorder" element={<PlaceOrderScreen />} />
+          <Route path="/order/:id" element={<OrderScreen />} />
+          <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
+          <Route path='/notifications' element={<NotificationsScreen />} />
+          <Route path='/chat' element={<ChatScreen />} />
+        </Route>
 
-      {/* --- Routes Admin (uniquement admins connectés) --- */}
-      <Route path="" element={<AdminRoute />}>
-        <Route path="/admin/productlist" element={<ProductListScreen />} />
-        <Route path='/admin/orderlist' element={<OrderListScreen />} />
-        <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
-        <Route path="/admin/product/add" element={<ProductAddScreen />} />
-        <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
-        <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
+        {/* --- Routes Admin (uniquement admins connectés) --- */}
+        <Route path="" element={<AdminRoute />}>
+          <Route path="/admin/productlist" element={<ProductListScreen />} />
+          <Route path="/admin/userlist" element={<UserListScreen />} />
+          <Route path='/admin/orderlist' element={<OrderListScreen />} />
+          <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
+          <Route path="/admin/product/add" element={<ProductAddScreen />} />
+          <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
+          <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
+        </Route>
       </Route>
     </Route>
   )
