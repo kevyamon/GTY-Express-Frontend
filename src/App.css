@@ -19,13 +19,13 @@
   transform: scale(0.95);
   transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
 }
-/* Conteneur principal pour nos deux rangées */
+
+/* --- STYLES EXISTANTS POUR LE HEADER --- */
 .header-layout {
-  background-color: #212529; /* Fond sombre de la barre de navigation */
+  background-color: #212529;
   padding-bottom: 0.75rem;
 }
 
-/* Première rangée : Logo et Menu Utilisateur */
 .header-top-row {
   display: flex;
   justify-content: space-between;
@@ -33,7 +33,6 @@
   width: 100%;
 }
 
-/* Deuxième rangée : Recherche et Icône Maison */
 .header-center-row {
   display: flex;
   flex-direction: column;
@@ -48,13 +47,13 @@
 }
 
 .home-icon-link {
-  color: rgba(255, 255, 255, 0.65); /* Couleur gris clair */
+  color: rgba(255, 255, 255, 0.65);
   margin-top: 0.75rem;
   transition: color 0.2s ease-in-out;
 }
 
 .home-icon-link:hover {
-  color: white; /* Changement de couleur au survol */
+  color: white;
 }
 
 .profile-icon-container {
@@ -62,25 +61,11 @@
     align-items: center;
     color: rgba(255, 255, 255, 0.65);
 }
-/* Animation pour l'apparition d'une nouvelle page */
-.fade-enter {
-  opacity: 0;
-  transform: scale(0.95);
-}
-.fade-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
-}
 
-/* Animation pour la disparition de l'ancienne page */
-.fade-exit {
-  opacity: 1;
-  transform: scale(1);
+/* --- NOUVEAU STYLE AJOUTÉ POUR LA MISE EN PAGE MOBILE --- */
+@media (max-width: 767px) {
+  main.py-3 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }
-.fade-exit-active {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
-}
-
