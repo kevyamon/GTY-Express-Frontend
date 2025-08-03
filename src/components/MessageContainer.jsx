@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Button, InputGroup, Image, Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { FaPaperclip } from 'react-icons/fa';
+import { FaPaperclip, FaTrash } from 'react-icons/fa'; // Ajout de FaTrash
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useDeleteMessageMutation } from '../slices/messageApiSlice'; // NOUVEL IMPORT
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -14,6 +15,7 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [deleteMessage] = useDeleteMessageMutation();
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -30,7 +32,6 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -43,6 +44,16 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
       toast.error("Le téléversement de l'image a échoué");
     } finally {
       setLoadingUpload(false);
+    }
+  };
+
+  const handleDelete = async (messageId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+        try {
+            await deleteMessage(messageId).unwrap();
+        } catch (error) {
+            toast.error('Erreur lors de la suppression du message');
+        }
     }
   };
 
@@ -77,6 +88,11 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
                   {msg.text && <p className="mb-0">{msg.text}</p>}
                   {msg.image && <Image src={msg.image} alt="Image envoyée" className="message-image" fluid />}
                 </div>
+                {messageAlignment === 'sent' && (
+                    <div className="message-actions">
+                        <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
+                    </div>
+                )}
                 <span className="message-timestamp">
                   {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </span>

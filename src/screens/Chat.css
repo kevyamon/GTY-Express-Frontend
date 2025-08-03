@@ -1,6 +1,6 @@
 .chat-layout {
   display: flex;
-  height: 75vh;
+  height: 75vh; /* Hauteur de la fenêtre de chat */
   background-color: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -68,6 +68,7 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0.5rem;
+  position: relative; /* Ajouté pour positionner les actions */
 }
 
 .message-wrapper.sent {
@@ -92,7 +93,6 @@
   font-size: 0.8rem;
 }
 
-/* --- NOUVEAUX STYLES POUR L'IMAGE --- */
 .message-image {
   max-width: 100%;
   border-radius: 15px;
@@ -102,4 +102,26 @@
 .image-upload-btn {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+/* STYLES POUR LES ACTIONS SUR MESSAGE */
+.message-actions {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 2px 5px;
+  display: none; /* Caché par défaut */
+}
+.message-wrapper.sent:hover .message-actions {
+  display: flex; /* Apparaît au survol */
+  left: -40px; /* Position à gauche du message envoyé */
+}
+.message-actions button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 2px 4px;
 }
