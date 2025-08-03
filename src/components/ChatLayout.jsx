@@ -14,23 +14,35 @@ const ChatLayout = () => {
   const { data: conversations, isLoading: isLoadingConvos } = useGetConversationsQuery();
   const { data: messages } = useGetMessagesQuery(selectedConversationId, {
     skip: !selectedConversationId,
+    refetchOnMountOrArgChange: true,
   });
   const [sendMessage] = useSendMessageMutation();
-  const [markAsRead] = useMarkAsReadMutation();
+  const [markAsRead, { isLoading: isMarkingRead }] = useMarkAsReadMutation();
 
   useEffect(() => {
-    if (selectedConversationId) {
-      const currentConvo = conversations?.find(c => c._id === selectedConversationId);
-      if (currentConvo?.isUnread) {
-        markAsRead(selectedConversationId);
+    const markConversationAsRead = async () => {
+      if (selectedConversationId) {
+        const currentConvo = conversations?.find(c => c._id === selectedConversationId);
+        if (currentConvo?.isUnread && !isMarkingRead) {
+          try {
+            await markAsRead(selectedConversationId).unwrap();
+          } catch (error) {
+            console.error("Failed to mark as read", error);
+          }
+        }
       }
-    }
-  }, [selectedConversationId, conversations, markAsRead]);
+    };
+    markConversationAsRead();
+  }, [selectedConversationId, conversations, markAsRead, isMarkingRead]);
 
-  // LA FONCTION EST MAINTENANT CORRIGÉE POUR ACCEPTER UN OBJET
-  const handleSendMessage = async (messageData) => { // messageData peut être {text} ou {image}
+  const handleSendMessage = async (messageData) => {
     let recipientId;
-    const currentConvo = conversations?.find(c => c._id === selectedConversationId);
+    let currentConvo = conversations?.find(c => c._id === selectedConversationId);
+    if (!currentConvo && !userInfo.isAdmin && conversations?.length === 0) {
+      // Cas du tout premier message d'un client, pas de conversation sélectionnée
+    } else {
+      currentConvo = conversations?.find(c => c._id === selectedConversationId);
+    }
 
     if (userInfo.isAdmin) {
       if (!currentConvo) return;
@@ -42,14 +54,13 @@ const ChatLayout = () => {
     }
 
     try {
-      // On envoie l'objet messageData directement
       await sendMessage({ ...messageData, recipientId }).unwrap();
     } catch (error) { console.error('Failed to send message:', error); }
   };
 
   const renderContent = () => {
     if (isLoadingConvos) {
-      return <Spinner />;
+      return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
     }
     if (!userInfo.isAdmin && conversations?.length === 0) {
       return <MessageContainer messages={[]} onSendMessage={handleSendMessage} />;
@@ -66,7 +77,7 @@ const ChatLayout = () => {
 
   return (
     <div className="chat-layout">
-      {(userInfo.isAdmin || conversations?.length > 0) && (
+      {(userInfo.isAdmin || (conversations && conversations.length > 0)) && (
         <ChatSidebar 
           conversations={conversations} 
           onSelectConversation={setSelectedConversationId}

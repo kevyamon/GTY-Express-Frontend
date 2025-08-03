@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Button, InputGroup, Image, Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { FaPaperclip, FaTrash, FaEdit } from 'react-icons/fa'; // Ajout de FaEdit
+import { FaPaperclip, FaTrash, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useDeleteMessageMutation, useUpdateMessageMutation } from '../slices/messageApiSlice'; // NOUVEL IMPORT
+import { useDeleteMessageMutation, useUpdateMessageMutation } from '../slices/messageApiSlice';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -15,12 +15,18 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
   const [loadingUpload, setLoadingUpload] = useState(false);
-  const [editingMessage, setEditingMessage] = useState(null); // État pour le message en cours de modification
-  const [editedText, setEditedText] = useState(''); // État pour le nouveau texte
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [editedText, setEditedText] = useState('');
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
-  useEffect(() => { messageEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    // On ne scrolle que si le dernier message n'est pas de nous (on a reçu un message)
+    if (lastMessage && lastMessage.sender._id !== userInfo._id) {
+        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, userInfo._id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,9 +35,7 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
       setText('');
     }
   };
-
   const uploadFileHandler = async (e) => {
-    // ... (logique inchangée)
     const file = e.target.files[0];
     if (!file) return;
     const formData = new FormData();
@@ -42,23 +46,25 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, formData, config);
       onSendMessage({ image: data.secure_url });
-    } catch (error) { toast.error("Le téléversement de l'image a échoué"); }
-    finally { setLoadingUpload(false); }
-  };
-
-  const handleDelete = async (messageId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
-        try { await deleteMessage(messageId).unwrap(); }
-        catch (error) { toast.error('Erreur lors de la suppression du message'); }
+    } catch (error) {
+      toast.error("Le téléversement de l'image a échoué");
+    } finally {
+      setLoadingUpload(false);
     }
   };
 
-  // NOUVELLES FONCTIONS POUR LA MODIFICATION
+  const handleDelete = async (messageId) => {
+    try {
+        await deleteMessage(messageId).unwrap();
+        toast.info('Message supprimé');
+    } catch (error) {
+        toast.error('Erreur lors de la suppression du message');
+    }
+  };
   const handleEdit = (message) => {
     setEditingMessage(message);
     setEditedText(message.text);
   };
-
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!editedText.trim()) return;
@@ -93,11 +99,13 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
         {messages.map((msg, index) => {
           const showDate = isNewDay(msg, messages[index - 1]);
           const messageAlignment = msg.sender._id === userInfo._id ? 'sent' : 'received';
+          const isDeleted = msg.text === "Ce message a été supprimé";
           return (
             <React.Fragment key={msg._id}>
               {showDate && <div className="date-separator">{formatDate(msg.createdAt)}</div>}
               <div className={`message-wrapper ${messageAlignment}`}>
-                <div className={`message-bubble ${messageAlignment}`}>
+                {msg.isEdited && <div className="message-edited-indicator">Modifié</div>}
+                <div className={`message-bubble ${messageAlignment} ${isDeleted ? 'deleted-message' : ''}`}>
                   {editingMessage?._id === msg._id ? (
                     <Form onSubmit={handleUpdate} className="edit-message-form">
                       <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} autoFocus />
@@ -111,16 +119,17 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
                     </>
                   )}
                 </div>
-                {messageAlignment === 'sent' && !editingMessage && (
-                    <div className="message-actions">
-                        {!msg.image && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
-                        <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
-                    </div>
-                )}
-                <span className="message-timestamp">
-                  {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                  {msg.isEdited && <em className="message-edited-indicator">(modifié)</em>}
-                </span>
+                <div className="d-flex align-items-center">
+                    <span className="message-timestamp">
+                    {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    {messageAlignment === 'sent' && !editingMessage && !isDeleted && (
+                        <div className="message-actions">
+                            {!msg.image && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
+                            <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
+                        </div>
+                    )}
+                </div>
               </div>
             </React.Fragment>
           );
