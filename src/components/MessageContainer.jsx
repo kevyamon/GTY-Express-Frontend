@@ -20,10 +20,7 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
-  useEffect(() => {
-    // Scroll automatique à chaque nouveau message
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // Le useEffect pour le scroll a été retiré.
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -49,7 +46,6 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
       setLoadingUpload(false);
     }
   };
-
   const handleDelete = async (messageId) => {
     try {
         await deleteMessage(messageId).unwrap();
@@ -73,7 +69,6 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
         toast.error('Erreur lors de la modification');
     }
   };
-
   const isNewDay = (msg1, msg2) => {
     if (!msg2) return true;
     const date1 = new Date(msg1.createdAt).toLocaleDateString();

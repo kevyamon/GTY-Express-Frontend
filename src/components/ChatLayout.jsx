@@ -19,7 +19,7 @@ const ChatLayout = () => {
   const [markAsRead] = useMarkAsReadMutation();
 
   useEffect(() => {
-    // Logique simplifiée : dès qu'on sélectionne une conversation, on la marque comme lue.
+    // Logique simplifiée pour marquer comme lu
     if (selectedConversationId) {
       const currentConvo = conversations?.find(c => c._id === selectedConversationId);
       if (currentConvo?.isUnread) {
@@ -35,7 +35,8 @@ const ChatLayout = () => {
     if (userInfo.isAdmin) {
       if (!currentConvo) return;
       recipientId = currentConvo.participants.find(p => p._id !== userInfo._id)?._id;
-    } else {
+    } 
+    else {
       if (currentConvo) {
         recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
       }
@@ -48,7 +49,7 @@ const ChatLayout = () => {
 
   const renderContent = () => {
     if (isLoadingConvos) {
-      return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
+      return <Spinner />;
     }
     if (!userInfo.isAdmin && conversations?.length === 0) {
       return <MessageContainer messages={[]} onSendMessage={handleSendMessage} />;
@@ -65,7 +66,7 @@ const ChatLayout = () => {
 
   return (
     <div className="chat-layout">
-      {(userInfo.isAdmin || (conversations && conversations.length > 0)) && (
+      {(userInfo.isAdmin || conversations?.length > 0) && (
         <ChatSidebar 
           conversations={conversations} 
           onSelectConversation={setSelectedConversationId}
