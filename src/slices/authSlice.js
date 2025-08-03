@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { apiSlice } from './apiSlice'; // NOUVEL IMPORT
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -19,25 +18,15 @@ const authSlice = createSlice({
       state.userInfo = null;
       localStorage.removeItem('userInfo');
     },
+    // NOUVELLE ACTION POUR LA MISE À JOUR DU STATUT
     updateUserStatus: (state, action) => {
       if (state.userInfo && state.userInfo._id === action.payload._id) {
+        // On met à jour le statut et le token
         state.userInfo.status = action.payload.status;
         state.userInfo.token = action.payload.token;
         localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
       }
     },
-  },
-  // On ajoute un "extra reducer" pour écouter la mutation de déconnexion
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      // On cible la mutation "logout" de l'API des utilisateurs
-      apiSlice.endpoints.logout.matchFulfilled,
-      (state, action) => {
-        // Quand la déconnexion réussit, on vide le cache de l'API
-        // C'est cette ligne qui résout le bug
-        action.dispatch(apiSlice.util.resetApiState());
-      }
-    );
   },
 });
 
