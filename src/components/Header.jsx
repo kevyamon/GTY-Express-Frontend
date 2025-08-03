@@ -5,13 +5,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { FaTag, FaComments } from 'react-icons/fa';
-import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
+import { useLogoutMutation } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/messageApiSlice';
 import { useGetComplaintsQuery } from '../slices/adminApiSlice';
 import { logout } from '../slices/authSlice';
-import { useSocketQuery } from '../slices/apiSlice';
+import { apiSlice, useSocketQuery } from '../slices/apiSlice'; // MODIFIÉ ICI
 import CategoryMenu from './CategoryMenu';
 import './Header.css';
 
@@ -25,7 +25,6 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
   useSocketQuery(undefined, { skip: !userInfo });
-  useGetProfileDetailsQuery(undefined, { skip: !userInfo });
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
   const { data: conversations } = useGetConversationsQuery(undefined, { skip: !userInfo });
@@ -94,10 +93,13 @@ const Header = () => {
     if (keyword.trim()) { navigate(`/search/${keyword}`); setKeyword(''); } 
     else { navigate(homePath); }
   };
+
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
+      // On réinitialise l'état de l'API ici
+      dispatch(apiSlice.util.resetApiState());
       navigate('/login');
     } catch (err) { console.error(err); }
   };
