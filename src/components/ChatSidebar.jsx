@@ -9,7 +9,7 @@ const ChatSidebar = ({ conversations, onSelectConversation, selectedConversation
     <ListGroup variant="flush" className="chat-sidebar">
       {conversations && conversations.map((convo) => {
         const otherParticipant = convo.participants.find(p => p._id !== userInfo._id);
-        const lastMessageText = convo.lastMessage?.text ? `${convo.lastMessage.text.substring(0, 25)}...` : "Aucun message";
+        const lastMessageText = convo.lastMessage?.text ? `${convo.lastMessage.text.substring(0, 25)}...` : "Démarrez la conversation";
 
         return (
           <ListGroup.Item
@@ -22,9 +22,9 @@ const ChatSidebar = ({ conversations, onSelectConversation, selectedConversation
             <Image src={otherParticipant?.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} roundedCircle width={40} height={40} />
             <div className="ms-2 me-auto">
               <div className="fw-bold">{otherParticipant?.name || "Utilisateur"}</div>
-              <small>{lastMessageText}</small>
+              <small className={convo.isUnread ? 'fw-bold' : ''}>{lastMessageText}</small>
             </div>
-            {/* Le compteur de messages non lus sera ajouté plus tard */}
+            {convo.isUnread && <Badge bg="primary" pill>!</Badge>}
           </ListGroup.Item>
         );
       })}

@@ -27,43 +27,36 @@ const ChatLayout = () => {
     }
   }, [selectedConversationId, conversations, markAsRead]);
 
-  const handleSendMessage = async (text) => {
+  // LA FONCTION EST MAINTENANT CORRIGÉE POUR ACCEPTER UN OBJET
+  const handleSendMessage = async (messageData) => { // messageData peut être {text} ou {image}
     let recipientId;
     const currentConvo = conversations?.find(c => c._id === selectedConversationId);
 
-    // Si c'est un admin qui envoie
     if (userInfo.isAdmin) {
-      if (!currentConvo) return; // Un admin doit sélectionner une conversation
+      if (!currentConvo) return;
       recipientId = currentConvo.participants.find(p => p._id !== userInfo._id)?._id;
-    } 
-    // Si c'est un client qui envoie
-    else {
-      // S'il a déjà une conversation, on prend l'ID de l'admin dedans
+    } else {
       if (currentConvo) {
         recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
       }
-      // S'il n'a pas de conversation, on n'envoie pas de recipientId, le backend le trouvera
     }
 
     try {
-      await sendMessage({ recipientId, text }).unwrap();
+      // On envoie l'objet messageData directement
+      await sendMessage({ ...messageData, recipientId }).unwrap();
     } catch (error) { console.error('Failed to send message:', error); }
   };
 
-  // Logique d'affichage améliorée
   const renderContent = () => {
     if (isLoadingConvos) {
       return <Spinner />;
     }
-    // Si c'est un client et qu'il n'a pas de conversation, on lui montre directement l'interface de message
     if (!userInfo.isAdmin && conversations?.length === 0) {
       return <MessageContainer messages={[]} onSendMessage={handleSendMessage} />;
     }
-    // Si une conversation est sélectionnée, on montre les messages
     if (selectedConversationId) {
       return <MessageContainer messages={messages} onSendMessage={handleSendMessage} />;
     }
-    // Sinon, on invite à sélectionner une conversation
     return (
       <div className="d-flex align-items-center justify-content-center h-100">
           <Message>Sélectionnez une conversation pour commencer à discuter.</Message>
@@ -73,7 +66,6 @@ const ChatLayout = () => {
 
   return (
     <div className="chat-layout">
-      {/* On n'affiche la barre latérale que si l'utilisateur est admin ou a des conversations */}
       {(userInfo.isAdmin || conversations?.length > 0) && (
         <ChatSidebar 
           conversations={conversations} 

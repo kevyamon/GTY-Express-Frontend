@@ -1,6 +1,6 @@
 .chat-layout {
   display: flex;
-  height: 75vh; /* Hauteur de la fenêtre de chat */
+  height: 75vh;
   background-color: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -41,7 +41,7 @@
   max-width: 70%;
   padding: 0.5rem 1rem;
   border-radius: 18px;
-  margin-bottom: 0.2rem; /* Réduit pour accommoder l'heure */
+  margin-bottom: 0.2rem;
   word-wrap: break-word;
 }
 
@@ -64,7 +64,6 @@
   border-top: 1px solid #dee2e6;
 }
 
-/* --- NOUVEAUX STYLES --- */
 .message-wrapper {
   display: flex;
   flex-direction: column;
@@ -91,4 +90,16 @@
   color: #6c757d;
   font-weight: bold;
   font-size: 0.8rem;
+}
+
+/* --- NOUVEAUX STYLES POUR L'IMAGE --- */
+.message-image {
+  max-width: 100%;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.image-upload-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
