@@ -30,43 +30,38 @@ const PromoBanner = ({ bannerData }) => {
 
   return (
     <div className="promo-banner-container my-4">
-      <Row>
-        {/* Section de Gauche avec Texte et Coupons */}
-        <Col md={8} className="promo-left-section">
-          <div className="timer">
-            {Object.keys(timeLeft).length > 0 ? 
-              `Fin de la promo : ${timeLeft.jours}j ${timeLeft.heures}h ${timeLeft.minutes}m ${timeLeft.secondes}s`
-              : "Promotion terminée !"}
-          </div>
-          <div className="main-offer">
-            {bannerData.mainOfferText}
-          </div>
-          <Row className="coupons-section">
-            {bannerData.coupons.map((coupon, index) => (
-              <Col xs={4} key={index}>
-                <div className="coupon-card">
-                  <span>{coupon.title}</span>
-                  <small>{coupon.subtitle}</small>
-                  <strong>Code: {coupon.code}</strong>
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </Col>
+      <div className="timer">
+        {Object.keys(timeLeft).length > 0 ? 
+          `Fin de la promo : ${timeLeft.jours}j ${timeLeft.heures}h ${timeLeft.minutes}m ${timeLeft.secondes}s`
+          : "Promotion terminée !"}
+      </div>
 
-        {/* Section de Droite avec le bouton rouge */}
-        <Col md={4} className="promo-right-section">
-          <div className="deal-of-the-month">
-            LES OFFRES DU MOIS
-          </div>
-        </Col>
+      <div className="main-offer">
+        {bannerData.mainOfferText}
+      </div>
+
+      <Row className="coupons-section justify-content-center">
+        {bannerData.coupons.map((coupon, index) => (
+          <Col xs={6} md={4} key={index} className="mb-2">
+            <div className="coupon-card">
+              <span>{coupon.title}</span>
+              <small>{coupon.subtitle}</small>
+              <strong>Code: {coupon.code}</strong>
+            </div>
+          </Col>
+        ))}
       </Row>
 
-      {/* Conteneur pour les images, positionné au-dessus de tout */}
       <div className="banner-images-container">
         {bannerData.images && bannerData.images.map((img, index) => (
           <Image key={index} src={img} className="banner-image-item" />
         ))}
+      </div>
+
+      <div>
+        <button className="deal-of-the-month">
+          LES OFFRES DU MOIS
+        </button>
       </div>
     </div>
   );
