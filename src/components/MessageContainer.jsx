@@ -18,7 +18,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
-  const messageEndRef = useRef(null); // Référence à l'élément vide en bas
+  const messageEndRef = useRef(null); // Notre "ancre" pour le scroll
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
   const [fileToSend, setFileToSend] = useState(null);
@@ -33,9 +33,9 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
     }
   }, [conversationId, messages, markMessagesAsSeen]);
 
-  // --- LOGIQUE DE SCROLL CORRIGÉE ---
+  // --- LOGIQUE DE SCROLL CORRIGÉE ET FIABILISÉE ---
   useEffect(() => {
-    // Fait défiler jusqu'à l'élément de référence pour voir le dernier message
+    // Fait défiler jusqu'à l'ancre invisible à chaque mise à jour des messages
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -86,6 +86,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
               </React.Fragment>
             );
         })}
+        {/* On place l'ancre invisible ici */}
         <div ref={messageEndRef} />
       </div>
 
