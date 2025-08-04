@@ -25,13 +25,19 @@ export const messageApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
       }),
     }),
-    // NOUVELLE MUTATION
     markAllAsRead: builder.mutation({
       query: () => ({
         url: `${MESSAGES_URL}/read-all`,
         method: 'POST',
       }),
       invalidatesTags: ['Conversation'],
+    }),
+    markMessagesAsSeen: builder.mutation({
+      query: (conversationId) => ({
+        url: `${MESSAGES_URL}/seen/${conversationId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Message', id }],
     }),
     deleteMessage: builder.mutation({
         query: (messageId) => ({
@@ -54,7 +60,8 @@ export const {
   useGetMessagesQuery,
   useSendMessageMutation,
   useMarkAsReadMutation,
-  useMarkAllAsReadMutation, // NOUVEL EXPORT
+  useMarkAllAsReadMutation,
+  useMarkMessagesAsSeenMutation,
   useDeleteMessageMutation,
   useUpdateMessageMutation,
 } = messageApiSlice;

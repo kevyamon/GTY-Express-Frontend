@@ -98,6 +98,12 @@ export const apiSlice = createApi({
             dispatch(apiSlice.util.invalidateTags(['PromoBanner']));
         });
 
+        // NOUVEL ÉCOUTEUR AJOUTÉ ICI
+        socket.on('messagesSeen', (data) => {
+            console.log('Messages vus en temps réel', data);
+            dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: data.conversationId }]));
+        });
+
         await cacheEntryRemoved;
         socket.disconnect();
       },
