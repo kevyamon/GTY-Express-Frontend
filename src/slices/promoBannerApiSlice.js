@@ -19,6 +19,15 @@ export const promoBannerApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['PromoBanner'],
     }),
+    // NOUVELLE MUTATION
+    updateBanner: builder.mutation({
+      query: (data) => ({
+        url: `${PROMO_BANNER_URL}/${data._id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['PromoBanner'],
+    }),
     deleteBanner: builder.mutation({
       query: (id) => ({
         url: `${PROMO_BANNER_URL}/${id}`,
@@ -33,5 +42,6 @@ export const {
   useGetActiveBannerQuery,
   useGetAllBannersQuery,
   useCreateBannerMutation,
+  useUpdateBannerMutation, // NOUVEL EXPORT
   useDeleteBannerMutation,
 } = promoBannerApiSlice;

@@ -1,141 +1,103 @@
+/* --- NOUVEAUX KEYFRAMES POUR LES ANIMATIONS --- */
+@keyframes text-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes float {
-  0% {
-    transform: translatey(0px);
-  }
-  50% {
-    transform: translatey(-10px);
-  }
-  100% {
-    transform: translatey(0px);
-  }
+    0% { transform: translatey(0px); }
+    50% { transform: translatey(-15px); }
+    100% { transform: translatey(0px); }
 }
 
 .promo-banner-container {
-  background: linear-gradient(135deg, #FFD600, #FFAB00);
+  background: #2E7D32; /* Vert foncé comme AliExpress */
   border-radius: 12px;
-  padding: 2rem 1rem;
-  color: #333;
+  padding: 1.5rem;
+  color: white;
   overflow: hidden;
   position: relative;
-  text-align: center;
+  min-height: 250px;
 }
 
-.promo-banner-container .timer {
+.promo-left-section .timer {
   font-size: 0.9rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #555;
 }
 
-.promo-banner-container .main-offer {
-  font-size: 3.5rem;
+/* Conteneur pour les textes animés */
+.animated-text-container {
+    height: 60px; /* Hauteur fixe pour éviter les sauts de page */
+    margin-bottom: 1rem;
+}
+
+.animated-text-container .main-offer {
+  font-size: 3rem;
   font-weight: 900;
   line-height: 1;
-  margin-bottom: 1.5rem;
-  color: #111;
-}
-
-.coupons-section {
-  margin-bottom: 2.5rem;
+  animation: text-slide-in 0.5s ease-out forwards;
 }
 
 .coupons-section .coupon-card {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border-radius: 8px;
-  padding: 0.8rem;
+  background-color: rgba(255, 255, 255, 0.2); /* Moins opaque */
+  color: white;
+  border-radius: 20px;
+  padding: 0.5rem;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  min-width: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .coupon-card span {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #d32f2f;
 }
 
 .coupon-card small {
   font-size: 0.7rem;
-  margin: 0.2rem 0;
+  opacity: 0.8;
 }
 
 .coupon-card strong {
-  background-color: #f5f5f5;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
-  padding: 0.2rem;
+  background: none;
+  border: none;
   font-size: 0.8rem;
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
+  font-weight: bold;
 }
 
-.banner-images-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2.5rem;
-    min-height: 120px;
+/* --- NOUVEAUX STYLES POUR LES IMAGES FLOTTANTES --- */
+.floating-images-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Pour ne pas gêner les clics */
 }
-
-.banner-image-item {
+.floating-image {
+    position: absolute;
     animation: float 6s ease-in-out infinite;
-    max-width: 120px;
+    max-width: 100px;
     height: auto;
 }
+.floating-image-1 { top: 10%; right: 5%; transform: rotate(15deg); animation-delay: 0s; }
+.floating-image-2 { top: 50%; right: 25%; transform: rotate(-10deg); animation-delay: 1.5s; max-width: 80px; }
+.floating-image-3 { bottom: 10%; right: 10%; transform: rotate(5deg); animation-delay: 3s; }
+.floating-image-4 { top: 20%; right: 40%; transform: rotate(-5deg); animation-delay: 4.5s; max-width: 70px;}
 
-.banner-image-item:nth-child(2) {
-    animation-delay: 2s;
-}
-
-.banner-image-item:nth-child(3) {
-    animation-delay: 4s;
-}
-
-.deal-of-the-month {
-  background-color: #E53935;
-  color: white;
-  padding: 0.8rem 2.5rem;
-  border-radius: 50px;
-  font-weight: bold;
-  text-align: center;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.deal-of-the-month:hover {
-    transform: scale(1.05);
-}
-
-/* --- NOUVEAUX STYLES POUR MOBILE --- */
 @media (max-width: 767px) {
-    .promo-banner-container {
-        padding: 1rem;
-    }
-    .promo-banner-container .main-offer {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    .coupons-section .coupon-card {
-        padding: 0.5rem;
-        min-width: 100px;
-    }
-    .coupon-card span {
-        font-size: 0.8rem;
-    }
-    .coupon-card small {
-        font-size: 0.6rem;
-    }
-    .coupon-card strong {
-        font-size: 0.7rem;
-    }
-    .banner-images-container {
-        display: none; /* On cache les images sur mobile pour gagner de la place */
-    }
-    .deal-of-the-month {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
-    }
+    .promo-banner-container { padding: 1rem; min-height: 200px; }
+    .animated-text-container .main-offer { font-size: 2rem; }
+    .coupons-section .coupon-card { padding: 0.3rem; }
+    .coupon-card span { font-size: 0.8rem; }
+    .floating-image { max-width: 60px; }
+    .floating-image-2 { max-width: 50px; }
+    .floating-image-4 { max-width: 40px; }
 }
