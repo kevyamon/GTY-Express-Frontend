@@ -5,13 +5,19 @@ import { FaPaperclip, FaTrash, FaEdit, FaFileAlt } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useDeleteMessageMutation, useUpdateMessageMutation } from '../slices/messageApiSlice';
+import { useDeleteMessageMutation, useUpdateMessageMutation, useGetMessagesQuery, useMarkMessagesAsSeenMutation } from '../slices/messageApiSlice';
+import '../screens/Chat.css'; // ON AJOUTE L'IMPORTATION DU STYLE ICI
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-const MessageContainer = ({ messages = [], onSendMessage }) => {
+// On renomme le composant pour éviter les conflits
+const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
   const { userInfo } = useSelector((state) => state.auth);
+  // On renomme les variables pour éviter les conflits de nom
+  const { data: messages, isLoading: isLoadingMessages } = useGetMessagesQuery(conversationId);
+  const [markMessagesAsSeen] = useMarkMessagesAsSeenMutation();
+
   const messageEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -24,6 +30,13 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const [editedText, setEditedText] = useState('');
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
+
+  useEffect(() => {
+    if (conversationId) {
+        markMessagesAsSeen(conversationId);
+    }
+  }, [conversationId, messages, markMessagesAsSeen]);
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -53,7 +66,6 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
         const formData = new FormData();
         formData.append('file', fileToSend);
         formData.append('upload_preset', UPLOAD_PRESET);
-        // On détermine si c'est une image ou un autre type de fichier pour Cloudinary
         const resourceType = fileToSend.type.startsWith('image/') ? 'image' : 'raw';
         const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, formData);
 
@@ -84,10 +96,12 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   const isNewDay = (msg1, msg2) => { if (!msg2) return true; return new Date(msg1.createdAt).toLocaleDateString() !== new Date(msg2.createdAt).toLocaleDateString(); };
   const formatDate = (dateString) => { const date = new Date(dateString); const today = new Date(); const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (date.toLocaleDateString() === today.toLocaleDateString()) return "AUJOURD'HUI"; if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return "HIER"; return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); };
 
+  if (isLoadingMessages) return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
+
   return (
     <div className="message-container">
       <div className="messages-area">
-        {messages.map((msg, index) => {
+        {messages && messages.map((msg, index) => {
             const showDate = isNewDay(msg, messages[index - 1]);
             const messageAlignment = msg.sender._id === userInfo._id ? 'sent' : 'received';
             const isDeleted = msg.text === "Ce message a été supprimé";
@@ -167,4 +181,4 @@ const MessageContainer = ({ messages = [], onSendMessage }) => {
   );
 };
 
-export default MessageContainer;
+export default MessageContainerComponent;

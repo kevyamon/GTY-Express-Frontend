@@ -103,6 +103,10 @@ export const apiSlice = createApi({
             console.log('Messages vus en temps réel', data);
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: data.conversationId }]));
         });
+        // NOUVEL ÉCOUTEUR
+        socket.on('allConversationsRead', () => {
+            dispatch(apiSlice.util.invalidateTags(['Conversation']));
+        });
 
         await cacheEntryRemoved;
         socket.disconnect();

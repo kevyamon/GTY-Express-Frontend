@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, ListGroup, Image, Badge, Spinner, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { useGetConversationsQuery, useGetMessagesQuery, useSendMessageMutation, useMarkAsReadMutation } from '../slices/messageApiSlice';
+import { useGetConversationsQuery, useSendMessageMutation } from '../slices/messageApiSlice';
 import MessageContainer from '../components/MessageContainer';
 import Message from '../components/Message';
 import './ChatScreen.css';
@@ -10,17 +10,14 @@ import './ChatScreen.css';
 const ConversationList = ({ conversations }) => {
     const navigate = useNavigate();
     const { userInfo } = useSelector((state) => state.auth);
-
     if (!conversations || conversations.length === 0) {
-        return <Message>Aucune conversation pour le moment.</Message>
+        return <Message>Aucune conversation pour le moment.</Message>;
     }
-
     return (
         <ListGroup variant="flush">
             {conversations.map(convo => {
                 const otherParticipant = convo.participants.find(p => p._id !== userInfo._id);
                 if (!otherParticipant) return null;
-
                 return (
                     <ListGroup.Item 
                         key={convo._id} 
@@ -56,27 +53,12 @@ const ChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   const { data: conversations, isLoading } = useGetConversationsQuery();
-  const { data: messages } = useGetMessagesQuery(conversationId, {
-    skip: !conversationId,
-  });
   const [sendMessage] = useSendMessageMutation();
-  const [markAsRead] = useMarkAsReadMutation();
 
-  useEffect(() => {
-    if (conversationId) {
-        const currentConvo = conversations?.find(c => c._id === conversationId);
-        if (currentConvo?.isUnread) {
-            markAsRead(conversationId);
-        }
-    }
-  }, [conversationId, conversations, markAsRead]);
-
-  // LA LOGIQUE D'ENVOI EST MAINTENANT ICI
   const handleSendMessage = async (messageData) => {
     try {
       let recipientId;
       const currentConvo = conversations?.find(c => c._id === conversationId);
-
       if (!userInfo.isAdmin) {
         if (currentConvo) {
             recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
@@ -85,7 +67,6 @@ const ChatScreen = () => {
         if (!currentConvo) return; 
         recipientId = currentConvo.participants.find(p => p._id !== userInfo._id)?._id;
       }
-
       await sendMessage({ ...messageData, recipientId }).unwrap();
     } catch (error) { 
         console.error('Failed to send message:', error);
@@ -96,12 +77,11 @@ const ChatScreen = () => {
     return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
   }
 
-  // Sur mobile
   if (window.innerWidth < 768) {
       if (conversationId) {
           const currentConvo = conversations?.find(c => c._id === conversationId);
           if (!currentConvo && conversations) {
-              return <Message variant="warning">Conversation non trouvée.</Message>;
+              return <Message variant="warning">Conversation non trouvée. <Button onClick={() => navigate('/chat')}>Retour</Button></Message>;
           }
           const otherParticipant = currentConvo?.participants.find(p => p._id !== userInfo._id);
           return (
@@ -110,14 +90,17 @@ const ChatScreen = () => {
                     <Button variant="light" onClick={() => navigate('/chat')} className="back-btn">←</Button>
                     <strong>{otherParticipant?.name || 'Support'}</strong>
                   </div>
-                  <MessageContainer conversationId={conversationId} messages={messages} onSendMessage={handleSendMessage} />
+                  <MessageContainer conversationId={conversationId} onSendMessage={handleSendMessage} />
               </div>
           )
+      }
+      // Pour un client sans conversation, on lui montre l'interface pour en démarrer une
+      if (!userInfo.isAdmin && (!conversations || conversations.length === 0)) {
+          return <MessageContainer conversationId="new" onSendMessage={handleSendMessage} />;
       }
       return <ConversationList conversations={conversations} />;
   }
 
-  // Sur desktop
   return (
     <Container fluid>
       <Row style={{ height: '80vh' }}>
@@ -126,9 +109,7 @@ const ChatScreen = () => {
           <ConversationList conversations={conversations} />
         </Col>
         <Col md={8}>
-          {conversationId ? (
-            <MessageContainer conversationId={conversationId} messages={messages} onSendMessage={handleSendMessage} />
-          ) : (
+          {conversationId ? <MessageContainer conversationId={conversationId} onSendMessage={handleSendMessage} /> : (
             <div className="d-flex align-items-center justify-content-center h-100">
                 <Message>Sélectionnez une conversation pour commencer à discuter.</Message>
             </div>
