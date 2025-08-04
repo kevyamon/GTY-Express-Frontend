@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { usersApiSlice } from './usersApiSlice';
+import { apiSlice } from './apiSlice';
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -25,9 +27,24 @@ const authSlice = createSlice({
         localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
       }
     },
+    // NOUVELLE ACTION POUR METTRE À JOUR LE RÔLE
+    updateUserRole: (state, action) => {
+        if (state.userInfo && state.userInfo._id === action.payload.userId) {
+            state.userInfo.isAdmin = action.payload.isAdmin;
+            localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
+        }
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      usersApiSlice.endpoints.logout.matchFulfilled,
+      (state, action) => {
+        action.dispatch(apiSlice.util.resetApiState());
+      }
+    );
   },
 });
 
-export const { setCredentials, logout, updateUserStatus } = authSlice.actions;
+export const { setCredentials, logout, updateUserStatus, updateUserRole } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { io } from 'socket.io-client';
-import { updateUserStatus } from './authSlice';
+import { updateUserStatus, updateUserRole } from './authSlice'; // NOUVEL IMPORT
+import { toast } from 'react-toastify'; // NOUVEL IMPORT
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_URL,
@@ -98,14 +99,22 @@ export const apiSlice = createApi({
             dispatch(apiSlice.util.invalidateTags(['PromoBanner']));
         });
 
-        // NOUVEL ÉCOUTEUR AJOUTÉ ICI
         socket.on('messagesSeen', (data) => {
             console.log('Messages vus en temps réel', data);
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: data.conversationId }]));
         });
-        // NOUVEL ÉCOUTEUR
+
         socket.on('allConversationsRead', () => {
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
+        });
+
+        // --- NOUVEL ÉCOUTEUR POUR LE CHANGEMENT DE RÔLE ---
+        socket.on('role_update', (data) => {
+            console.log('Mise à jour du rôle reçue', data);
+            // 1. Affiche le toast de notification
+            toast.info(data.message);
+            // 2. Met à jour le statut isAdmin dans la mémoire du site
+            dispatch(updateUserRole({ userId: getState().auth.userInfo._id, isAdmin: data.isAdmin }));
         });
 
         await cacheEntryRemoved;
