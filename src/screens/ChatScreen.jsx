@@ -57,14 +57,20 @@ const ChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   if (isLoading) {
-    return <Spinner />;
+    return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
   }
 
-  // Sur mobile, on affiche soit la liste, soit la conversation
+  // Sur mobile
   if (window.innerWidth < 768) {
       if (conversationId) {
           const currentConvo = conversations?.find(c => c._id === conversationId);
-          const otherParticipant = currentConvo?.participants.find(p => p._id !== userInfo._id);
+
+          // On ajoute une vérification : si la conversation n'est pas encore chargée ou n'existe pas, on affiche un message
+          if (!currentConvo) {
+              return <Message variant="warning">Chargement de la conversation...</Message>;
+          }
+
+          const otherParticipant = currentConvo.participants.find(p => p._id !== userInfo._id);
           return (
               <div>
                   <div className="conversation-view-header">
