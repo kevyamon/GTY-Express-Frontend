@@ -15,7 +15,7 @@ import App from './App.jsx';
 import './App.css'; 
 import './index.css';
 
-// Écrans principaux
+// ... (tous les autres imports d'écrans restent ici)
 import LandingScreen from './screens/LandingScreen.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
@@ -68,6 +68,7 @@ const router = createBrowserRouter(
         {/* --- Routes Publiques --- */}
         <Route index={true} path="/" element={<LandingScreen />} />
         <Route path="/banned" element={<BannedScreen />} />
+        {/* ... (toutes vos autres routes publiques) ... */}
         <Route path="/search/:keyword" element={<HomeScreen />} />
         <Route path="/supermarket" element={<HomeScreen />} />
         <Route path="/supermarket/search/:keyword" element={<HomeScreen />} />
@@ -103,8 +104,7 @@ const router = createBrowserRouter(
           <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
           <Route path='/notifications' element={<NotificationsScreen />} />
           <Route path='/chat' element={<ChatScreen />} />
-          {/* ROUTE CORRIGÉE ICI */}
-          <Route path='/chat/:id' element={<ChatScreen />} />
+          {/* On supprime la route /chat/:id */}
         </Route>
 
         {/* --- Routes Admin (uniquement admins connectés) --- */}
