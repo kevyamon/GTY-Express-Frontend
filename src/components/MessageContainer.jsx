@@ -18,11 +18,11 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
-  const messageEndRef = useRef(null); // Notre "ancre" pour le scroll
+  const messagesAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
-  const [fileToSend, setFileToSend] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [filesToSend, setFilesToSend] = useState([]); // Gère maintenant plusieurs fichiers
+  const [previews, setPreviews] = useState([]); // Gère plusieurs prévisualisations
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [editedText, setEditedText] = useState('');
@@ -33,15 +33,71 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
     }
   }, [conversationId, messages, markMessagesAsSeen]);
 
-  // --- LOGIQUE DE SCROLL CORRIGÉE ET FIABILISÉE ---
   useEffect(() => {
-    // Fait défiler jusqu'à l'ancre invisible à chaque mise à jour des messages
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesAreaRef.current) {
+        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+    }
   }, [messages]);
 
-  const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { setFileToSend(file); if (file.type.startsWith('image/')) { setPreview(URL.createObjectURL(file)); } else { setPreview(file.name); } } };
-  const removePreview = () => { setFileToSend(null); setPreview(null); };
-  const handleSubmit = async (e) => { e.preventDefault(); if (!text.trim() && !fileToSend) return; let uploadData = {}; if (fileToSend) { setLoadingUpload(true); try { const formData = new FormData(); formData.append('file', fileToSend); formData.append('upload_preset', UPLOAD_PRESET); const resourceType = fileToSend.type.startsWith('image/') ? 'image' : 'raw'; const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, formData); uploadData = { fileUrl: data.secure_url, fileName: data.original_filename || fileToSend.name, fileType: data.resource_type }; } catch (error) { toast.error("Le téléversement a échoué"); setLoadingUpload(false); return; } finally { setLoadingUpload(false); } } onSendMessage({ text, ...uploadData }); setText(''); setFileToSend(null); setPreview(null); };
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    if (selectedFiles.length === 0) return;
+    if (filesToSend.length + selectedFiles.length > 10) {
+        toast.error("Vous ne pouvez pas envoyer plus de 10 fichiers à la fois.");
+        return;
+    }
+    setFilesToSend(prev => [...prev, ...selectedFiles]);
+    const newPreviews = selectedFiles.map(file => ({
+        url: URL.createObjectURL(file),
+        name: file.name,
+        isImage: file.type.startsWith('image/'),
+    }));
+    setPreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  const removePreview = (indexToRemove) => {
+    setFilesToSend(filesToSend.filter((_, index) => index !== indexToRemove));
+    setPreviews(previews.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!text.trim() && filesToSend.length === 0) return;
+
+    let uploadedFiles = [];
+    if (filesToSend.length > 0) {
+      setLoadingUpload(true);
+      try {
+        uploadedFiles = await Promise.all(
+            filesToSend.map(async file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', UPLOAD_PRESET);
+                const resourceType = file.type.startsWith('image/') ? 'image' : 'raw';
+                const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, formData);
+                return {
+                    fileUrl: data.secure_url,
+                    fileName: data.original_filename || file.name,
+                    fileType: data.resource_type,
+                };
+            })
+        );
+      } catch (error) {
+        toast.error("Le téléversement d'un ou plusieurs fichiers a échoué");
+        setLoadingUpload(false);
+        return;
+      } finally {
+        setLoadingUpload(false);
+      }
+    }
+
+    onSendMessage({ text, files: uploadedFiles });
+
+    setText('');
+    setFilesToSend([]);
+    setPreviews([]);
+  };
+
   const handleDelete = async (messageId) => { try { await deleteMessage(messageId).unwrap(); toast.info('Message supprimé'); } catch (error) { toast.error('Erreur lors de la suppression'); } };
   const handleEdit = (message) => { setEditingMessage(message); setEditedText(message.text); };
   const handleUpdate = async (e) => { e.preventDefault(); if (!editedText.trim()) return; try { await updateMessage({ messageId: editingMessage._id, text: editedText }).unwrap(); setEditingMessage(null); setEditedText(''); } catch (error) { toast.error('Erreur de modification'); } };
@@ -52,7 +108,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
 
   return (
     <div className="message-container">
-      <div className="messages-area">
+      <div className="messages-area" ref={messagesAreaRef}>
         {messages && messages.map((msg, index) => {
             const showDate = isNewDay(msg, messages[index - 1]);
             const messageAlignment = msg.sender._id === userInfo._id ? 'sent' : 'received';
@@ -66,8 +122,14 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
                     <div className={`message-bubble ${messageAlignment} ${isDeleted ? 'deleted-message' : ''}`}>
                         {editingMessage?._id === msg._id ? ( <Form onSubmit={handleUpdate} className="edit-message-form"><Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} autoFocus /><Button type="submit" variant="success" size="sm">✓</Button><Button onClick={() => setEditingMessage(null)} variant="danger" size="sm">x</Button></Form> ) : (
                             <>
-                                {msg.fileUrl && msg.fileType === 'image' && <Image src={msg.fileUrl} alt={msg.fileName || 'Image'} className="message-image mb-2" fluid />}
-                                {msg.fileUrl && msg.fileType !== 'image' && ( <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="file-message-link"><FaFileAlt className="file-icon" /><span>{msg.fileName || 'Fichier'}</span></a> )}
+                                {msg.files && msg.files.map(file => (
+                                    file.fileType === 'image' ? 
+                                    <Image key={file.fileUrl} src={file.fileUrl} alt={file.fileName} className="message-image mb-2" fluid /> :
+                                    <a key={file.fileUrl} href={file.fileUrl} target="_blank" rel="noopener noreferrer" className="file-message-link">
+                                        <FaFileAlt className="file-icon" />
+                                        <span>{file.fileName}</span>
+                                    </a>
+                                ))}
                                 {msg.text && <p className="mb-0">{msg.text}</p>}
                             </>
                         )}
@@ -77,7 +139,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
                         <span className="message-timestamp">{new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                         {messageAlignment === 'sent' && !editingMessage && !isDeleted && (
                             <div className="message-actions">
-                                {!msg.fileUrl && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
+                                {(!msg.files || msg.files.length === 0) && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
                                 <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
                             </div>
                         )}
@@ -86,24 +148,30 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
               </React.Fragment>
             );
         })}
-        {/* On place l'ancre invisible ici */}
         <div ref={messageEndRef} />
       </div>
 
       <div className="preview-container">
-        {preview && (
-            fileToSend?.type.startsWith('image/') ? (
-                <div className="image-preview-wrapper"><Image src={preview} className="preview-image" /><Button variant="dark" onClick={removePreview} className="remove-preview-btn">X</Button></div>
+        {previews.map((p, index) => (
+            p.isImage ? (
+                <div key={index} className="image-preview-wrapper">
+                    <Image src={p.url} className="preview-image" />
+                    <Button variant="dark" onClick={() => removePreview(index)} className="remove-preview-btn">X</Button>
+                </div>
             ) : (
-                <div className="file-preview-wrapper"><FaFileAlt className="file-icon" /><span className="me-auto">{preview}</span><Button variant="dark" onClick={removePreview} className="remove-preview-btn">X</Button></div>
+                <div key={index} className="file-preview-wrapper">
+                    <FaFileAlt className="file-icon" />
+                    <span className="me-auto">{p.name}</span>
+                    <Button variant="dark" onClick={() => removePreview(index)} className="remove-preview-btn">X</Button>
+                </div>
             )
-        )}
+        ))}
       </div>
 
       <Form onSubmit={handleSubmit} className="message-input-form">
         <InputGroup>
           <Form.Control type="text" placeholder="Écrivez votre message..." value={text} onChange={(e) => setText(e.target.value)} />
-          <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
+          <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
           <Button variant="secondary" onClick={() => fileInputRef.current.click()} disabled={loadingUpload}>
             {loadingUpload ? <Spinner size="sm" /> : <FaPaperclip />}
           </Button>
