@@ -39,14 +39,14 @@
 }
 
 .message-bubble.sent {
-  background-color: #0d6efd;
+  background-color: linear-gradient(to right, #00008B, #00CED1);
   color: white;
   margin-left: auto;
   border-bottom-right-radius: 4px;
 }
 
 .message-bubble.received {
-  background-color: #e9ecef;
+  background-color: linear-gradient(to right, #00008B, #00CED1);
   color: #333;
   margin-right: auto;
   border-bottom-left-radius: 4px;
