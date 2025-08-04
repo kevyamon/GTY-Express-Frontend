@@ -70,13 +70,13 @@ const Header = () => {
 
   const handleChatClick = async () => {
     try {
-        if (unreadMessagesCount > 0) {
-            await markAllMessagesAsRead().unwrap();
-        }
+      if (unreadMessagesCount > 0) {
+        await markAllMessagesAsRead().unwrap();
+      }
     } catch (err) {
-        console.error("Erreur lors de la mise à jour du compteur de messages", err);
+      console.error("Erreur lors de la mise à jour du compteur de messages", err);
     } finally {
-        navigate('/chat');
+      navigate('/chat');
     }
   };
   const handleNotificationClick = async () => {

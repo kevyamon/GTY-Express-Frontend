@@ -26,7 +26,6 @@ const authSlice = createSlice({
       }
     },
   },
-  // On retire le bloc extraReducers qui causait le problème
 });
 
 export const { setCredentials, logout, updateUserStatus } = authSlice.actions;
