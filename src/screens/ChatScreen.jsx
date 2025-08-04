@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, ListGroup, Image, Badge, Spinner, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { useGetConversationsQuery } from '../slices/messageApiSlice';
+import { useGetConversationsQuery, useGetMessagesQuery, useSendMessageMutation, useMarkAsReadMutation } from '../slices/messageApiSlice';
 import MessageContainer from '../components/MessageContainer';
 import Message from '../components/Message';
 import './ChatScreen.css';
@@ -53,8 +53,44 @@ const ConversationList = ({ conversations }) => {
 const ChatScreen = () => {
   const { id: conversationId } = useParams();
   const navigate = useNavigate();
-  const { data: conversations, isLoading } = useGetConversationsQuery();
   const { userInfo } = useSelector((state) => state.auth);
+
+  const { data: conversations, isLoading } = useGetConversationsQuery();
+  const { data: messages } = useGetMessagesQuery(conversationId, {
+    skip: !conversationId,
+  });
+  const [sendMessage] = useSendMessageMutation();
+  const [markAsRead] = useMarkAsReadMutation();
+
+  useEffect(() => {
+    if (conversationId) {
+        const currentConvo = conversations?.find(c => c._id === conversationId);
+        if (currentConvo?.isUnread) {
+            markAsRead(conversationId);
+        }
+    }
+  }, [conversationId, conversations, markAsRead]);
+
+  // LA LOGIQUE D'ENVOI EST MAINTENANT ICI
+  const handleSendMessage = async (messageData) => {
+    try {
+      let recipientId;
+      const currentConvo = conversations?.find(c => c._id === conversationId);
+
+      if (!userInfo.isAdmin) {
+        if (currentConvo) {
+            recipientId = currentConvo.participants.find(p => p.isAdmin)?._id;
+        }
+      } else {
+        if (!currentConvo) return; 
+        recipientId = currentConvo.participants.find(p => p._id !== userInfo._id)?._id;
+      }
+
+      await sendMessage({ ...messageData, recipientId }).unwrap();
+    } catch (error) { 
+        console.error('Failed to send message:', error);
+    }
+  };
 
   if (isLoading) {
     return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
@@ -64,20 +100,17 @@ const ChatScreen = () => {
   if (window.innerWidth < 768) {
       if (conversationId) {
           const currentConvo = conversations?.find(c => c._id === conversationId);
-
-          // On ajoute une vérification : si la conversation n'est pas encore chargée ou n'existe pas, on affiche un message
-          if (!currentConvo) {
-              return <Message variant="warning">Chargement de la conversation...</Message>;
+          if (!currentConvo && conversations) {
+              return <Message variant="warning">Conversation non trouvée.</Message>;
           }
-
-          const otherParticipant = currentConvo.participants.find(p => p._id !== userInfo._id);
+          const otherParticipant = currentConvo?.participants.find(p => p._id !== userInfo._id);
           return (
               <div>
                   <div className="conversation-view-header">
                     <Button variant="light" onClick={() => navigate('/chat')} className="back-btn">←</Button>
                     <strong>{otherParticipant?.name || 'Support'}</strong>
                   </div>
-                  <MessageContainer conversationId={conversationId} />
+                  <MessageContainer conversationId={conversationId} messages={messages} onSendMessage={handleSendMessage} />
               </div>
           )
       }
@@ -93,7 +126,9 @@ const ChatScreen = () => {
           <ConversationList conversations={conversations} />
         </Col>
         <Col md={8}>
-          {conversationId ? <MessageContainer conversationId={conversationId} /> : (
+          {conversationId ? (
+            <MessageContainer conversationId={conversationId} messages={messages} onSendMessage={handleSendMessage} />
+          ) : (
             <div className="d-flex align-items-center justify-content-center h-100">
                 <Message>Sélectionnez une conversation pour commencer à discuter.</Message>
             </div>
