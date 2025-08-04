@@ -18,7 +18,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
 
-  const messagesAreaRef = useRef(null); // Référence à la zone des messages
+  const messageEndRef = useRef(null); // Référence à l'élément vide en bas
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
   const [fileToSend, setFileToSend] = useState(null);
@@ -33,14 +33,12 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
     }
   }, [conversationId, messages, markMessagesAsSeen]);
 
+  // --- LOGIQUE DE SCROLL CORRIGÉE ---
   useEffect(() => {
-    if (messagesAreaRef.current) {
-        // Fait défiler jusqu'en bas de la zone des messages
-        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
-    }
+    // Fait défiler jusqu'à l'élément de référence pour voir le dernier message
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ... (tous les autres handlers restent inchangés)
   const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { setFileToSend(file); if (file.type.startsWith('image/')) { setPreview(URL.createObjectURL(file)); } else { setPreview(file.name); } } };
   const removePreview = () => { setFileToSend(null); setPreview(null); };
   const handleSubmit = async (e) => { e.preventDefault(); if (!text.trim() && !fileToSend) return; let uploadData = {}; if (fileToSend) { setLoadingUpload(true); try { const formData = new FormData(); formData.append('file', fileToSend); formData.append('upload_preset', UPLOAD_PRESET); const resourceType = fileToSend.type.startsWith('image/') ? 'image' : 'raw'; const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, formData); uploadData = { fileUrl: data.secure_url, fileName: data.original_filename || fileToSend.name, fileType: data.resource_type }; } catch (error) { toast.error("Le téléversement a échoué"); setLoadingUpload(false); return; } finally { setLoadingUpload(false); } } onSendMessage({ text, ...uploadData }); setText(''); setFileToSend(null); setPreview(null); };
@@ -54,7 +52,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
 
   return (
     <div className="message-container">
-      <div className="messages-area" ref={messagesAreaRef}>
+      <div className="messages-area">
         {messages && messages.map((msg, index) => {
             const showDate = isNewDay(msg, messages[index - 1]);
             const messageAlignment = msg.sender._id === userInfo._id ? 'sent' : 'received';
@@ -88,6 +86,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
               </React.Fragment>
             );
         })}
+        <div ref={messageEndRef} />
       </div>
 
       <div className="preview-container">
