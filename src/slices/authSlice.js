@@ -1,6 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { usersApiSlice } from './usersApiSlice';
-import { apiSlice } from './apiSlice';
 
 const initialState = {
   userInfo: localStorage.getItem('userInfo')
@@ -34,14 +32,6 @@ const authSlice = createSlice({
             localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
         }
     },
-  },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      usersApiSlice.endpoints.logout.matchFulfilled,
-      (state, action) => {
-        action.dispatch(apiSlice.util.resetApiState());
-      }
-    );
   },
 });
 
