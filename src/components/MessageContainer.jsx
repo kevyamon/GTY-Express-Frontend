@@ -5,38 +5,39 @@ import { FaPaperclip, FaTrash, FaEdit, FaFileAlt } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useDeleteMessageMutation, useUpdateMessageMutation, useGetMessagesQuery, useMarkMessagesAsSeenMutation } from '../slices/messageApiSlice';
-import '../screens/Chat.css'; // ON AJOUTE L'IMPORTATION DU STYLE ICI
+import { useGetMessagesQuery, useSendMessageMutation, useDeleteMessageMutation, useUpdateMessageMutation, useMarkMessagesAsSeenMutation } from '../slices/messageApiSlice';
+import '../screens/Chat.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-// On renomme le composant pour éviter les conflits
-const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
+const MessageContainer = ({ conversationId, onSendMessage }) => {
   const { userInfo } = useSelector((state) => state.auth);
-  // On renomme les variables pour éviter les conflits de nom
-  const { data: messages, isLoading: isLoadingMessages } = useGetMessagesQuery(conversationId);
+  const { data: messages, isLoading } = useGetMessagesQuery(conversationId);
   const [markMessagesAsSeen] = useMarkMessagesAsSeenMutation();
+  const [deleteMessage] = useDeleteMessageMutation();
+  const [updateMessage] = useUpdateMessageMutation();
 
   const messageEndRef = useRef(null);
   const fileInputRef = useRef(null);
-
   const [text, setText] = useState('');
   const [fileToSend, setFileToSend] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loadingUpload, setLoadingUpload] = useState(false);
-
   const [editingMessage, setEditingMessage] = useState(null);
   const [editedText, setEditedText] = useState('');
-  const [deleteMessage] = useDeleteMessageMutation();
-  const [updateMessage] = useUpdateMessageMutation();
 
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId && conversationId !== 'new') {
         markMessagesAsSeen(conversationId);
     }
   }, [conversationId, messages, markMessagesAsSeen]);
 
+  // --- LOGIQUE DE DÉFILEMENT RÉINTRODUITE ET CORRIGÉE ---
+  useEffect(() => {
+    // Fait défiler automatiquement vers le dernier message à chaque mise à jour
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -49,16 +50,10 @@ const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
       }
     }
   };
-
-  const removePreview = () => {
-    setFileToSend(null);
-    setPreview(null);
-  };
-
+  const removePreview = () => { setFileToSend(null); setPreview(null); };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!text.trim() && !fileToSend) return;
-
     let uploadData = {};
     if (fileToSend) {
       setLoadingUpload(true);
@@ -68,35 +63,25 @@ const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
         formData.append('upload_preset', UPLOAD_PRESET);
         const resourceType = fileToSend.type.startsWith('image/') ? 'image' : 'raw';
         const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, formData);
-
-        uploadData = {
-            fileUrl: data.secure_url,
-            fileName: data.original_filename || fileToSend.name,
-            fileType: data.resource_type,
-        };
+        uploadData = { fileUrl: data.secure_url, fileName: data.original_filename || fileToSend.name, fileType: data.resource_type };
       } catch (error) {
-        toast.error("Le téléversement du fichier a échoué");
+        toast.error("Le téléversement a échoué");
         setLoadingUpload(false);
         return;
-      } finally {
-        setLoadingUpload(false);
-      }
+      } finally { setLoadingUpload(false); }
     }
-
     onSendMessage({ text, ...uploadData });
-
     setText('');
     setFileToSend(null);
     setPreview(null);
   };
-
   const handleDelete = async (messageId) => { try { await deleteMessage(messageId).unwrap(); toast.info('Message supprimé'); } catch (error) { toast.error('Erreur lors de la suppression'); } };
   const handleEdit = (message) => { setEditingMessage(message); setEditedText(message.text); };
-  const handleUpdate = async (e) => { e.preventDefault(); if (!editedText.trim()) return; try { await updateMessage({ messageId: editingMessage._id, text: editedText }).unwrap(); setEditingMessage(null); setEditedText(''); } catch (error) { toast.error('Erreur lors de la modification'); } };
+  const handleUpdate = async (e) => { e.preventDefault(); if (!editedText.trim()) return; try { await updateMessage({ messageId: editingMessage._id, text: editedText }).unwrap(); setEditingMessage(null); setEditedText(''); } catch (error) { toast.error('Erreur de modification'); } };
   const isNewDay = (msg1, msg2) => { if (!msg2) return true; return new Date(msg1.createdAt).toLocaleDateString() !== new Date(msg2.createdAt).toLocaleDateString(); };
   const formatDate = (dateString) => { const date = new Date(dateString); const today = new Date(); const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (date.toLocaleDateString() === today.toLocaleDateString()) return "AUJOURD'HUI"; if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return "HIER"; return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); };
 
-  if (isLoadingMessages) return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
+  if (isLoading) return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
 
   return (
     <div className="message-container">
@@ -147,6 +132,7 @@ const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
               </React.Fragment>
             );
         })}
+        {/* Cet élément vide est la cible de notre défilement */}
         <div ref={messageEndRef} />
       </div>
 
@@ -181,4 +167,4 @@ const MessageContainerComponent = ({ conversationId, onSendMessage }) => {
   );
 };
 
-export default MessageContainerComponent;
+export default MessageContainer;

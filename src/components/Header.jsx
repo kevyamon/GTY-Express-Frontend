@@ -25,7 +25,7 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
   useSocketQuery(undefined, { skip: !userInfo });
-  useGetProfileDetailsQuery(undefined, { skip: !userInfo }); // Ajout de la requête manquante
+  useGetProfileDetailsQuery(undefined, { skip: !userInfo });
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
   const { data: conversations } = useGetConversationsQuery(undefined, { skip: !userInfo });
@@ -68,11 +68,16 @@ const Header = () => {
     return 0;
   }, [complaints, userInfo]);
 
-  const handleChatClick = () => {
-    if (unreadMessagesCount > 0) {
-        markAllMessagesAsRead();
+  const handleChatClick = async () => {
+    try {
+        if (unreadMessagesCount > 0) {
+            await markAllMessagesAsRead().unwrap();
+        }
+    } catch (err) {
+        console.error("Erreur lors de la mise à jour du compteur de messages", err);
+    } finally {
+        navigate('/chat');
     }
-    navigate('/chat');
   };
   const handleNotificationClick = async () => {
     if (unreadNotifsCount > 0) {
