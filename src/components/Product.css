@@ -165,3 +165,31 @@
     font-size: 0.65rem;
   }
 }
+/* ... (tous les styles existants restent inchangés) ... */
+
+/* --- STYLES AMÉLIORÉS POUR MOBILE --- */
+@media (max-width: 767px) {
+  .product-card-img {
+    height: 150px;
+  }
+  .product-card-body {
+    padding: 0.5rem;
+  }
+  .product-title {
+    font-size: 0.8rem;
+    min-height: 38px;
+    margin-bottom: 0.25rem;
+  }
+  .product-price {
+    font-size: 1rem;
+  }
+  .original-price {
+    font-size: 0.75rem;
+  }
+  .stock-status-container {
+    margin-top: 0.25rem;
+  }
+  .stock-status-container .badge {
+    font-size: 0.65rem;
+  }
+}
