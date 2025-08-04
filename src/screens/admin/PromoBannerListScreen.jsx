@@ -10,7 +10,7 @@ const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const PromoBannerListScreen = () => {
-  const { data: banners, isLoading, error, refetch } = useGetAllBannersQuery();
+  const { data: banners, isLoading, error } = useGetAllBannersQuery();
   const [createBanner, { isLoading: loadingCreate }] = useCreateBannerMutation();
   const [deleteBanner, { isLoading: loadingDelete }] = useDeleteBannerMutation();
   const [updateBanner, { isLoading: loadingUpdate }] = useUpdateBannerMutation();
@@ -91,13 +91,52 @@ const PromoBannerListScreen = () => {
     }
   };
 
+  const activeBanners = banners ? banners.filter(b => b.isActive) : [];
+
   return (
     <div>
       <h1>Gestion de la Bannière Promo Avancée</h1>
-      {/* ... (le formulaire de création reste le même) ... */}
-      <h5 className="mt-4">Bannières Actives</h5>
-      {isLoading ? <p>Chargement...</p> : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message> : (
-        banners && banners.filter(b => b.isActive).map(banner => (
+
+      <Form onSubmit={submitHandler} className="my-4 p-3 border rounded">
+        <h5>Créer une nouvelle bannière (cela désactivera l'ancienne)</h5>
+        <Form.Group controlId='endDate' className='my-2'>
+          <Form.Label>Date de fin de la promotion</Form.Label>
+          <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+        </Form.Group>
+        <hr />
+        <h6>Textes Animés</h6>
+        {animatedTexts.map((item, index) => (
+            <InputGroup className="mb-2" key={index}>
+                <Form.Control type='text' value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
+                <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
+            </InputGroup>
+        ))}
+        <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
+        <hr />
+        <h6>Images Flottantes (6 max)</h6>
+        <Form.Group controlId='images' className='my-2'>
+            <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || floatingImages.length >= 6} />
+            {loadingUpload && <Spinner size="sm" />}
+        </Form.Group>
+        <Row>
+            {floatingImages.map((img, index) => (
+                <Col xs={4} md={2} key={index} className="position-relative">
+                    <Image src={img.url} thumbnail />
+                    <Button variant="danger" size="sm" onClick={() => removeFloatingImage(index)} style={{position: 'absolute', top: '5px', right: '15px'}}>X</Button>
+                </Col>
+            ))}
+        </Row>
+        <hr/>
+        <Button type='submit' variant='primary' className='mt-3' disabled={loadingCreate}>
+          {loadingCreate ? 'Création...' : 'Créer et Activer la Bannière'}
+        </Button>
+      </Form>
+
+      <h5 className="mt-4">Bannière Actuelle</h5>
+      {isLoading ? <p>Chargement...</p> : 
+       error ? <Message variant='danger'>{error?.data?.message || error.error}</Message> : 
+       activeBanners.length === 0 ? <Message variant="info">Aucune bannière active. Créez-en une ci-dessus.</Message> :
+       activeBanners.map(banner => (
             <Card key={banner._id}>
                 <Card.Body className="d-flex justify-content-between align-items-center">
                     <div>
@@ -111,48 +150,50 @@ const PromoBannerListScreen = () => {
                 </Card.Body>
             </Card>
         ))
-      )}
+      }
 
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
-        <Modal.Header closeButton><Modal.Title>Modifier la Bannière</Modal.Title></Modal.Header>
-        <Form onSubmit={handleUpdate}>
-            <Modal.Body>
-            <Form.Group controlId='endDateEdit' className='my-2'>
-                <Form.Label>Date de fin</Form.Label>
-                <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-            </Form.Group>
-            <hr />
-            <h6>Textes Animés</h6>
-            {animatedTexts.map((item, index) => (
-                <InputGroup className="mb-2" key={index}>
-                    <Form.Control type='text' value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
-                    <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
-                </InputGroup>
-            ))}
-            <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
-            <hr />
-            <h6>Images Flottantes (6 max)</h6>
-            <Form.Group controlId='imagesEdit' className='my-2'>
-                <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || floatingImages.length >= 6} />
-                {loadingUpload && <Spinner size="sm" />}
-            </Form.Group>
-            <Row>
-                {floatingImages.map((img, index) => (
-                    <Col xs={4} md={2} key={index} className="position-relative">
-                        <Image src={img.url} thumbnail />
-                        <Button variant="danger" size="sm" onClick={() => removeFloatingImage(index)} style={{position: 'absolute', top: '5px', right: '15px'}}>X</Button>
-                    </Col>
+      {bannerToEdit && (
+        <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+            <Modal.Header closeButton><Modal.Title>Modifier la Bannière</Modal.Title></Modal.Header>
+            <Form onSubmit={handleUpdate}>
+                <Modal.Body>
+                <Form.Group controlId='endDateEdit' className='my-2'>
+                    <Form.Label>Date de fin</Form.Label>
+                    <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+                </Form.Group>
+                <hr />
+                <h6>Textes Animés</h6>
+                {animatedTexts.map((item, index) => (
+                    <InputGroup className="mb-2" key={index}>
+                        <Form.Control type='text' value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
+                        <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
+                    </InputGroup>
                 ))}
-            </Row>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowEditModal(false)}>Annuler</Button>
-                <Button type='submit' variant='primary' disabled={loadingUpdate}>
-                    {loadingUpdate ? 'Sauvegarde...' : 'Sauvegarder les Modifications'}
-                </Button>
-            </Modal.Footer>
-        </Form>
-      </Modal>
+                <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
+                <hr />
+                <h6>Images Flottantes (6 max)</h6>
+                <Form.Group controlId='imagesEdit' className='my-2'>
+                    <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || floatingImages.length >= 6} />
+                    {loadingUpload && <Spinner size="sm" />}
+                </Form.Group>
+                <Row>
+                    {floatingImages.map((img, index) => (
+                        <Col xs={4} md={2} key={index} className="position-relative">
+                            <Image src={img.url} thumbnail />
+                            <Button variant="danger" size="sm" onClick={() => removeFloatingImage(index)} style={{position: 'absolute', top: '5px', right: '15px'}}>X</Button>
+                        </Col>
+                    ))}
+                </Row>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>Annuler</Button>
+                    <Button type='submit' variant='primary' disabled={loadingUpdate}>
+                        {loadingUpdate ? 'Sauvegarde...' : 'Sauvegarder les Modifications'}
+                    </Button>
+                </Modal.Footer>
+            </Form>
+        </Modal>
+      )}
     </div>
   );
 };
