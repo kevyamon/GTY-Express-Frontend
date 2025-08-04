@@ -89,7 +89,7 @@ const router = createBrowserRouter(
         <Route path="/stores" element={<StoresScreen />} />
         <Route path="/privacy" element={<PrivacyScreen />} />
 
-        {/* --- Routes Privées --- */}
+        {/* --- Routes Privées (clients et admins connectés) --- */}
         <Route path="" element={<PrivateRoute />}>
           <Route path='/profile' element={<ProfileScreen />} />
           <Route path='/profile-details' element={<ProfileDetailsScreen />} />
@@ -103,9 +103,11 @@ const router = createBrowserRouter(
           <Route path='/payment-gateway/:id' element={<PaymentGatewayScreen />} />
           <Route path='/notifications' element={<NotificationsScreen />} />
           <Route path='/chat' element={<ChatScreen />} />
+          {/* ROUTE CORRIGÉE ICI */}
+          <Route path='/chat/:id' element={<ChatScreen />} />
         </Route>
 
-        {/* --- Routes Admin --- */}
+        {/* --- Routes Admin (uniquement admins connectés) --- */}
         <Route path="" element={<AdminRoute />}>
           <Route path="/admin/productlist" element={<ProductListScreen />} />
           <Route path="/admin/userlist" element={<UserListScreen />} />
