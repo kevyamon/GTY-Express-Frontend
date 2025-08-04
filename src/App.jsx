@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import ScrollToTop from './components/ScrollToTop'; // NOUVEL IMPORT
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -25,14 +25,13 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      <ScrollToTop /> {/* ON AJOUTE LE COMPOSANT ICI */}
+      <ScrollToTop />
       <Header />
       <main className="py-3">
         <TransitionGroup component={null}>
           <CSSTransition key={location.key} timeout={300} classNames="fade">
-            <Container fluid>
-              <Outlet />
-            </Container>
+            {/* On retire le <Container fluid> pour libérer la largeur */}
+            <Outlet />
           </CSSTransition>
         </TransitionGroup>
       </main>

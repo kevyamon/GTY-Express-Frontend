@@ -1,4 +1,4 @@
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Container } from 'react-bootstrap'; // On importe Container
 import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
@@ -41,32 +41,38 @@ const HomeScreen = () => {
   });
 
   return (
-    <div className='home-screen-background'>
-      {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
+    // Chaque page gère maintenant son propre conteneur pour plus de flexibilité
+    <Container>
+      <div className='home-screen-background'>
+        {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
 
-      {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
+        {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
 
-      <h1 className='home-screen-title'>{pageTitle}</h1>
+        <h1 className='home-screen-title'>{pageTitle}</h1>
 
-      {isLoading ? (<h2>Chargement...</h2>) 
-      : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
-      : (
-        <>
-          {products && products.length === 0 ? (
-            <Message>Aucun produit trouvé.</Message>
-          ) : (
-            <Row>
-              {products && products.map((product) => (
-                <Col key={product._id} xs={6} md={6} lg={4} xl={3} className="p-2">
-                  {/* On ne passe plus l'index ici */}
-                  <Product product={product} />
-                </Col>
-              ))}
-            </Row>
-          )}
-        </>
-      )}
-    </div>
+        {isLoading ? (<h2>Chargement...</h2>) 
+        : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
+        : (
+          <>
+            {products && products.length === 0 ? (
+              <Message>Aucun produit trouvé.</Message>
+            ) : (
+              <Row>
+                {products && products.map((product, index) => (
+                  // --- GRILLE AMÉLIORÉE ---
+                  // Mobile: 2 colonnes
+                  // Tablette: 3 colonnes
+                  // Desktop: 4 colonnes
+                  <Col key={product._id} sm={6} md={4} lg={3} className="p-2">
+                    <Product product={product} />
+                  </Col>
+                ))}
+              </Row>
+            )}
+          </>
+        )}
+      </div>
+    </Container>
   );
 };
 
