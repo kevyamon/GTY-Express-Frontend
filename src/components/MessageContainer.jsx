@@ -21,6 +21,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const messagesAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
+  const messageEndRef = useRef(null); // DÉCLARATION AJOUTÉE ICI
   const [filesToSend, setFilesToSend] = useState([]); // Gère maintenant plusieurs fichiers
   const [previews, setPreviews] = useState([]); // Gère plusieurs prévisualisations
   const [loadingUpload, setLoadingUpload] = useState(false);
