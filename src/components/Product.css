@@ -15,72 +15,67 @@
 
 .product-image-container {
   position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Force l'image à être carrée */
 }
 
 .product-card-img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: contain;
   padding: 0.5rem;
   background-color: #f8f9fa;
 }
 
 .product-card-body {
-  padding: 0.8rem;
+  padding: 0.5rem; /* Padding réduit pour être plus compact */
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .product-title {
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Titre plus petit */
   font-weight: 500;
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 43px;
+  min-height: 38px;
 }
 
-.product-title a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.product-title a:hover {
-  text-decoration: underline;
-}
+.product-title a { text-decoration: none; color: inherit; }
+.product-title a:hover { text-decoration: underline; }
 
 .price-container {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .product-price {
-  font-size: 1.2rem;
+  font-size: 1rem; /* Prix plus petit */
   font-weight: bold;
   color: #111;
 }
 
 .original-price {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #888;
   text-decoration: line-through;
-  margin-left: 0.5rem;
+  margin-left: 0.4rem;
 }
 
 .stock-status-container {
   margin-top: auto;
+  font-size: 0.7rem;
 }
 
-.favorite-btn {
+.favorite-btn, .add-to-cart-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
   background: rgba(255, 255, 255, 0.8);
-  border: none;
+  border: 1px solid #eee;
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -93,80 +88,25 @@
   backdrop-filter: blur(2px);
 }
 
+.favorite-btn { top: 8px; right: 8px; }
+.add-to-cart-icon { bottom: 8px; right: 8px; }
+
 .discount-badge, .new-badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   color: white;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: bold;
   z-index: 10;
-  padding: 3px 6px;
+  padding: 2px 5px;
 }
 
 .discount-badge { background-color: #dc3545; }
 .new-badge { background-color: #198754; }
 
-
-.add-to-cart-icon {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.2s ease-in-out;
-  color: #333;
-}
-
-.add-to-cart-icon:hover {
-  background-color: #333;
-  color: white;
-  transform: scale(1.1);
-}
-
-.add-to-cart-icon:disabled {
-  background-color: #f8f9fa;
-  color: #ccc;
-  cursor: not-allowed;
-}
-
-/* --- STYLES AMÉLIORÉS POUR MOBILE --- */
-@media (max-width: 767px) {
-  .product-card-img {
-    height: 150px;
-  }
-  .product-card-body {
-    padding: 0.5rem;
-  }
-  .product-title {
-    font-size: 0.8rem;
-    min-height: 38px;
-    margin-bottom: 0.25rem;
-  }
-  .product-price {
-    font-size: 1rem;
-  }
-  .original-price {
-    font-size: 0.75rem;
-  }
-  .stock-status-container {
-    margin-top: 0.25rem;
-  }
-  .stock-status-container .badge {
-    font-size: 0.65rem;
-  }
-}
-/* ... (tous les styles existants restent inchangés) ... */
-
+/* Styles pour mobile déjà optimisés, pas besoin de @media query supplémentaire */
 /* --- STYLES AMÉLIORÉS POUR MOBILE --- */
 @media (max-width: 767px) {
   .product-card-img {

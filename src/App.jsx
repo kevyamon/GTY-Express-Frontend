@@ -30,7 +30,7 @@ const App = () => {
       <main className="py-3">
         <TransitionGroup component={null}>
           <CSSTransition key={location.key} timeout={300} classNames="fade">
-            {/* On retire le <Container fluid> pour libérer la largeur */}
+            {/* ON RETIRE LE <Container fluid> QUI LIMITAIT LA LARGEUR */}
             <Outlet />
           </CSSTransition>
         </TransitionGroup>

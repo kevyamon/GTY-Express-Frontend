@@ -100,43 +100,26 @@
 .floating-image-3 { bottom: 5%; left: 30%; --rotate-start: 10deg; --rotate-end: -5deg; animation-delay: 4s; }
 .floating-image-4 { bottom: 20%; right: 35%; --rotate-start: -15deg; --rotate-end: 5deg; animation-delay: 6s; max-width: 70px; }
 
-/* --- RESPONSIVE POUR MOBILE --- */
+/* --- RESPONSIVE POUR MOBILE CORRIGÉ --- */
 @media (max-width: 767px) {
     .promo-banner-container {
         flex-direction: column;
         padding: 1rem;
-        min-height: auto;
+        min-height: auto; /* Hauteur automatique */
     }
-    .animated-text-container {
-        height: auto;
-        margin-bottom: 0.5rem;
-    }
-    .animated-text-container .main-offer {
-        font-size: 2.2rem;
-    }
-    .coupons-section {
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    .coupons-section .coupon-card {
-        padding: 0.3rem 0.5rem;
-        border-radius: 10px;
-    }
-    .coupon-card span {
-        font-size: 0.8rem;
-    }
+    .animated-text-container { height: auto; margin-bottom: 0.5rem; }
+    .animated-text-container .main-offer { font-size: 2rem; }
+    .coupons-section { justify-content: center; gap: 0.5rem; }
+    .coupons-section .coupon-card { padding: 0.3rem 0.5rem; border-radius: 10px; }
+    .coupon-card span { font-size: 0.8rem; }
     .promo-right-section {
         position: absolute;
         width: 100%;
         height: 100%;
         top: 0;
         left: 0;
-        opacity: 0.2; /* Rend les images transparentes en fond */
+        opacity: 0.15; /* Images en fond transparent */
     }
-    .floating-image {
-        max-width: 50px; /* Réduit la taille au max */
-    }
-    .floating-image-2, .floating-image-4 {
-        max-width: 40px;
-    }
+    .floating-image { max-width: 50px; }
+    .floating-image-2, .floating-image-4 { max-width: 40px; }
 }

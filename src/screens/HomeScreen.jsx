@@ -1,4 +1,4 @@
-import { Row, Col, Container } from 'react-bootstrap'; // On importe Container
+import { Row, Col, Container } from 'react-bootstrap';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
@@ -41,8 +41,7 @@ const HomeScreen = () => {
   });
 
   return (
-    // Chaque page gère maintenant son propre conteneur pour plus de flexibilité
-    <Container>
+    <Container> {/* On ajoute un conteneur standard ici pour un meilleur contrôle */}
       <div className='home-screen-background'>
         {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
 
@@ -59,11 +58,8 @@ const HomeScreen = () => {
             ) : (
               <Row>
                 {products && products.map((product, index) => (
-                  // --- GRILLE AMÉLIORÉE ---
-                  // Mobile: 2 colonnes
-                  // Tablette: 3 colonnes
-                  // Desktop: 4 colonnes
-                  <Col key={product._id} sm={6} md={4} lg={3} className="p-2">
+                  // ON RESTAURE LA GRILLE 2 COLONNES SUR MOBILE
+                  <Col key={product._id} xs={6} sm={6} md={4} lg={3} className="p-1 p-md-2">
                     <Product product={product} />
                   </Col>
                 ))}
