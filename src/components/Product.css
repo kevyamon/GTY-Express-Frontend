@@ -16,7 +16,7 @@
 .product-image-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1; /* Force l'image à être carrée */
+  aspect-ratio: 1 / 1; /* C'est ça qui force le format carré de l'image */
 }
 
 .product-card-img {
@@ -28,14 +28,14 @@
 }
 
 .product-card-body {
-  padding: 0.5rem; /* Padding réduit pour être plus compact */
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .product-title {
-  font-size: 0.8rem; /* Titre plus petit */
+  font-size: 0.8rem;
   font-weight: 500;
   color: #333;
   margin-bottom: 0.25rem;
@@ -44,7 +44,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 38px;
+  min-height: 38px; /* Hauteur pour 2 lignes de texte */
 }
 
 .product-title a { text-decoration: none; color: inherit; }
@@ -55,7 +55,7 @@
 }
 
 .product-price {
-  font-size: 1rem; /* Prix plus petit */
+  font-size: 1rem;
   font-weight: bold;
   color: #111;
 }
@@ -105,31 +105,3 @@
 
 .discount-badge { background-color: #dc3545; }
 .new-badge { background-color: #198754; }
-
-/* Styles pour mobile déjà optimisés, pas besoin de @media query supplémentaire */
-/* --- STYLES AMÉLIORÉS POUR MOBILE --- */
-@media (max-width: 767px) {
-  .product-card-img {
-    height: 150px;
-  }
-  .product-card-body {
-    padding: 0.5rem;
-  }
-  .product-title {
-    font-size: 0.8rem;
-    min-height: 38px;
-    margin-bottom: 0.25rem;
-  }
-  .product-price {
-    font-size: 1rem;
-  }
-  .original-price {
-    font-size: 0.75rem;
-  }
-  .stock-status-container {
-    margin-top: 0.25rem;
-  }
-  .stock-status-container .badge {
-    font-size: 0.65rem;
-  }
-}

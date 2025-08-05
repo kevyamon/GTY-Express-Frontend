@@ -41,7 +41,8 @@ const HomeScreen = () => {
   });
 
   return (
-    <Container> {/* On ajoute un conteneur standard ici pour un meilleur contrôle */}
+    // On utilise un conteneur "fluid" qui prend 100% de la largeur disponible
+    <Container fluid>
       <div className='home-screen-background'>
         {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
 
@@ -57,9 +58,9 @@ const HomeScreen = () => {
               <Message>Aucun produit trouvé.</Message>
             ) : (
               <Row>
-                {products && products.map((product, index) => (
-                  // ON RESTAURE LA GRILLE 2 COLONNES SUR MOBILE
-                  <Col key={product._id} xs={6} sm={6} md={4} lg={3} className="p-1 p-md-2">
+                {products && products.map((product) => (
+                  // Grille améliorée : 2 colonnes sur mobile, puis 3, 4 et jusqu'à 5 sur très grands écrans
+                  <Col key={product._id} xs={6} md={4} lg={3} xl={2} className="p-1 p-md-2">
                     <Product product={product} />
                   </Col>
                 ))}

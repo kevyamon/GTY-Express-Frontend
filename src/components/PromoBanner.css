@@ -105,12 +105,12 @@
     .promo-banner-container {
         flex-direction: column;
         padding: 1rem;
-        min-height: auto; /* Hauteur automatique */
+        min-height: auto;
     }
     .animated-text-container { height: auto; margin-bottom: 0.5rem; }
     .animated-text-container .main-offer { font-size: 2rem; }
     .coupons-section { justify-content: center; gap: 0.5rem; }
-    .coupons-section .coupon-card { padding: 0.3rem 0.5rem; border-radius: 10px; }
+    .coupons-section .coupon-card { padding: 0.3rem 0.5rem; border-radius: 10px; flex: 1; }
     .coupon-card span { font-size: 0.8rem; }
     .promo-right-section {
         position: absolute;
@@ -119,6 +119,7 @@
         top: 0;
         left: 0;
         opacity: 0.15; /* Images en fond transparent */
+        z-index: 1;
     }
     .floating-image { max-width: 50px; }
     .floating-image-2, .floating-image-4 { max-width: 40px; }

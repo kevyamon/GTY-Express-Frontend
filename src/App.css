@@ -64,8 +64,9 @@
 
 /* --- NOUVEAU STYLE AJOUTÉ POUR LA MISE EN PAGE MOBILE --- */
 @media (max-width: 767px) {
-  main.py-3 {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+  main.py-3 .container,
+  main.py-3 .container-fluid {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 }
