@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../../components/Message';
 import { toast } from 'react-toastify';
 import { 
@@ -11,7 +10,7 @@ import {
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
-  const { data: orders, isLoading, error, refetch } = useGetOrdersQuery();
+  const { data: orders, isLoading, error } = useGetOrdersQuery();
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
@@ -57,7 +56,7 @@ const OrderListScreen = () => {
     <>
       <h1>Gestion des Commandes</h1>
       {(isUpdating || isDeleting) && <p>Mise à jour en cours...</p>}
-      
+
       <Table striped bordered hover responsive className='table-sm'>
         <thead>
           <tr>
@@ -66,8 +65,9 @@ const OrderListScreen = () => {
         </thead>
         <tbody>
           {orders?.map((order) => (
-            <>
-              <tr key={order._id}>
+            // ON REMPLACE <> PAR <React.Fragment> AVEC UNE CLÉ UNIQUE
+            <React.Fragment key={order._id}>
+              <tr>
                 <td>{order._id.substring(0, 10)}...</td>
                 <td>{order.user ? order.user.name : 'Utilisateur supprimé'}</td>
                 <td>{new Date(order.createdAt).toLocaleString('fr-FR')}</td>
@@ -94,7 +94,7 @@ const OrderListScreen = () => {
                   </td>
                 </tr>
               )}
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </Table>
