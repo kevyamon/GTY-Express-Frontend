@@ -7,7 +7,6 @@ import { useGetProductsQuery } from '../slices/productsApiSlice';
 import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';
 
-// Fonction pour grouper les produits par 5
 const chunkProducts = (products, chunkSize) => {
     const chunks = [];
     if (!products) return chunks;
@@ -73,7 +72,6 @@ const HomeScreen = () => {
           <>
             {products && products.length === 0 ? ( <Message>Aucun produit trouvé.</Message> ) : (
                 isMobile ? (
-                    // --- VUE MOBILE AVEC SCROLL HORIZONTAL ---
                     productChunks.map((chunk, chunkIndex) => (
                         <div key={chunkIndex} className="product-row-scroll-container">
                             <Row className="product-row-inner">
@@ -86,8 +84,8 @@ const HomeScreen = () => {
                         </div>
                     ))
                 ) : (
-                    // --- VUE DESKTOP CLASSIQUE (AVEC PLUS DE PRODUITS PAR LIGNE) ---
-                    <Row>
+                    // ON AJOUTE LA CLASSE `product-grid` ICI
+                    <Row className="product-grid">
                         {products.map((product) => (
                         <Col key={product._id} sm={6} md={4} lg={3} xl={2} className="p-1 p-md-2">
                             <Product product={product} />

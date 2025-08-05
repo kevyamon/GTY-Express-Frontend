@@ -11,6 +11,11 @@
     border-radius: 8px;
 }
 
+/* --- NOUVEAU STYLE POUR ALIGNER LA GRILLE À GAUCHE --- */
+.product-grid {
+    justify-content: flex-start !important;
+}
+
 /* --- STYLES POUR LE SCROLL HORIZONTAL UNIQUEMENT SUR MOBILE --- */
 @media (max-width: 767px) {
     .product-row-scroll-container {
