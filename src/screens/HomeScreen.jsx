@@ -7,6 +7,7 @@ import { useGetProductsQuery } from '../slices/productsApiSlice';
 import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';
 
+// Fonction pour grouper les produits
 const chunkProducts = (products, chunkSize) => {
     const chunks = [];
     if (!products) return chunks;
@@ -15,6 +16,35 @@ const chunkProducts = (products, chunkSize) => {
     }
     return chunks;
 };
+
+// NOUVEAU : Composant pour le message de scroll animé
+const ScrollingInfo = () => {
+    const animationStyle = {
+        animation: 'slide-right 1.5s ease-in-out infinite alternate',
+        display: 'inline-block', // Nécessaire pour que transform fonctionne
+    };
+
+    const arrowStyle = {
+        fontSize: '1.2em',
+        verticalAlign: 'middle',
+    };
+
+    return (
+        <div style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', color: '#555' }}>
+            <span style={animationStyle}>Vous pouvez glisser comme ça </span>
+            <span style={arrowStyle}>➡</span>
+            <style>
+                {`
+                    @keyframes slide-right {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(10px); }
+                    }
+                `}
+            </style>
+        </div>
+    );
+};
+
 
 const HomeScreen = () => {
   const { keyword, category: categoryFromUrl } = useParams();
@@ -43,7 +73,11 @@ const HomeScreen = () => {
       <div className='home-screen-background'>
         {isGeneralPage && !isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
         {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
+
         <h1 className='home-screen-title'>{pageTitle}</h1>
+
+        {/* ON AFFICHE LE MESSAGE ANIMÉ UNIQUEMENT SUR MOBILE */}
+        {isMobile && products && products.length > 0 && <ScrollingInfo />}
 
         {isLoading ? (<h2>Chargement...</h2>) 
         : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
@@ -51,7 +85,7 @@ const HomeScreen = () => {
           <>
             {products && products.length === 0 ? ( <Message>Aucun produit trouvé.</Message> ) : (
                 isMobile ? (
-                    // --- VUE MOBILE AVEC SCROLL HORIZONTAL ---
+                    // VUE MOBILE AVEC SCROLL HORIZONTAL
                     productChunks.map((chunk, chunkIndex) => (
                         <div key={chunkIndex} className="product-row-scroll-container">
                             <Row className="product-row-inner">
@@ -64,7 +98,7 @@ const HomeScreen = () => {
                         </div>
                     ))
                 ) : (
-                    // --- VUE DESKTOP CLASSIQUE ---
+                    // VUE DESKTOP CLASSIQUE
                     <Row>
                         {products.map((product) => (
                         <Col key={product._id} sm={6} md={4} lg={3} className="p-1 p-md-2">
