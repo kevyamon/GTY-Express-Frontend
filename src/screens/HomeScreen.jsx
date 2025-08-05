@@ -17,11 +17,19 @@ const chunkProducts = (products, chunkSize) => {
     return chunks;
 };
 
-// NOUVEAU : Composant pour le message de scroll animé
+// COMPOSANT AMÉLIORÉ AVEC LE NOUVEAU STYLE
 const ScrollingInfo = () => {
-    const animationStyle = {
+    const containerStyle = {
+        textAlign: 'center',
+        marginBottom: '1rem',
+        padding: '0.5rem',
+        backgroundColor: 'black',
+        borderRadius: '8px',
+        color: 'yellow',
+        fontSize: '1rem',
+        fontWeight: 'bold',
+        display: 'inline-block',
         animation: 'slide-right 1.5s ease-in-out infinite alternate',
-        display: 'inline-block', // Nécessaire pour que transform fonctionne
     };
 
     const arrowStyle = {
@@ -30,17 +38,19 @@ const ScrollingInfo = () => {
     };
 
     return (
-        <div style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', color: '#555' }}>
-            <span style={animationStyle}>Vous pouvez glisser comme ça </span>
-            <span style={arrowStyle}>➡</span>
-            <style>
-                {`
-                    @keyframes slide-right {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(10px); }
-                    }
-                `}
-            </style>
+        <div className="d-flex justify-content-center mb-3">
+            <div style={containerStyle}>
+                <span>Vous pouvez glisser comme ça </span>
+                <span style={arrowStyle}>➡</span>
+                <style>
+                    {`
+                        @keyframes slide-right {
+                            0% { transform: translateX(0); }
+                            100% { transform: translateX(10px); }
+                        }
+                    `}
+                </style>
+            </div>
         </div>
     );
 };
@@ -76,7 +86,6 @@ const HomeScreen = () => {
 
         <h1 className='home-screen-title'>{pageTitle}</h1>
 
-        {/* ON AFFICHE LE MESSAGE ANIMÉ UNIQUEMENT SUR MOBILE */}
         {isMobile && products && products.length > 0 && <ScrollingInfo />}
 
         {isLoading ? (<h2>Chargement...</h2>) 
@@ -85,7 +94,6 @@ const HomeScreen = () => {
           <>
             {products && products.length === 0 ? ( <Message>Aucun produit trouvé.</Message> ) : (
                 isMobile ? (
-                    // VUE MOBILE AVEC SCROLL HORIZONTAL
                     productChunks.map((chunk, chunkIndex) => (
                         <div key={chunkIndex} className="product-row-scroll-container">
                             <Row className="product-row-inner">
@@ -98,7 +106,6 @@ const HomeScreen = () => {
                         </div>
                     ))
                 ) : (
-                    // VUE DESKTOP CLASSIQUE
                     <Row>
                         {products.map((product) => (
                         <Col key={product._id} sm={6} md={4} lg={3} className="p-1 p-md-2">
