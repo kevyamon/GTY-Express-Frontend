@@ -1,39 +1,129 @@
+/* --- Styles de base (similaires à avant) --- */
 .landing {
-  min-height: 80vh;
+  min-height: 90vh; /* Un peu plus d'espace vertical */
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   text-align: center;
+  /* Optionnel : ajoutez une image ou un dégradé de fond */
+  background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
+  background-size: 400% 400%;
+  animation: background-gradient 15s ease infinite;
 }
 
 .landing-inner {
   max-width: 800px;
   padding: 2rem;
+  background: rgba(0, 0, 0, 0.2); /* Fond semi-transparent pour le contraste */
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(4px); /* Effet de verre dépoli */
 }
 
+.landing p.lead {
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem; /* Plus d'espace */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* --- Animation du Texte Principal --- */
 .landing h1 {
   font-size: 3.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Ombre pour la lisibilité */
+  color: transparent; /* Rend le texte transparent pour voir le fond */
+  background: linear-gradient(90deg, #4dd0e1, #ffffff, #4dd0e1);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text; /* Pour la compatibilité avec les navigateurs Webkit */
+  animation: animated-gradient-text 4s linear infinite;
 }
 
-.landing p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Ombre pour la lisibilité */
-}
-
+/* --- Animation des Boutons --- */
 .landing-buttons .btn {
   margin: 0 0.5rem;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 2rem; /* Plus de padding horizontal */
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 50px;
-  transition: transform 0.2s;
+  border: none; /* On retire la bordure par défaut */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse-button 2.5s infinite ease-in-out;
 }
 
 .landing-buttons .btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.1); /* Effet de grossissement plus prononcé au survol */
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+.landing-buttons .btn-primary {
+  background-color: #007bff;
+}
+
+.landing-buttons .btn-secondary {
+  background-color: #6c757d;
+}
+
+/* --- Animation du Texte de Crédit --- */
+.creator-credit {
+  margin-top: 4rem; /* Espace par rapport aux boutons */
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  animation: breathe-text 5s infinite ease-in-out;
+}
+
+.creator-credit p {
+  margin: 0.2rem 0; /* Réduit l'espacement entre les lignes du crédit */
+  text-shadow: none; /* Pas d'ombre portée pour ce texte */
+}
+
+
+/* --- Définitions des @keyframes pour les animations --- */
+
+/* Animation pour le fond de la page */
+@keyframes background-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animation pour le dégradé du texte h1 */
+@keyframes animated-gradient-text {
+  to {
+    background-position: -200% center;
+  }
+}
+
+/* Animation de pulsation pour les boutons */
+@keyframes pulse-button {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Animation de respiration pour le texte de crédit */
+@keyframes breathe-text {
+  0% {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
 }
