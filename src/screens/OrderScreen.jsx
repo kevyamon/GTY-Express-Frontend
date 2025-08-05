@@ -83,8 +83,8 @@ const OrderScreen = () => {
             <ListGroup.Item>
               <h2>Articles Commandés</h2>
               {order.orderItems.map((item, index) => {
-                // LOGIQUE D'IMAGE CORRIGÉE
-                let imageToDisplay = 'https://via.placeholder.com/150';
+                // --- LOGIQUE D'IMAGE CORRIGÉE ---
+                let imageToDisplay = 'https://via.placeholder.com/150'; // Image par défaut
                 if (item.images && item.images.length > 0) {
                   imageToDisplay = item.images[0];
                 } else if (item.image) {
@@ -97,18 +97,12 @@ const OrderScreen = () => {
                 return (
                   <ListGroup.Item key={index}>
                     <Row className="align-items-center">
-                      <Col xs={2} md={1}>
-                        <Image src={imageUrl} alt={item.name} fluid rounded />
-                      </Col>
-                      <Col>
-                        <Link to={`/product/${item.product}`}>{item.name}</Link>
-                      </Col>
-                      <Col md={4} className="text-end">
-                        {item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA
-                      </Col>
+                      <Col xs={2} md={1}><Image src={imageUrl} alt={item.name} fluid rounded /></Col>
+                      <Col><Link to={`/product/${item.product}`}>{item.name}</Link></Col>
+                      <Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
                     </Row>
                   </ListGroup.Item>
-                );
+                )
               })}
             </ListGroup.Item>
           </ListGroup>
