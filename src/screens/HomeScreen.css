@@ -11,32 +11,29 @@
     border-radius: 8px;
 }
 
-/* --- STYLES CORRIGÉS POUR LE SCROLL HORIZONTAL SUR MOBILE --- */
+/* --- STYLES POUR LE SCROLL HORIZONTAL UNIQUEMENT SUR MOBILE --- */
 @media (max-width: 767px) {
-    /* Le conteneur qui va scroller */
     .product-row-scroll-container {
-        overflow-x: auto; /* Active le scroll horizontal */
-        -webkit-overflow-scrolling: touch; /* Améliore le scroll sur iOS */
-        scrollbar-width: none; /* Cache la barre de scroll pour Firefox */
-        padding-bottom: 10px; /* Espace pour l'ombre, etc. */
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 10px;
         margin-bottom: 1rem;
     }
 
     .product-row-scroll-container::-webkit-scrollbar {
-        display: none; /* Cache la barre de scroll pour Chrome/Safari */
+        display: none;
     }
 
-    /* La ligne de produits à l'intérieur */
     .product-row-inner {
         display: flex;
-        flex-wrap: nowrap; /* Force les produits à rester sur une seule ligne */
-        width: max-content; /* Fait en sorte que la ligne soit aussi large que son contenu */
+        flex-wrap: nowrap;
+        width: max-content;
     }
 
     .product-row-inner > .col,
     .product-row-inner > [class*="col-"] {
-        /* On donne une largeur fixe à chaque carte pour créer le débordement */
-        flex: 0 0 160px; /* Largeur fixe de 160px par produit */
+        flex: 0 0 160px;
         max-width: 160px;
     }
 }

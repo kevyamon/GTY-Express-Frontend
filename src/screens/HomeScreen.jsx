@@ -7,7 +7,7 @@ import { useGetProductsQuery } from '../slices/productsApiSlice';
 import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';
 
-// Fonction pour grouper les produits
+// Fonction pour grouper les produits par 5
 const chunkProducts = (products, chunkSize) => {
     const chunks = [];
     if (!products) return chunks;
@@ -17,49 +17,28 @@ const chunkProducts = (products, chunkSize) => {
     return chunks;
 };
 
-// COMPOSANT AMÉLIORÉ AVEC LE NOUVEAU STYLE
 const ScrollingInfo = () => {
     const containerStyle = {
-        textAlign: 'center',
-        marginBottom: '1rem',
-        padding: '0.5rem',
-        backgroundColor: 'black',
-        borderRadius: '8px',
-        color: 'yellow',
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        display: 'inline-block',
+        textAlign: 'center', marginBottom: '1rem', padding: '0.5rem',
+        backgroundColor: 'black', borderRadius: '8px', color: 'yellow',
+        fontSize: '1rem', fontWeight: 'bold', display: 'inline-block',
         animation: 'slide-right 1.5s ease-in-out infinite alternate',
     };
-
-    const arrowStyle = {
-        fontSize: '1.2em',
-        verticalAlign: 'middle',
-    };
-
+    const arrowStyle = { fontSize: '1.2em', verticalAlign: 'middle' };
     return (
         <div className="d-flex justify-content-center mb-3">
             <div style={containerStyle}>
                 <span>Vous pouvez glisser comme ça </span>
                 <span style={arrowStyle}>➡</span>
-                <style>
-                    {`
-                        @keyframes slide-right {
-                            0% { transform: translateX(0); }
-                            100% { transform: translateX(10px); }
-                        }
-                    `}
-                </style>
+                <style>{` @keyframes slide-right { 0% { transform: translateX(0); } 100% { transform: translateX(10px); } } `}</style>
             </div>
         </div>
     );
 };
 
-
 const HomeScreen = () => {
   const { keyword, category: categoryFromUrl } = useParams();
   const location = useLocation();
-
   const { data: activeBanner, isLoading: isLoadingBanner } = useGetActiveBannerQuery();
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
@@ -94,6 +73,7 @@ const HomeScreen = () => {
           <>
             {products && products.length === 0 ? ( <Message>Aucun produit trouvé.</Message> ) : (
                 isMobile ? (
+                    // --- VUE MOBILE AVEC SCROLL HORIZONTAL ---
                     productChunks.map((chunk, chunkIndex) => (
                         <div key={chunkIndex} className="product-row-scroll-container">
                             <Row className="product-row-inner">
@@ -106,9 +86,10 @@ const HomeScreen = () => {
                         </div>
                     ))
                 ) : (
+                    // --- VUE DESKTOP CLASSIQUE (AVEC PLUS DE PRODUITS PAR LIGNE) ---
                     <Row>
                         {products.map((product) => (
-                        <Col key={product._id} sm={6} md={4} lg={3} className="p-1 p-md-2">
+                        <Col key={product._id} sm={6} md={4} lg={3} xl={2} className="p-1 p-md-2">
                             <Product product={product} />
                         </Col>
                         ))}
