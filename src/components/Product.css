@@ -16,7 +16,7 @@
 .product-image-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1; /* C'est ça qui force le format carré de l'image */
+  aspect-ratio: 1 / 1;
 }
 
 .product-card-img {
@@ -44,7 +44,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 38px; /* Hauteur pour 2 lignes de texte */
+  min-height: 38px;
 }
 
 .product-title a { text-decoration: none; color: inherit; }
