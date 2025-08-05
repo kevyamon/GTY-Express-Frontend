@@ -11,26 +11,32 @@
     border-radius: 8px;
 }
 
-/* --- NOUVEAUX STYLES POUR LE SCROLL HORIZONTAL SUR MOBILE --- */
+/* --- STYLES CORRIGÉS POUR LE SCROLL HORIZONTAL SUR MOBILE --- */
 @media (max-width: 767px) {
-    /* Chaque ligne de produits devient un conteneur de scroll */
-    .product-row-scrollable {
-        display: flex;
-        flex-wrap: nowrap; /* Empêche les produits d'aller à la ligne */
+    /* Le conteneur qui va scroller */
+    .product-row-scroll-container {
         overflow-x: auto; /* Active le scroll horizontal */
-        margin-bottom: 1rem; /* Espace entre les lignes de scroll */
         -webkit-overflow-scrolling: touch; /* Améliore le scroll sur iOS */
         scrollbar-width: none; /* Cache la barre de scroll pour Firefox */
+        padding-bottom: 10px; /* Espace pour l'ombre, etc. */
+        margin-bottom: 1rem;
     }
 
-    .product-row-scrollable::-webkit-scrollbar {
+    .product-row-scroll-container::-webkit-scrollbar {
         display: none; /* Cache la barre de scroll pour Chrome/Safari */
     }
 
-    .product-row-scrollable > .col,
-    .product-row-scrollable > [class*="col-"] {
-        /* On force chaque carte à avoir une largeur fixe pour le scroll */
-        flex: 0 0 45%; /* Chaque carte prend 45% de la largeur de l'écran */
-        max-width: 180px; /* On limite la largeur maximale pour les petits écrans */
+    /* La ligne de produits à l'intérieur */
+    .product-row-inner {
+        display: flex;
+        flex-wrap: nowrap; /* Force les produits à rester sur une seule ligne */
+        width: max-content; /* Fait en sorte que la ligne soit aussi large que son contenu */
+    }
+
+    .product-row-inner > .col,
+    .product-row-inner > [class*="col-"] {
+        /* On donne une largeur fixe à chaque carte pour créer le débordement */
+        flex: 0 0 160px; /* Largeur fixe de 160px par produit */
+        max-width: 160px;
     }
 }
