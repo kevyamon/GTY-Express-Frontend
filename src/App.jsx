@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
+import WarningDisplay from './components/WarningDisplay'; // NOUVEL IMPORT
 import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,13 +31,16 @@ const App = () => {
       <main className="py-3">
         <TransitionGroup component={null}>
           <CSSTransition key={location.key} timeout={300} classNames="fade">
-            {/* ON RETIRE LE <Container fluid> QUI LIMITAIT LA LARGEUR */}
             <Outlet />
           </CSSTransition>
         </TransitionGroup>
       </main>
       <Footer />
       {userInfo && !userInfo.isAdmin && <ChatTrigger />}
+      
+      {/* --- AJOUT DU COMPOSANT D'AFFICHAGE DES AVERTISSEMENTS --- */}
+      {userInfo && <WarningDisplay />}
+      
       <ToastContainer />
     </div>
   );

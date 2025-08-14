@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, Button, Badge } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux'; // NOUVEL IMPORT
+import { useSelector } from 'react-redux';
+import { FaBell } from 'react-icons/fa';
 import Message from '../../components/Message';
+import WarningModal from '../../components/admin/WarningModal'; // NOUVEL IMPORT
 import { useGetUsersQuery, useUpdateUserStatusMutation, useUpdateUserRoleMutation } from '../../slices/adminApiSlice';
 
 const UserListScreen = () => {
@@ -10,7 +12,19 @@ const UserListScreen = () => {
   const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateUserStatusMutation();
   const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
 
+  // --- NOUVEAUX ÉTATS POUR LE MODAL ---
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  // --- FIN DE L'AJOUT ---
+
   const { userInfo } = useSelector((state) => state.auth);
+
+  // --- NOUVELLE FONCTION POUR OUVRIR LE MODAL ---
+  const handleShowWarningModal = (user) => {
+    setSelectedUser(user);
+    setShowWarningModal(true);
+  };
+  // --- FIN DE L'AJOUT ---
 
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'active' ? 'banned' : 'active';
@@ -38,10 +52,10 @@ const UserListScreen = () => {
       }
   };
 
-  const isSuperAdmin = (email) => email === 'kevyamon@gmail.com'; // Remplacez par votre email de super admin
+  const isSuperAdmin = (email) => email === process.env.SUPER_ADMIN_EMAIL;
 
   return (
-    <div>
+    <>
       <h1>Gestion des Utilisateurs</h1>
       {(isUpdatingStatus || isUpdatingRole) && <p>Mise à jour...</p>}
       {isLoading ? (
@@ -73,24 +87,33 @@ const UserListScreen = () => {
                   </Badge>
                 </td>
                 <td>
-                  {/* On ne peut pas modifier le Super Admin, sauf soi-même */}
-                  { !isSuperAdmin(user.email) && (
+                  { user.email !== userInfo.email && !isSuperAdmin(user.email) && (
                     <>
-                        <Button
-                            variant={user.status === 'active' ? 'warning' : 'success'}
-                            className='btn-sm me-2'
-                            onClick={() => handleStatusToggle(user._id, user.status)}
-                        >
-                            {user.status === 'active' ? 'Suspendre' : 'Réactiver'}
-                        </Button>
+                      <Button
+                        variant={user.status === 'active' ? 'warning' : 'success'}
+                        className='btn-sm me-2'
+                        onClick={() => handleStatusToggle(user._id, user.status)}
+                      >
+                        {user.status === 'active' ? 'Suspendre' : 'Réactiver'}
+                      </Button>
 
-                        <Button
-                            variant={user.isAdmin ? 'danger' : 'info'}
-                            className='btn-sm'
-                            onClick={() => handleRoleToggle(user._id, user.isAdmin)}
-                        >
-                            {user.isAdmin ? 'Révoquer Admin' : 'Nommer Admin'}
-                        </Button>
+                      <Button
+                        variant={user.isAdmin ? 'danger' : 'info'}
+                        className='btn-sm me-2'
+                        onClick={() => handleRoleToggle(user._id, user.isAdmin)}
+                      >
+                        {user.isAdmin ? 'Révoquer Admin' : 'Nommer Admin'}
+                      </Button>
+                      
+                      {/* --- NOUVEAU BOUTON D'AVERTISSEMENT --- */}
+                      <Button
+                        variant='outline-danger'
+                        className='btn-sm'
+                        onClick={() => handleShowWarningModal(user)}
+                      >
+                        <FaBell />
+                      </Button>
+                      {/* --- FIN DE L'AJOUT --- */}
                     </>
                   )}
                 </td>
@@ -99,7 +122,17 @@ const UserListScreen = () => {
           </tbody>
         </Table>
       )}
-    </div>
+
+      {/* --- DÉCLARATION DU MODAL --- */}
+      {selectedUser && (
+        <WarningModal 
+          show={showWarningModal}
+          handleClose={() => setShowWarningModal(false)}
+          user={selectedUser}
+        />
+      )}
+      {/* --- FIN DE L'AJOUT --- */}
+    </>
   );
 };
 
