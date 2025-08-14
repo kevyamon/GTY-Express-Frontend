@@ -8,6 +8,14 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     payOrder: builder.mutation({ query: ({ orderId, details }) => ({ url: `${ORDERS_URL}/${orderId}/pay`, method: 'PUT', body: details }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
     getPaypalClientId: builder.query({ query: () => ({ url: '/api/config/paypal' }) }),
     getMyOrders: builder.query({ query: () => ({ url: `${ORDERS_URL}/myorders` }), providesTags: ['Order'] }),
+    
+    // --- NOUVELLE REQUÊTE POUR L'HISTORIQUE COMPLET ---
+    getMyPurchases: builder.query({
+      query: () => ({ url: `${ORDERS_URL}/mypurchases` }),
+      providesTags: ['Order'], // Partage le même tag pour rester synchronisé
+    }),
+    // --- FIN DE L'AJOUT ---
+
     getOrders: builder.query({ query: () => ({ url: ORDERS_URL }), providesTags: ['Order'] }),
     updateOrderStatus: builder.mutation({ query: ({ orderId, status, isPaid }) => ({ url: `${ORDERS_URL}/${orderId}/status`, method: 'PUT', body: { status, isPaid } }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
     cancelOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }), invalidatesTags: ['Order'] }),
@@ -16,6 +24,14 @@ export const orderApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
-  useCreateOrderMutation, useGetOrderDetailsQuery, usePayOrderMutation, useGetPaypalClientIdQuery,
-  useGetMyOrdersQuery, useGetOrdersQuery, useUpdateOrderStatusMutation, useDeleteOrderMutation, useCancelOrderMutation,
+  useCreateOrderMutation, 
+  useGetOrderDetailsQuery, 
+  usePayOrderMutation, 
+  useGetPaypalClientIdQuery,
+  useGetMyOrdersQuery,
+  useGetMyPurchasesQuery, // NOUVEL EXPORT
+  useGetOrdersQuery, 
+  useUpdateOrderStatusMutation, 
+  useDeleteOrderMutation, 
+  useCancelOrderMutation,
 } = orderApiSlice;

@@ -4,7 +4,7 @@ import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice.js';
-import { useGetMyOrdersQuery } from '../slices/orderApiSlice.js'; // NOUVEL IMPORT
+import { useGetMyPurchasesQuery } from '../slices/orderApiSlice.js'; // CORRECTION DE L'IMPORT
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
@@ -26,16 +26,16 @@ const ProductScreen = () => {
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
   
-  // --- NOUVELLE LOGIQUE POUR VÉRIFIER L'ACHAT ---
-  const { data: myOrders } = useGetMyOrdersQuery(undefined, { skip: !userInfo });
+  // --- LOGIQUE DE VÉRIFICATION FIABILISÉE ---
+  const { data: purchaseHistory } = useGetMyPurchasesQuery(undefined, { skip: !userInfo });
   const hasPurchased = useMemo(() => {
-    if (!myOrders || !product) return false;
-    return myOrders.some(order => 
+    if (!purchaseHistory || !product) return false;
+    return purchaseHistory.some(order => 
       order.status === 'Livrée' && 
       order.orderItems.some(item => item.product === product._id)
     );
-  }, [myOrders, product]);
-  // --- FIN DE LA NOUVELLE LOGIQUE ---
+  }, [purchaseHistory, product]);
+  // --- FIN DE LA CORRECTION ---
 
   const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation();
 
@@ -65,7 +65,6 @@ const ProductScreen = () => {
       setRating(0);
       setComment('');
     } catch (err) {
-      // Grâce à notre middleware, on affiche le message d'erreur clair du backend
       toast.error(err?.data?.message || err.error);
     }
   };
@@ -157,7 +156,6 @@ const ProductScreen = () => {
                   <h2>Écrire un avis</h2>
                   {loadingReview && <p>Envoi de l'avis...</p>}
                   {userInfo ? (
-                    // --- CONDITION D'AFFICHAGE RENFORCÉE ---
                     hasPurchased ? (
                       <Form onSubmit={submitReviewHandler}>
                         <Form.Group controlId='rating' className='my-2'>
