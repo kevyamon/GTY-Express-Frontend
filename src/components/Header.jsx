@@ -2,7 +2,7 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { FaTag, FaComments, FaBell } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
@@ -13,7 +13,7 @@ import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice
 import { logout } from '../slices/authSlice';
 import { apiSlice, useSocketQuery } from '../slices/apiSlice';
 import CategoryMenu from './CategoryMenu';
-import AdminMenuModal from './AdminMenuModal'; // NOUVEL IMPORT
+import AdminMenuModal from './AdminMenuModal';
 import './Header.css';
 
 const Header = () => {
@@ -22,13 +22,12 @@ const Header = () => {
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
 
-  // --- GESTION DES TIMESTAMPS POUR LES NOTIFICATIONS "NON LUES" ---
   const [lastSeen, setLastSeen] = useState(() => {
     try {
       const item = localStorage.getItem('adminLastSeen');
-      return item ? JSON.parse(item) : { orders: new Date(0), users: new Date(0), complaints: new Date(0) };
+      return item ? JSON.parse(item) : { orders: new Date(0), users: new Date(0) };
     } catch (e) {
-      return { orders: new Date(0), users: new Date(0), complaints: new Date(0) };
+      return { orders: new Date(0), users: new Date(0) };
     }
   });
 
@@ -36,21 +35,16 @@ const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
   useSocketQuery(undefined, { skip: !userInfo });
   useGetProfileDetailsQuery(undefined, { skip: !userInfo });
-
-  // --- REQUÊTES POUR LES COMPTEURS ADMIN ---
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: complaints } = useGetComplaintsQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: users } = useGetUsersQuery(undefined, { skip: !userInfo?.isAdmin });
-
   const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
   const { data: conversations } = useGetConversationsQuery(undefined, { skip: !userInfo });
-  
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllMessagesAsRead] = useMarkAllAsReadMutation();
   const homePath = userInfo ? '/products' : '/';
 
-  // --- LOGIQUE DES COMPTEURS ---
   const newOrdersCount = useMemo(() => {
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
       const lastSeenDate = new Date(lastSeen.orders);
@@ -91,10 +85,43 @@ const Header = () => {
     navigate(path);
   };
 
-  const handleChatClick = async () => { /* ... (inchangé) ... */ };
-  const handleNotificationClick = async () => { /* ... (inchangé) ... */ };
-  const submitHandler = (e) => { /* ... (inchangé) ... */ };
-  const logoutHandler = async () => { /* ... (inchangé) ... */ };
+  const handleChatClick = async () => {
+    try {
+      if (unreadMessagesCount > 0) {
+        await markAllMessagesAsRead().unwrap();
+      }
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour du compteur de messages", err);
+    } finally {
+      navigate('/chat');
+    }
+  };
+
+  const handleNotificationClick = async () => {
+    if (unreadNotifsCount > 0) {
+      try {
+        await markAsRead().unwrap();
+      } catch (err) {
+        toast.error("Erreur lors de la mise à jour des notifications.");
+      }
+    }
+    navigate('/notifications');
+  };
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (keyword.trim()) { navigate(`/search/${keyword}`); setKeyword(''); } 
+    else { navigate(homePath); }
+  };
+
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      dispatch(apiSlice.util.resetApiState());
+      navigate('/login');
+    } catch (err) { console.error(err); }
+  };
 
   return (
     <>
@@ -108,7 +135,6 @@ const Header = () => {
               {userInfo && <CategoryMenu />}
             </Nav>
 
-            {/* --- NOUVEAU BOUTON ADMIN 📢 --- */}
             {userInfo && userInfo.isAdmin && (
               <Button variant="outline-light" onClick={() => setShowAdminModal(true)} className="position-relative me-3">
                 <FaBell />
@@ -150,9 +176,39 @@ const Header = () => {
             <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
           </Form>
         </div>
+
+        {userInfo && (
+          <div className="header-icon-row bg-dark">
+            <Link to="/cart" className="home-icon-link position-relative">
+              🛒
+              {cartItems.length > 0 && (
+                <Badge pill bg="success" className="icon-badge">
+                  {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                </Badge>
+              )}
+            </Link>
+            <div onClick={handleChatClick} className="home-icon-link position-relative" style={{cursor: 'pointer'}}>
+              <FaComments />
+              {unreadMessagesCount > 0 && (
+                <Badge pill bg="danger" className="icon-badge">{unreadMessagesCount}</Badge>
+              )}
+            </div>
+            <div onClick={handleNotificationClick} className="home-icon-link position-relative" style={{cursor: 'pointer'}}>
+              🔔
+              {unreadNotifsCount > 0 && (
+                <Badge pill bg="danger" className="icon-badge">{unreadNotifsCount}</Badge>
+              )}
+            </div>
+            <Link to={homePath} className="home-icon-link">
+              🏡
+            </Link>
+            <Link to="/supermarket" className="home-icon-link">
+              🛍️
+            </Link>
+          </div>
+        )}
       </header>
 
-      {/* --- LE MODAL ADMIN EST DÉCLARÉ ICI --- */}
       {userInfo && userInfo.isAdmin && (
         <AdminMenuModal 
           show={showAdminModal}
@@ -166,37 +222,5 @@ const Header = () => {
     </>
   );
 };
-// Les fonctions inchangées sont omises ici pour la clarté, mais elles doivent rester dans votre fichier
-Header.prototype.handleChatClick = async function() {
-    const { unreadMessagesCount, markAllMessagesAsRead, navigate } = this.props; // Adapter les props
-    try {
-      if (unreadMessagesCount > 0) await markAllMessagesAsRead().unwrap();
-    } catch (err) { console.error("Erreur", err); } 
-    finally { navigate('/chat'); }
-};
-Header.prototype.handleNotificationClick = async function() {
-    const { unreadNotifsCount, markAsRead, navigate } = this.props; // Adapter les props
-    if (unreadNotifsCount > 0) {
-      try { await markAsRead().unwrap(); } 
-      catch (err) { toast.error("Erreur"); }
-    }
-    navigate('/notifications');
-};
-Header.prototype.submitHandler = function(e) {
-    e.preventDefault();
-    const { keyword, navigate, homePath, setKeyword } = this.props; // Adapter les props
-    if (keyword.trim()) { navigate(`/search/${keyword}`); setKeyword(''); } 
-    else { navigate(homePath); }
-};
-Header.prototype.logoutHandler = async function() {
-    const { logoutApiCall, dispatch, navigate } = this.props; // Adapter les props
-    try {
-      await logoutApiCall().unwrap();
-      dispatch(logout());
-      dispatch(apiSlice.util.resetApiState());
-      navigate('/login');
-    } catch (err) { console.error(err); }
-};
-
 
 export default Header;
