@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel, Alert } from 'react-bootstrap';
+import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice.js';
+import { useGetMyOrdersQuery } from '../slices/orderApiSlice.js'; // NOUVEL IMPORT
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
 import Message from '../components/Message';
-import Rating from '../components/Rating'; // Nous allons créer ce composant après
+import Rating from '../components/Rating';
 import './ProductScreen.css';
 
 const ProductScreen = () => {
@@ -19,15 +20,24 @@ const ProductScreen = () => {
   const [qty, setQty] = useState(1);
   const [index, setIndex] = useState(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  
-  // --- NOUVEAUX ÉTATS POUR LES AVIS ---
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
+  
+  // --- NOUVELLE LOGIQUE POUR VÉRIFIER L'ACHAT ---
+  const { data: myOrders } = useGetMyOrdersQuery(undefined, { skip: !userInfo });
+  const hasPurchased = useMemo(() => {
+    if (!myOrders || !product) return false;
+    return myOrders.some(order => 
+      order.status === 'Livrée' && 
+      order.orderItems.some(item => item.product === product._id)
+    );
+  }, [myOrders, product]);
+  // --- FIN DE LA NOUVELLE LOGIQUE ---
 
-  const [createReview, { isLoading: loadingReview, error: errorReview }] = useCreateReviewMutation();
+  const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation();
 
   const handleSelect = (selectedIndex) => setIndex(selectedIndex);
 
@@ -55,6 +65,7 @@ const ProductScreen = () => {
       setRating(0);
       setComment('');
     } catch (err) {
+      // Grâce à notre middleware, on affiche le message d'erreur clair du backend
       toast.error(err?.data?.message || err.error);
     }
   };
@@ -129,7 +140,6 @@ const ProductScreen = () => {
             </Col>
           </Row>
 
-          {/* --- NOUVELLE SECTION AVIS --- */}
           <Row className="reviews mt-4">
             <Col md={6}>
               <h2>Avis des clients</h2>
@@ -147,26 +157,31 @@ const ProductScreen = () => {
                   <h2>Écrire un avis</h2>
                   {loadingReview && <p>Envoi de l'avis...</p>}
                   {userInfo ? (
-                    <Form onSubmit={submitReviewHandler}>
-                      <Form.Group controlId='rating' className='my-2'>
-                        <Form.Label>Note</Form.Label>
-                        <Form.Control as='select' value={rating} onChange={(e) => setRating(e.target.value)} required>
-                          <option value=''>Sélectionner...</option>
-                          <option value='1'>1 - Mauvais</option>
-                          <option value='2'>2 - Passable</option>
-                          <option value='3'>3 - Bon</option>
-                          <option value='4'>4 - Très bon</option>
-                          <option value='5'>5 - Excellent</option>
-                        </Form.Control>
-                      </Form.Group>
-                      <Form.Group controlId='comment' className='my-2'>
-                        <Form.Label>Commentaire</Form.Label>
-                        <Form.Control as='textarea' row='3' value={comment} onChange={(e) => setComment(e.target.value)} required></Form.Control>
-                      </Form.Group>
-                      <Button disabled={loadingReview} type='submit' variant='primary'>
-                        Envoyer
-                      </Button>
-                    </Form>
+                    // --- CONDITION D'AFFICHAGE RENFORCÉE ---
+                    hasPurchased ? (
+                      <Form onSubmit={submitReviewHandler}>
+                        <Form.Group controlId='rating' className='my-2'>
+                          <Form.Label>Note</Form.Label>
+                          <Form.Control as='select' value={rating} onChange={(e) => setRating(e.target.value)} required>
+                            <option value=''>Sélectionner...</option>
+                            <option value='1'>1 - Mauvais</option>
+                            <option value='2'>2 - Passable</option>
+                            <option value='3'>3 - Bon</option>
+                            <option value='4'>4 - Très bon</option>
+                            <option value='5'>5 - Excellent</option>
+                          </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId='comment' className='my-2'>
+                          <Form.Label>Commentaire</Form.Label>
+                          <Form.Control as='textarea' rows='3' value={comment} onChange={(e) => setComment(e.target.value)} required></Form.Control>
+                        </Form.Group>
+                        <Button disabled={loadingReview} type='submit' variant='primary'>
+                          Envoyer
+                        </Button>
+                      </Form>
+                    ) : (
+                      <Message>Vous devez avoir acheté et reçu ce produit pour laisser un avis.</Message>
+                    )
                   ) : (
                     <Message>Veuillez <Link to='/login'>vous connecter</Link> pour écrire un avis.</Message>
                   )}
