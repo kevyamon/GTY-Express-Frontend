@@ -75,14 +75,14 @@ const Header = () => {
   const unreadMessagesCount = useMemo(() => userInfo && Array.isArray(conversations) ? conversations.filter(c => c.isUnread).length : 0, [conversations, userInfo]);
   const unreadNotifsCount = useMemo(() => userInfo && Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0, [notifications, userInfo]);
 
-  const handleAdminNavigate = (path, key) => {
+  // CORRECTION : La fonction gère maintenant uniquement la mise à jour des compteurs.
+  const handleMarkAsSeen = (key) => {
     if (key) {
       const now = new Date().toISOString();
       const newLastSeen = { ...lastSeen, [key]: now };
       localStorage.setItem('adminLastSeen', JSON.stringify(newLastSeen));
       setLastSeen(newLastSeen);
     }
-    navigate(path);
   };
 
   const handleChatClick = async () => {
@@ -91,7 +91,7 @@ const Header = () => {
         await markAllMessagesAsRead().unwrap();
       }
     } catch (err) {
-      console.error("Erreur lors de la mise à jour du compteur de messages", err);
+      console.error("Erreur", err);
     } finally {
       navigate('/chat');
     }
@@ -102,7 +102,7 @@ const Header = () => {
       try {
         await markAsRead().unwrap();
       } catch (err) {
-        toast.error("Erreur lors de la mise à jour des notifications.");
+        toast.error("Erreur");
       }
     }
     navigate('/notifications');
@@ -216,7 +216,7 @@ const Header = () => {
           newUsersCount={newUsersCount}
           newOrdersCount={newOrdersCount}
           pendingComplaintsCount={pendingComplaintsCount}
-          onNavigate={handleAdminNavigate}
+          onNavigate={handleMarkAsSeen}
         />
       )}
     </>
