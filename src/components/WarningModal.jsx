@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useCreateWarningMutation } from '../../slices/warningsApiSlice'; // Assurez-vous que le chemin est correct
+import { useCreateWarningMutation } from '../slices/warningsApiSlice'; // Assurez-vous que le chemin est correct
 
 const WarningModal = ({ show, handleClose, user }) => {
   const [message, setMessage] = useState('');
