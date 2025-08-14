@@ -10,8 +10,6 @@ const ProfileScreen = () => {
   const [cancelOrder, { isLoading: loadingCancel }] = useCancelOrderMutation();
   const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
 
-  // On enlève la logique de "lecture" d'ici, elle sera gérée dans le Header
-  
   const cancelHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
       try {
@@ -76,7 +74,6 @@ const ProfileScreen = () => {
                     </Button>
                   </LinkContainer>
                   
-                  {/* Le bouton "Annuler" n'apparaît que si la commande est "En attente" */}
                   {order.status === 'En attente' && (
                     <Button
                       className='btn-sm ms-2'
@@ -87,7 +84,16 @@ const ProfileScreen = () => {
                     </Button>
                   )}
 
-                  {/* Le bouton "Supprimer" n'apparaît que si la commande est terminée */}
+                  {/* --- AJOUT DU BOUTON POUR LAISSER UN AVIS --- */}
+                  {order.status === 'Livrée' && (
+                    <LinkContainer to={`/product/${order.orderItems[0].product}`}>
+                        <Button className='btn-sm ms-2' variant='info'>
+                            Laisser un avis
+                        </Button>
+                    </LinkContainer>
+                  )}
+                  {/* --- FIN DE L'AJOUT --- */}
+
                   {(order.status === 'Livrée' || order.status === 'Annulée') && (
                     <Button
                       className='btn-sm ms-2'
