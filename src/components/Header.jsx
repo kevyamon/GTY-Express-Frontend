@@ -45,6 +45,7 @@ const Header = () => {
   const [markAllMessagesAsRead] = useMarkAllAsReadMutation();
   const homePath = userInfo ? '/products' : '/';
 
+  // --- LOGIQUE DES COMPTEURS SÉCURISÉE ---
   const newOrdersCount = useMemo(() => {
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
       const lastSeenDate = new Date(lastSeen.orders);
@@ -74,8 +75,8 @@ const Header = () => {
 
   const unreadMessagesCount = useMemo(() => userInfo && Array.isArray(conversations) ? conversations.filter(c => c.isUnread).length : 0, [conversations, userInfo]);
   const unreadNotifsCount = useMemo(() => userInfo && Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0, [notifications, userInfo]);
+  // --- FIN DE LA LOGIQUE SÉCURISÉE ---
 
-  // CORRECTION : La fonction gère maintenant uniquement la mise à jour des compteurs.
   const handleMarkAsSeen = (key) => {
     if (key) {
       const now = new Date().toISOString();

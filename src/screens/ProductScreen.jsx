@@ -4,7 +4,8 @@ import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice.js';
-import { useGetMyPurchasesQuery } from '../slices/orderApiSlice.js'; // CORRECTION DE L'IMPORT
+// --- CORRECTION FINALE DE L'IMPORT ---
+import { useGetMyPurchasesQuery } from '../slices/orderApiSlice.js'; 
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
@@ -26,7 +27,7 @@ const ProductScreen = () => {
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
   
-  // --- LOGIQUE DE VÉRIFICATION FIABILISÉE ---
+  // --- LOGIQUE DE VÉRIFICATION FIABILISÉE AVEC L'HISTORIQUE COMPLET ---
   const { data: purchaseHistory } = useGetMyPurchasesQuery(undefined, { skip: !userInfo });
   const hasPurchased = useMemo(() => {
     if (!purchaseHistory || !product) return false;
