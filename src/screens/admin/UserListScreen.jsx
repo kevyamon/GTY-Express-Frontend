@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { FaBell } from 'react-icons/fa';
 import Message from '../../components/Message';
-import WarningModal from '../../components/admin/WarningModal'; // NOUVEL IMPORT
+import WarningModal from '../../components/WarningModal'; // NOUVEL IMPORT
 import { useGetUsersQuery, useUpdateUserStatusMutation, useUpdateUserRoleMutation } from '../../slices/adminApiSlice';
 
 const UserListScreen = () => {
