@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { io } from 'socket.io-client';
-import { updateUserStatus, updateUserRole } from './authSlice'; // NOUVEL IMPORT
-import { toast } from 'react-toastify'; // NOUVEL IMPORT
+import { updateUserStatus, updateUserRole } from './authSlice';
+import { toast } from 'react-toastify';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_URL,
@@ -26,14 +26,11 @@ export const apiSlice = createApi({
       ) {
         const socket = io(import.meta.env.VITE_BACKEND_URL);
 
-        // --- LOGIQUE DE CONNEXION CORRIGÉE ---
         socket.on('connect', () => {
           console.log('Socket.IO connecté !');
           const { userInfo } = getState().auth;
           if (userInfo) {
-            // L'utilisateur rejoint sa room personnelle
             socket.emit('joinRoom', userInfo._id);
-            // Si c'est un admin, il rejoint aussi la room 'admin'
             if (userInfo.isAdmin) {
               socket.emit('joinRoom', 'admin');
             }
@@ -43,6 +40,14 @@ export const apiSlice = createApi({
         socket.on('disconnect', () => {
           console.log('Socket.IO déconnecté.');
         });
+
+        // --- NOUVEL ÉCOUTEUR POUR LE TOAST D'INSCRIPTION ---
+        socket.on('new_user_registered', (data) => {
+            console.log('Nouvel utilisateur enregistré:', data);
+            toast.info(`🎉 ${data.name} a rejoint GTY Express !`);
+            dispatch(apiSlice.util.invalidateTags(['User']));
+        });
+        // --- FIN DE L'AJOUT ---
 
         socket.on('order_update', (data) => {
           console.log('Événement order_update reçu', data);
@@ -108,12 +113,9 @@ export const apiSlice = createApi({
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
         });
 
-        // --- NOUVEL ÉCOUTEUR POUR LE CHANGEMENT DE RÔLE ---
         socket.on('role_update', (data) => {
             console.log('Mise à jour du rôle reçue', data);
-            // 1. Affiche le toast de notification
             toast.info(data.message);
-            // 2. Met à jour le statut isAdmin dans la mémoire du site
             dispatch(updateUserRole({ userId: getState().auth.userInfo._id, isAdmin: data.isAdmin }));
         });
 

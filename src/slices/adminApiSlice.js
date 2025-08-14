@@ -3,6 +3,13 @@ const ADMIN_URL = '/api/admin';
 
 export const adminApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // --- NOUVELLE REQUÊTE POUR LE TABLEAU DE BORD ---
+    getStats: builder.query({
+      query: () => `${ADMIN_URL}/stats`,
+      providesTags: ['User', 'Order', 'Product', 'Complaint', 'Promotion'],
+      keepUnusedDataFor: 5,
+    }),
+    // --- FIN DE L'AJOUT ---
     getUsers: builder.query({
       query: () => `${ADMIN_URL}/users`,
       providesTags: ['User'],
@@ -28,7 +35,6 @@ export const adminApiSlice = apiSlice.injectEndpoints({
         query: () => `${ADMIN_URL}/complaints`,
         providesTags: ['Complaint'],
     }),
-    // NOUVELLES MUTATIONS
     deleteComplaint: builder.mutation({
         query: (id) => ({
             url: `${ADMIN_URL}/complaints/${id}`,
@@ -45,10 +51,11 @@ export const adminApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetStatsQuery, // NOUVEL EXPORT
   useGetUsersQuery,
   useUpdateUserStatusMutation,
   useUpdateUserRoleMutation,
   useGetComplaintsQuery,
-  useDeleteComplaintMutation, // NOUVEL EXPORT
-  useDeleteAllComplaintsMutation, // NOUVEL EXPORT
+  useDeleteComplaintMutation,
+  useDeleteAllComplaintsMutation,
 } = adminApiSlice;

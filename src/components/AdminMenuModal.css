@@ -1,0 +1,14 @@
+.admin-menu-item {
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+}
+
+.admin-menu-item svg {
+  color: #6c757d;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+
+.admin-menu-item .badge {
+  font-size: 0.8rem;
+}
