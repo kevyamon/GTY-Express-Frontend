@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'; // useRef est ajouté
+import { useState, useEffect, useRef } from 'react';
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,7 +11,7 @@ import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
 import WarningDisplay from './components/WarningDisplay';
 import WelcomeTransition from './components/WelcomeTransition';
-import LogoTransition from './components/LogoTransition'; // NOUVEL IMPORT
+import LogoTransition from './components/LogoTransition';
 import ScrollToTop from './components/ScrollToTop';
 import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
@@ -23,35 +23,46 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // --- NOUVELLE LOGIQUE POUR LA TRANSITION DU LOGO ---
-  const [showLogo, setShowLogo] = useState(true); // Affiche au premier chargement
-  const isInitialLoad = useRef(true); // Pour différencier le premier chargement des navigations
+  // --- LOGIQUE DE TRANSITION CORRIGÉE ---
+  const [showLogo, setShowLogo] = useState(true);
+  // On utilise une "clé" pour forcer le composant à se réinitialiser à chaque fois
+  const [logoKey, setLogoKey] = useState(Date.now());
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    // Gère la transition courte entre les pages
+    // Ne pas jouer l'animation courte lors du tout premier chargement
     if (isInitialLoad.current) {
-      isInitialLoad.current = false; // Le premier chargement est passé
+      isInitialLoad.current = false;
       return;
     }
     
-    // Affiche la transition courte (3s) à chaque changement de page
+    // À chaque changement de page :
+    // 1. On change la clé pour forcer le redémarrage de l'animation
+    setLogoKey(Date.now());
+    // 2. On affiche la transition
     setShowLogo(true);
+
+    // 3. On définit une durée plus courte (1.5 secondes) pour la cacher
     const timer = setTimeout(() => {
       setShowLogo(false);
-    }, 3000); // Durée de 3 secondes
+    }, 1500); // Durée plus courte pour la navigation
 
     return () => clearTimeout(timer);
   }, [location.pathname]); // Se déclenche à chaque changement d'URL
   
   const handleWelcomeEnd = () => {
     dispatch(clearWelcome());
-    setShowLogo(true); // Déclenche l'animation du logo juste après celle de bienvenue
+    // Après la bienvenue, on force aussi le redémarrage de l'animation du logo
+    setLogoKey(Date.now());
+    setShowLogo(true);
   };
 
   const handleLogoEnd = () => {
-    setShowLogo(false); // Cache l'animation du logo quand elle est finie
+    // Cette fonction est appelée par le composant lui-même à la fin de son animation CSS.
+    // C'est parfait pour les animations longues (chargement initial, après bienvenue).
+    setShowLogo(false);
   };
-  // --- FIN DE LA NOUVELLE LOGIQUE ---
+  // --- FIN DE LA CORRECTION ---
 
   const appStyle = {
     backgroundImage: `url(${bgImage})`,
@@ -65,9 +76,14 @@ const App = () => {
     <div style={appStyle}>
       <GlobalLoader />
       
-      {/* Les deux transitions sont maintenant présentes */}
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
-      <LogoTransition show={showLogo} onTransitionEnd={handleLogoEnd} />
+      
+      {/* La clé "key" est l'élément crucial qui force l'animation à se rejouer */}
+      <LogoTransition 
+        key={logoKey} 
+        show={showLogo} 
+        onTransitionEnd={handleLogoEnd} 
+      />
       
       <ScrollToTop />
       <Header />
