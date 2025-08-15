@@ -1,0 +1,58 @@
+/* src/components/ProductCarousel.css */
+.carousel-container {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+}
+
+.carousel-title {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  border-left: 4px solid #0d6efd;
+}
+
+.product-row-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Pour un scroll fluide sur iOS */
+  padding-bottom: 15px; /* Espace pour la barre de scroll sans couper l'ombre */
+}
+
+/* Style de la barre de scroll */
+.product-row-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+.product-row-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.product-row-scroll-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+.product-row-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.product-row-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content; /* Permet aux éléments de déborder pour le scroll */
+}
+
+/* On définit une taille fixe pour chaque produit dans le carrousel */
+.product-row-inner > .col,
+.product-row-inner > [class*="col-"] {
+  flex: 0 0 200px;
+  max-width: 200px;
+}
+
+@media (max-width: 767px) {
+  .product-row-inner > .col,
+  .product-row-inner > [class*="col-"] {
+    flex: 0 0 160px;
+    max-width: 160px;
+  }
+}

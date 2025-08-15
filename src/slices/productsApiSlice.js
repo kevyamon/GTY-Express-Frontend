@@ -27,7 +27,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       query: (productId) => ({ url: `${PRODUCTS_URL}/${productId}`, method: 'DELETE' }),
       invalidatesTags: ['Product'],
     }),
-    // --- NOUVELLE MUTATION POUR CRÉER UN AVIS ---
     createReview: builder.mutation({
       query: (data) => ({
         url: `${PRODUCTS_URL}/${data.productId}/reviews`,
@@ -36,7 +35,19 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
     }),
-    // --- FIN DE L'AJOUT ---
+    
+    // --- NOS AJOUTS POUR LA PAGE D'ACCUEIL ---
+    getTopProducts: builder.query({
+      query: () => `${PRODUCTS_URL}/top`,
+      keepUnusedDataFor: 5,
+      providesTags: ['Product'],
+    }),
+    getPopularProducts: builder.query({
+      query: () => `${PRODUCTS_URL}/popular`,
+      keepUnusedDataFor: 5,
+      providesTags: ['Product'],
+    }),
+    // --- FIN DES AJOUTS ---
   }),
 });
 
@@ -46,5 +57,8 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useCreateReviewMutation, // NOUVEL EXPORT
+  useCreateReviewMutation,
+  // --- NOS NOUVEAUX EXPORTS ---
+  useGetTopProductsQuery,
+  useGetPopularProductsQuery,
 } = productsApiSlice;
