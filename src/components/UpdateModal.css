@@ -1,0 +1,77 @@
+.update-modal-body {
+  padding: 2rem;
+  text-align: center;
+  border-radius: 15px;
+}
+
+.update-modal-icon {
+  font-size: 3rem;
+  color: #0d6efd;
+  margin-bottom: 1rem;
+  animation: rocket-fly 3s ease-in-out infinite;
+}
+
+.update-modal-body h2 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.update-modal-body .lead-text {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+.version-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  text-align: left;
+  margin-bottom: 2.5rem;
+}
+
+.version-info-grid > div {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.version-info-grid .info-icon {
+  font-size: 1.2rem;
+  color: #0d6efd;
+  margin-right: 1rem;
+}
+
+.editor-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 1rem;
+}
+
+.version-info-grid strong {
+  margin-right: auto;
+}
+
+.version-info-grid span {
+  font-weight: 500;
+  color: #495057;
+}
+
+.update-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.update-actions .btn {
+  padding: 0.75rem 2rem;
+  font-weight: bold;
+  border-radius: 50px;
+}
+
+@keyframes rocket-fly {
+  0% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(-5deg); }
+}

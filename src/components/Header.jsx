@@ -2,9 +2,9 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaTag, FaComments, FaBell } from 'react-icons/fa';
+import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -16,6 +16,8 @@ import { apiSlice, useSocketQuery } from '../slices/apiSlice';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
+import UpdateModal from './UpdateModal';
+import { useVersion } from '../contexts/VersionContext';
 import './Header.css';
 
 const Header = () => {
@@ -24,6 +26,29 @@ const Header = () => {
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+
+  // --- On récupère la date de déploiement ici ---
+  const { isUpdateAvailable, latestVersion, deployedAt, refreshApp } = useVersion();
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+  useEffect(() => {
+    if (isUpdateAvailable) {
+      setShowUpdateModal(true);
+    }
+  }, [isUpdateAvailable]);
+
+  const handleUpdateClick = () => {
+    if (isUpdateAvailable) {
+      setShowUpdateModal(true);
+    } else {
+      toast.success('Vous utilisez déjà la dernière version de GTY Express.');
+    }
+  };
+
+  const handleCritique = () => {
+    setShowUpdateModal(false);
+    setShowSuggestionModal(true);
+  };
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
@@ -157,6 +182,18 @@ const Header = () => {
                 )}
               </Button>
             )}
+            
+            {userInfo && (
+              <Button 
+                variant={isUpdateAvailable ? "success" : "outline-secondary"}
+                onClick={handleUpdateClick}
+                className="me-3 d-flex align-items-center"
+                size="sm"
+              >
+                {isUpdateAvailable ? <FaSyncAlt className="me-1" /> : <FaBan className="me-1" />}
+                Màj
+              </Button>
+            )}
 
             <LinkContainer to="/promotions">
               <Nav.Link className="text-danger fw-bold d-flex align-items-center">
@@ -247,6 +284,15 @@ const Header = () => {
           onNavigate={handleMarkAsSeen}
         />
       )}
+
+      <UpdateModal
+        show={showUpdateModal}
+        handleClose={() => setShowUpdateModal(false)}
+        version={latestVersion}
+        deployedAt={deployedAt} // On passe la date au modal
+        onConfirm={refreshApp}
+        onCritique={handleCritique}
+      />
     </>
   );
 };

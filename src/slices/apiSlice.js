@@ -17,9 +17,16 @@ const baseQuery = fetchBaseQuery({
 export const apiSlice = createApi({
   baseQuery,
   // --- MODIFICATION ICI ---
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version'],
   // --- FIN DE LA MODIFICATION ---
   endpoints: (builder) => ({
+    // --- NOUVEL ENDPOINT POUR LA VERSION ---
+    getVersion: builder.query({
+      query: () => '/api/version',
+      providesTags: ['Version'],
+    }),
+    // --- FIN DE L'AJOUT ---
+
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
       async onCacheEntryAdded(
@@ -43,18 +50,15 @@ export const apiSlice = createApi({
           console.log('Socket.IO déconnecté.');
         });
         
-        // --- NOUVEL ÉCOUTEUR D'AVERTISSEMENT ---
         socket.on('new_warning', (data) => {
           console.log('Nouvel avertissement reçu:', data);
           toast.warn('Vous avez reçu un nouvel avertissement d\'un administrateur.');
           dispatch(apiSlice.util.invalidateTags(['Warning']));
         });
         
-        // --- NOUVEL ÉCOUTEUR POUR LES SUGGESTIONS ---
         socket.on('suggestion_update', () => {
           dispatch(apiSlice.util.invalidateTags(['Suggestion']));
         });
-        // --- FIN DE L'AJOUT ---
 
         socket.on('new_user_registered', (data) => {
           console.log('Nouvel utilisateur enregistré:', data);
@@ -129,4 +133,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useSocketQuery } = apiSlice;
+export const { useSocketQuery, useGetVersionQuery } = apiSlice; // On exporte le nouveau hook

@@ -21,9 +21,9 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const messagesAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [text, setText] = useState('');
-  const messageEndRef = useRef(null); // DÉCLARATION AJOUTÉE ICI
-  const [filesToSend, setFilesToSend] = useState([]); // Gère maintenant plusieurs fichiers
-  const [previews, setPreviews] = useState([]); // Gère plusieurs prévisualisations
+  const messageEndRef = useRef(null);
+  const [filesToSend, setFilesToSend] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [editedText, setEditedText] = useState('');
@@ -118,34 +118,47 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
             return (
               <React.Fragment key={msg._id}>
                 {showDate && <div className="date-separator">{formatDate(msg.createdAt)}</div>}
-                <div className={`message-wrapper ${messageAlignment}`}>
-                    {msg.isEdited && <div className="message-edited-indicator">Modifié</div>}
-                    <div className={`message-bubble ${messageAlignment} ${isDeleted ? 'deleted-message' : ''}`}>
-                        {editingMessage?._id === msg._id ? ( <Form onSubmit={handleUpdate} className="edit-message-form"><Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} autoFocus /><Button type="submit" variant="success" size="sm">✓</Button><Button onClick={() => setEditingMessage(null)} variant="danger" size="sm">x</Button></Form> ) : (
-                            <>
-                                {msg.files && msg.files.map(file => (
-                                    file.fileType === 'image' ? 
-                                    <Image key={file.fileUrl} src={file.fileUrl} alt={file.fileName} className="message-image mb-2" fluid /> :
-                                    <a key={file.fileUrl} href={file.fileUrl} target="_blank" rel="noopener noreferrer" className="file-message-link">
-                                        <FaFileAlt className="file-icon" />
-                                        <span>{file.fileName}</span>
-                                    </a>
-                                ))}
-                                {msg.text && <p className="mb-0">{msg.text}</p>}
-                            </>
-                        )}
-                    </div>
-                    <div className="d-flex align-items-center">
-                        {messageAlignment === 'sent' && !isDeleted && <BsCheck2All color={isSeen ? '#0d6efd' : '#adb5bd'} className="me-1" />}
-                        <span className="message-timestamp">{new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                        {messageAlignment === 'sent' && !editingMessage && !isDeleted && (
-                            <div className="message-actions">
-                                {(!msg.files || msg.files.length === 0) && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
-                                <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
-                            </div>
-                        )}
-                    </div>
+                {/* --- MODIFICATION ICI POUR LA PHOTO DE PROFIL --- */}
+                <div className={`d-flex align-items-end ${messageAlignment === 'sent' ? 'justify-content-end' : 'justify-content-start'}`}>
+                  {messageAlignment === 'received' && (
+                    <Image 
+                      src={msg.sender.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
+                      roundedCircle 
+                      width={30} 
+                      height={30} 
+                      className="me-2 mb-1"
+                    />
+                  )}
+                  <div className={`message-wrapper ${messageAlignment}`}>
+                      {msg.isEdited && <div className="message-edited-indicator">Modifié</div>}
+                      <div className={`message-bubble ${messageAlignment} ${isDeleted ? 'deleted-message' : ''}`}>
+                          {editingMessage?._id === msg._id ? ( <Form onSubmit={handleUpdate} className="edit-message-form"><Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} autoFocus /><Button type="submit" variant="success" size="sm">✓</Button><Button onClick={() => setEditingMessage(null)} variant="danger" size="sm">x</Button></Form> ) : (
+                              <>
+                                  {msg.files && msg.files.map(file => (
+                                      file.fileType === 'image' ? 
+                                      <Image key={file.fileUrl} src={file.fileUrl} alt={file.fileName} className="message-image mb-2" fluid /> :
+                                      <a key={file.fileUrl} href={file.fileUrl} target="_blank" rel="noopener noreferrer" className="file-message-link">
+                                          <FaFileAlt className="file-icon" />
+                                          <span>{file.fileName}</span>
+                                      </a>
+                                  ))}
+                                  {msg.text && <p className="mb-0">{msg.text}</p>}
+                              </>
+                          )}
+                      </div>
+                      <div className="d-flex align-items-center">
+                          {messageAlignment === 'sent' && !isDeleted && <BsCheck2All color={isSeen ? '#0d6efd' : '#adb5bd'} className="me-1" />}
+                          <span className="message-timestamp">{new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                          {messageAlignment === 'sent' && !editingMessage && !isDeleted && (
+                              <div className="message-actions">
+                                  {(!msg.files || msg.files.length === 0) && <button onClick={() => handleEdit(msg)}><FaEdit /></button>}
+                                  <button onClick={() => handleDelete(msg._id)}><FaTrash /></button>
+                              </div>
+                          )}
+                      </div>
+                  </div>
                 </div>
+                 {/* --- FIN DE LA MODIFICATION --- */}
               </React.Fragment>
             );
         })}

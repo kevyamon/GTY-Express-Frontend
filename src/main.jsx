@@ -10,12 +10,13 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
+import { VersionProvider } from './contexts/VersionContext'; // --- NOUVEL IMPORT ---
 
 // Fichiers de style
 import './App.css';
 import './index.css';
 
-// ... (imports)
+// ... (tous vos autres imports d'écrans)
 import LandingScreen from './screens/LandingScreen.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
@@ -62,7 +63,7 @@ import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
 import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import ComplaintListScreen from './screens/admin/ComplaintListScreen.jsx';
-import SuggestionListScreen from './screens/admin/SuggestionListScreen.jsx'; // --- NOUVEL IMPORT ---
+import SuggestionListScreen from './screens/admin/SuggestionListScreen.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -120,7 +121,7 @@ const router = createBrowserRouter(
           <Route path="/admin/product/add" element={<ProductAddScreen />} />
           <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
           <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
-          <Route path="/admin/suggestionlist" element={<SuggestionListScreen />} /> {/* --- NOUVELLE ROUTE --- */}
+          <Route path="/admin/suggestionlist" element={<SuggestionListScreen />} />
         </Route>
       </Route>
     </Route>
@@ -130,9 +131,13 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <PayPalScriptProvider deferLoading={true}>
-        <RouterProvider router={router} />
-      </PayPalScriptProvider>
+      {/* --- LE VERSION PROVIDER ENVELOPPE L'APPLICATION --- */}
+      <VersionProvider>
+        <PayPalScriptProvider deferLoading={true}>
+          <RouterProvider router={router} />
+        </PayPalScriptProvider>
+      </VersionProvider>
+      {/* --- FIN DE L'AJOUT --- */}
     </Provider>
   </React.StrictMode>
 );

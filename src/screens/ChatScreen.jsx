@@ -22,13 +22,11 @@ const ChatScreen = () => {
   const handleSendMessage = async (messageData) => {
     try {
       let recipientId;
-      // Pour un client, le destinataire est toujours l'admin
       if (!userInfo.isAdmin) {
         if (selectedConversation) {
             recipientId = selectedConversation.participants.find(p => p.isAdmin)?._id;
         }
       } 
-      // Pour un admin, le destinataire est l'autre participant
       else {
         if (!selectedConversation) return;
         recipientId = selectedConversation.participants.find(p => p._id !== userInfo._id)?._id;
@@ -39,6 +37,15 @@ const ChatScreen = () => {
     }
   };
 
+  // --- NOUVELLE FONCTION POUR AFFICHER LE BADGE DE RÔLE ---
+  const getRoleBadge = (user) => {
+    if (!user) return null;
+    if (user.isAdmin) {
+      return <Badge bg="primary" className="ms-2">Admin</Badge>;
+    }
+    return <Badge bg="secondary" className="ms-2">Client</Badge>;
+  };
+  
   if (isLoading) {
     return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
   }
@@ -47,7 +54,6 @@ const ChatScreen = () => {
     <Container className="my-4">
       <h1 className="mb-4">Messagerie</h1>
 
-      {/* --- Pour un client qui n'a pas encore de conversation --- */}
       {!userInfo.isAdmin && (!conversations || conversations.length === 0) && (
         <div className="text-center">
             <Message variant="info">Vous n'avez pas encore de conversation.</Message>
@@ -57,7 +63,6 @@ const ChatScreen = () => {
         </div>
       )}
 
-      {/* --- Liste des conversations pour admin ou client avec historique --- */}
       {(userInfo.isAdmin || (conversations && conversations.length > 0)) && (
         <ListGroup variant="flush">
           {conversations.map(convo => {
@@ -75,7 +80,10 @@ const ChatScreen = () => {
                               <Image src={otherParticipant.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} roundedCircle width={50} height={50} />
                           </Col>
                           <Col>
-                              <div className="fw-bold">{otherParticipant.name}</div>
+                              <div className="fw-bold d-flex align-items-center">
+                                  {otherParticipant.name}
+                                  {getRoleBadge(otherParticipant)}
+                              </div>
                               <small className={convo.isUnread ? 'fw-bold' : 'text-muted'}>
                                   {convo.lastMessage?.text.substring(0, 40)}...
                               </small>
@@ -92,23 +100,32 @@ const ChatScreen = () => {
         </ListGroup>
       )}
 
-      {/* --- La Fenêtre Pop-up (Modale) --- */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            Conversation avec {
-              selectedConversation?.participants.find(p => p._id !== userInfo._id)?.name || 'Service Client'
-            }
+            {/* --- EN-TÊTE AMÉLIORÉ AVEC PHOTO ET RÔLE --- */}
+            <div className="d-flex align-items-center">
+                <Image 
+                    src={selectedConversation?.participants.find(p => p._id !== userInfo._id)?.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
+                    roundedCircle 
+                    width={40} 
+                    height={40} 
+                    className="me-3"
+                />
+                <div>
+                    Conversation avec {selectedConversation?.participants.find(p => p._id !== userInfo._id)?.name || 'Service Client'}
+                    {getRoleBadge(selectedConversation?.participants.find(p => p._id !== userInfo._id))}
+                </div>
+            </div>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="chat-modal-body">
-            {/* On s'assure que MessageContainer a bien un ID de conversation avant de s'afficher */}
             {selectedConversation ? (
                 <MessageContainer 
                     conversationId={selectedConversation._id} 
                     onSendMessage={handleSendMessage} 
                 />
-            ) : !userInfo.isAdmin ? ( // Cas où un client démarre une nouvelle conversation
+            ) : !userInfo.isAdmin ? (
                 <MessageContainer 
                     conversationId="new" 
                     onSendMessage={handleSendMessage}
