@@ -1,9 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col, InputGroup } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
+// --- NOUVEAUX IMPORTS POUR LE CHAMP TÉLÉPHONE ---
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import './RegisterScreen.css';
+// --- FIN DES IMPORTS ---
+
 import { useRegisterMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 
@@ -14,21 +21,19 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // NOUVEAUX ÉTATS
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [passwordFocus, setPasswordFocus] = useState(false); // Pour afficher les règles
+  const [passwordFocus, setPasswordFocus] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [register, { isLoading }] = useRegisterMutation();
 
-  // --- LOGIQUE DE VALIDATION DU MOT DE PASSE ---
   const validatePassword = (pass) => {
     const hasMinLength = pass.length >= 9;
-    const hasNumber = /\d{2,}/.test(pass); // Au moins 2 chiffres
+    const hasNumber = /\d{2,}/.test(pass);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
     return { hasMinLength, hasNumber, hasSpecialChar };
   };
@@ -38,6 +43,12 @@ const RegisterScreen = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    // --- NOUVELLE VALIDATION POUR LE TÉLÉPHONE ---
+    if (!phone || !isValidPhoneNumber(phone)) {
+      toast.error('Veuillez entrer un numéro de téléphone valide.');
+      return;
+    }
 
     if (!isPasswordValid) {
       toast.error('Votre mot de passe ne respecte pas les critères de sécurité.');
@@ -77,10 +88,20 @@ const RegisterScreen = () => {
           <Form.Control type='email' placeholder='Entrez votre email' value={email} onChange={(e) => setEmail(e.target.value)} required />
         </Form.Group>
         
-        <Form.Group className='my-2' controlId='phone'>
+        {/* --- CHAMP TÉLÉPHONE REMPLACÉ --- */}
+        <Form.Group className='my-2 phone-input-container' controlId='phone'>
           <Form.Label>Numéro de téléphone</Form.Label>
-          <Form.Control type='tel' placeholder='Entrez votre numéro' value={phone} onChange={(e) => setPhone(e.target.value)} required />
+          <PhoneInput
+            placeholder="Entrez votre numéro"
+            value={phone}
+            onChange={setPhone}
+            defaultCountry="CI" // Côte d'Ivoire par défaut
+            international
+            withCountryCallingCode
+            required
+          />
         </Form.Group>
+        {/* --- FIN DU REMPLACEMENT --- */}
 
         <Form.Group className='my-2' controlId='password'>
           <Form.Label>Mot de passe</Form.Label>

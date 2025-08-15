@@ -1,0 +1,51 @@
+/* Style pour le conteneur du champ de téléphone */
+.phone-input-container .form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Style de base pour le champ de react-phone-number-input */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+}
+
+/* Style pour l'input lui-même pour qu'il ressemble à Bootstrap */
+.PhoneInputInput {
+  flex: 1;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.PhoneInputInput:focus {
+  color: #212529;
+  background-color: #fff;
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+
+/* Style pour le sélecteur de pays */
+.PhoneInputCountry {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-right: none;
+  border-radius: 0.375rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: #e9ecef;
+}
