@@ -1,4 +1,8 @@
 /* Un dégradé "cool" pour le fond du modal */
+.update-modal-dialog {
+  max-width: 450px; /* On limite la largeur maximale */
+}
+
 .update-modal-dialog .modal-content {
   border-radius: 18px;
   border: none;
@@ -8,15 +12,15 @@
 }
 
 .update-modal-body {
-  padding: 2.5rem 2rem !important;
+  padding: 2rem 1.5rem !important; /* Padding réduit */
   text-align: center;
 }
 
 /* Animation des fusées améliorée */
 .rocket-animation-container {
   position: relative;
-  height: 80px;
-  margin-bottom: 1.5rem;
+  height: 60px; /* Hauteur réduite */
+  margin-bottom: 1rem; /* Marge réduite */
   overflow: hidden;
 }
 
@@ -24,8 +28,8 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  transform: translateX(-50%) translateY(50px) rotate(-35deg);
-  font-size: 2.5rem;
+  transform: translateX(-50%) translateY(40px) rotate(-35deg);
+  font-size: 2rem; /* Fusée un peu plus petite */
   color: #3dceff; /* Bleu cyan pour un effet néon */
   opacity: 0;
   animation: rocket-takeoff 3s ease-in-out infinite;
@@ -36,21 +40,23 @@
 .rocket-icon.delay-2 { animation-delay: 2s; }
 
 @keyframes rocket-takeoff {
-  0% { transform: translateX(-50%) translateY(50px) rotate(-35deg); opacity: 0; }
+  0% { transform: translateX(-50%) translateY(40px) rotate(-35deg); opacity: 0; }
   20% { opacity: 1; }
-  80% { transform: translateX(-50%) translateY(-90px) rotate(15deg); opacity: 1; }
-  100% { transform: translateX(-50%) translateY(-120px) rotate(0deg); opacity: 0; }
+  80% { transform: translateX(-50%) translateY(-70px) rotate(15deg); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-90px) rotate(0deg); opacity: 0; }
 }
 
 .update-modal-body h2 {
+  font-size: 1.5rem; /* Titre plus petit */
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .update-modal-body .lead-text {
+  font-size: 0.95rem; /* Texte plus petit */
   color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Marge réduite */
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
@@ -58,9 +64,9 @@
 
 /* Section des détails avec emojis */
 .version-details {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem; /* Marge réduite */
   text-align: left;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1rem; /* Padding réduit */
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
 }
@@ -69,7 +75,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
+  padding: 0.6rem 0; /* Padding réduit */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .info-item:last-child {
@@ -84,26 +90,27 @@
   color: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
+  font-size: 0.9rem; /* Texte plus petit */
 }
 
 .info-item .info-icon {
   margin-right: 0.8rem;
   color: #3dceff;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-/* Style de la "pastille vérifiée" */
 .info-item .info-icon.verified {
   color: white;
   background-color: #3dceff;
   border-radius: 50%;
   padding: 2px;
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Emoji plus petit */
 }
 
 .info-item .value {
   color: #ffffff;
   font-weight: 600;
+  font-size: 0.9rem; /* Texte plus petit */
 }
 
 .info-item .corrections-list {
@@ -111,20 +118,21 @@
   margin: 0;
   list-style-type: none;
   text-align: right;
+  font-size: 0.9rem; /* Texte plus petit */
 }
 
 /* Style des boutons */
 .buttons-container {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem; /* Espacement réduit */
 }
 
 .buttons-container .btn {
   width: 100%;
-  padding: 0.8rem 1.5rem;
+  padding: 0.6rem 1.2rem; /* Boutons moins hauts */
   font-weight: bold;
-  border-radius: 50px; /* Bordures très arrondies */
+  border-radius: 50px;
   border: none;
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
