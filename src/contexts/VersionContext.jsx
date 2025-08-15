@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import useVersionCheck from '../hooks/useVersionCheck';
+// La correction est ici : on utilise les accolades {} pour un import nommé
+import { useVersionCheck } from '../hooks/useVersionCheck';
 
 const VersionContext = createContext();
 
