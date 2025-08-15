@@ -1,41 +1,36 @@
 import React, { useState } from 'react';
-import { Table, Button, Badge } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap'; // Badge n'est plus nécessaire ici
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { FaBell } from 'react-icons/fa';
 import Message from '../../components/Message';
-import WarningModal from '../../components/WarningModal'; // NOUVEL IMPORT
+import WarningModal from '../../components/WarningModal';
 import { useGetUsersQuery, useUpdateUserStatusMutation, useUpdateUserRoleMutation } from '../../slices/adminApiSlice';
+import './UserListScreen.css'; // --- NOUVEL IMPORT DU STYLE ---
 
 const UserListScreen = () => {
   const { data: users, isLoading, error } = useGetUsersQuery();
   const [updateUserStatus, { isLoading: isUpdatingStatus }] = useUpdateUserStatusMutation();
   const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
 
-  // --- NOUVEAUX ÉTATS POUR LE MODAL ---
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  // --- FIN DE L'AJOUT ---
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  // --- NOUVELLE FONCTION POUR OUVRIR LE MODAL ---
   const handleShowWarningModal = (user) => {
     setSelectedUser(user);
     setShowWarningModal(true);
   };
-  // --- FIN DE L'AJOUT ---
 
+  // --- LOGIQUE MISE À JOUR POUR LE TOGGLE ---
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-    const actionText = newStatus === 'banned' ? 'bannir' : 'réactiver';
-    if (window.confirm(`Êtes-vous sûr de vouloir ${actionText} cet utilisateur ?`)) {
-      try {
-        await updateUserStatus({ userId, status: newStatus }).unwrap();
-        toast.success('Statut de l\'utilisateur mis à jour.');
-      } catch (err) {
-        toast.error(err?.data?.message || err.error);
-      }
+    try {
+      await updateUserStatus({ userId, status: newStatus }).unwrap();
+      toast.success(`Utilisateur ${newStatus === 'banned' ? 'banni' : 'réactivé'}.`);
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -57,7 +52,7 @@ const UserListScreen = () => {
   return (
     <>
       <h1>Gestion des Utilisateurs</h1>
-      {(isUpdatingStatus || isUpdatingRole) && <p>Mise à jour...</p>}
+      {(isUpdatingStatus || isUpdatingRole) && <p>Mise à jour en cours...</p>}
       {isLoading ? (
         <p>Chargement...</p>
       ) : error ? (
@@ -70,33 +65,36 @@ const UserListScreen = () => {
               <th>EMAIL</th>
               <th>TÉLÉPHONE</th>
               <th>ADMIN</th>
-              <th>STATUT</th>
+              <th>STATUT (Actif / Banni)</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user._id}>
+              <tr key={user._id} style={{ opacity: user.status === 'banned' ? 0.6 : 1 }}>
                 <td>{user.name}</td>
                 <td><a href={`mailto:${user.email}`}>{user.email}</a></td>
                 <td>{user.phone}</td>
                 <td>{user.isAdmin ? '✅' : '❌'}</td>
                 <td>
-                  <Badge bg={user.status === 'active' ? 'success' : 'danger'}>
-                    {user.status === 'active' ? 'Actif' : 'Banni'}
-                  </Badge>
+                  {/* --- REMPLACEMENT DU BADGE PAR LE TOGGLE --- */}
+                  { user.email !== userInfo.email && !isSuperAdmin(user.email) ? (
+                    <label className="status-toggle">
+                      <input 
+                        type="checkbox" 
+                        checked={user.status === 'active'}
+                        onChange={() => handleStatusToggle(user._id, user.status)}
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  ) : (
+                    <span>{user.status === 'active' ? 'Actif' : 'Banni'}</span>
+                  )}
                 </td>
                 <td>
                   { user.email !== userInfo.email && !isSuperAdmin(user.email) && (
                     <>
-                      <Button
-                        variant={user.status === 'active' ? 'warning' : 'success'}
-                        className='btn-sm me-2'
-                        onClick={() => handleStatusToggle(user._id, user.status)}
-                      >
-                        {user.status === 'active' ? 'Suspendre' : 'Réactiver'}
-                      </Button>
-
+                      {/* Le bouton Suspendre/Réactiver a été supprimé car le toggle le remplace */}
                       <Button
                         variant={user.isAdmin ? 'danger' : 'info'}
                         className='btn-sm me-2'
@@ -105,7 +103,6 @@ const UserListScreen = () => {
                         {user.isAdmin ? 'Révoquer Admin' : 'Nommer Admin'}
                       </Button>
                       
-                      {/* --- NOUVEAU BOUTON D'AVERTISSEMENT --- */}
                       <Button
                         variant='outline-danger'
                         className='btn-sm'
@@ -113,7 +110,6 @@ const UserListScreen = () => {
                       >
                         <FaBell />
                       </Button>
-                      {/* --- FIN DE L'AJOUT --- */}
                     </>
                   )}
                 </td>
@@ -123,7 +119,6 @@ const UserListScreen = () => {
         </Table>
       )}
 
-      {/* --- DÉCLARATION DU MODAL --- */}
       {selectedUser && (
         <WarningModal 
           show={showWarningModal}
@@ -131,7 +126,6 @@ const UserListScreen = () => {
           user={selectedUser}
         />
       )}
-      {/* --- FIN DE L'AJOUT --- */}
     </>
   );
 };

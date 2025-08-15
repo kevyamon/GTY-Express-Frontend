@@ -1,0 +1,44 @@
+.banned-screen-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 1rem;
+}
+
+.banned-card {
+  max-width: 500px;
+  width: 100%;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  padding: 2.5rem;
+  border: 1px solid #eee;
+}
+
+.banned-icon {
+  font-size: 4rem;
+  color: #dc3545; /* Rouge Danger */
+  margin-bottom: 1.5rem;
+}
+
+.banned-card h1 {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.banned-card p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.banned-actions .btn {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  font-weight: bold;
+  padding: 0.75rem;
+  border-radius: 8px;
+}

@@ -1,18 +1,21 @@
-import React, { useState } from 'react'; // Ajout de useState
-import { Container, Alert, Button } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { Container, Button, Card } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { FaUserSlash, FaHeadset, FaFileAlt, FaSignOutAlt } from 'react-icons/fa';
 import { logout } from '../slices/authSlice';
 import { useLogoutMutation } from '../slices/usersApiSlice';
-import ComplaintModal from '../components/ComplaintModal'; // NOUVEL IMPORT
+import ComplaintModal from '../components/ComplaintModal';
+import SupportContactModal from '../components/SupportContactModal'; // NOUVEL IMPORT
+import './BannedScreen.css'; // NOUVEL IMPORT
 
 const BannedScreen = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [logoutApiCall] = useLogoutMutation();
 
-    // État pour contrôler l'ouverture de la modale
     const [showComplaintModal, setShowComplaintModal] = useState(false);
+    const [showSupportModal, setShowSupportModal] = useState(false); // NOUVEL ÉTAT
 
     const logoutHandler = async () => {
         try {
@@ -24,28 +27,32 @@ const BannedScreen = () => {
 
     return (
         <>
-            <Container className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
-                <Alert variant="danger" className="text-center">
-                    <Alert.Heading>Accès Refusé</Alert.Heading>
-                    <p>
-                        Votre compte a été temporairement suspendu par un administrateur.
-                    </p>
-                    <hr />
-                    <p className="mb-0">
-                        Si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support ou faire une réclamation.
-                    </p>
-                    <div className="d-flex justify-content-center mt-3">
-                        {/* Ce bouton ouvre maintenant la modale */}
-                        <Button variant="warning" className="mx-2" onClick={() => setShowComplaintModal(true)}>
-                            Faire une réclamation
-                        </Button>
-                        <Button variant="outline-danger" className="mx-2" onClick={logoutHandler}>Se déconnecter</Button>
+            <Container className="banned-screen-container">
+                <div className="banned-card">
+                    <div className="banned-icon">
+                        <FaUserSlash />
                     </div>
-                </Alert>
+                    <h1>Accès Suspendu</h1>
+                    <p>
+                        Votre compte a été temporairement suspendu par un administrateur pour non-respect de nos conditions d'utilisation.
+                    </p>
+                    <div className="banned-actions">
+                        <Button variant="primary" className="mb-2" onClick={() => setShowSupportModal(true)}>
+                            <FaHeadset className="me-2" /> Contacter le support
+                        </Button>
+                        <Button variant="outline-secondary" className="mb-2" onClick={() => setShowComplaintModal(true)}>
+                           <FaFileAlt className="me-2" /> Faire une réclamation
+                        </Button>
+                        <Button variant="outline-danger" onClick={logoutHandler}>
+                            <FaSignOutAlt className="me-2" /> Se déconnecter
+                        </Button>
+                    </div>
+                </div>
             </Container>
 
-            {/* La modale est rendue ici */}
+            {/* Les deux modales sont prêtes à être utilisées */}
             <ComplaintModal show={showComplaintModal} handleClose={() => setShowComplaintModal(false)} />
+            <SupportContactModal show={showSupportModal} handleClose={() => setShowSupportModal(false)} onContactChosen={() => {}} />
         </>
     );
 };
