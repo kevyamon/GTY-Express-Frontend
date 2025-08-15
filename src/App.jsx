@@ -26,7 +26,10 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // --- LOGIQUE DE MISE À JOUR AMÉLIORÉE ---
+  // --- CORRECTION : DÉTECTER LA PAGE D'ACCUEIL ---
+  // On vérifie si le chemin actuel est exactement la racine "/"
+  const isLandingPage = location.pathname === '/';
+  
   const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
@@ -39,7 +42,6 @@ const App = () => {
   const handleCloseUpdateModal = () => {
     setShowUpdateModal(false);
   };
-  // --- FIN DE LA LOGIQUE DE MISE À JOUR ---
 
   const [showLogo, setShowLogo] = useState(true);
   const [logoKey, setLogoKey] = useState(Date.now());
@@ -68,13 +70,14 @@ const App = () => {
     setShowLogo(false);
   };
 
-  const appStyle = {
+  // On n'applique le style de fond que si ce n'est PAS la page d'accueil
+  const appStyle = !isLandingPage ? {
     backgroundImage: `url(${bgImage})`,
     backgroundSize: 'cover',
     backgroundAttachment: 'fixed',
     backgroundPosition: 'center',
     minHeight: '100vh',
-  };
+  } : { minHeight: '100vh' }; // Sinon, on met juste une hauteur minimale
 
   return (
     <div style={appStyle}>
@@ -89,9 +92,12 @@ const App = () => {
       />
       
       <ScrollToTop />
-      <Header />
-      <main className="py-3">
-        <Container>
+
+      {/* On n'affiche le Header et le Footer que si ce n'est PAS la page d'accueil */}
+      {!isLandingPage && <Header />}
+      
+      <main className={!isLandingPage ? "py-3" : ""}>
+        <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
                 <Outlet />
@@ -99,12 +105,13 @@ const App = () => {
           </TransitionGroup>
         </Container>
       </main>
-      <Footer />
+      
+      {!isLandingPage && <Footer />}
+
       {userInfo && !userInfo.isAdmin && <ChatTrigger />}
       {userInfo && <WarningDisplay />}
       <ToastContainer />
 
-      {/* --- NOTRE MODAL FINAL AVEC TOUTES LES PROPS NÉCESSAIRES --- */}
       <UpdateModal 
         show={showUpdateModal} 
         handleClose={handleCloseUpdateModal} 

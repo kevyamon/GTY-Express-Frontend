@@ -2,27 +2,26 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-// --- NOS AJOUTS ---
-// 1. Importer le logo et le fond d'écran
+// 1. Importer le logo et le fond d'écran (inchangé)
 import logo from '../assets/logo.png';
 import landingBackground from '../assets/landingbackground.png';
 
-// 2. Importer dynamiquement toutes les images du dossier products
-// Cette magie permet de récupérer toutes les images sans les nommer une par une
-const productImagesContext = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}');
-const productImages = Object.keys(productImagesContext).map(key => productImagesContext[key].name);
+// 2. CORRECTION : Voici la bonne méthode pour importer les images avec Vite
+// On utilise { eager: true } pour charger directement les images
+const modules = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}', { eager: true });
+// On récupère ensuite le chemin de chaque image
+const productImages = Object.values(modules).map((module) => module.default);
 
-// 3. Notre composant réécrit pour la nouvelle page
 import './LandingScreen.css';
 
 const LandingScreen = () => {
-  // Divise les images en lignes de 5
+  // Divise les images en lignes de 5 (inchangé)
   const chunkedImages = [];
   for (let i = 0; i < productImages.length; i += 5) {
     chunkedImages.push(productImages.slice(i, i + 5));
   }
 
-  // Style pour l'arrondi des images (tu peux changer "40%" ici)
+  // Style pour l'arrondi des images (inchangé)
   const imageStyle = {
     borderRadius: '40%',
   };
@@ -39,7 +38,7 @@ const LandingScreen = () => {
             key={rowIndex}
             className={`product-scroller ${rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right'}`}
           >
-            {/* On duplique les images dans chaque ligne pour un effet de boucle infini parfait */}
+            {/* On duplique les images pour un effet de boucle infini (inchangé) */}
             {[...row, ...row].map((image, imgIndex) => (
               <img
                 key={imgIndex}
@@ -54,7 +53,8 @@ const LandingScreen = () => {
       </div>
 
       <div className='landing-v2-content'>
-        <img src={logo} alt="GTY Express Logo" className="landing-logo" />
+        {/* On ajoute une classe pour l'animation du logo */}
+        <img src={logo} alt="GTY Express Logo" className="landing-logo animated-logo" />
         <h1 className='landing-title'>Là où le produit, c'est ton envie.</h1>
         <p className='landing-subtitle'>
           Explore des milliers d'articles et profite d'une livraison express en Côte d'Ivoire.

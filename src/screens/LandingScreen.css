@@ -3,7 +3,7 @@
   --image-border-radius: 40%;
 }
 
-/* Conteneur principal de la page */
+/* Conteneur principal de la page avec la nouvelle police */
 .landing-v2 {
   min-height: 100vh;
   width: 100%;
@@ -11,9 +11,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Empêche les barres de scroll causées par les animations */
+  overflow: hidden;
   background-size: cover;
   background-position: center;
+  font-family: 'Poppins', sans-serif; /* <-- APPLICATION DE LA NOUVELLE POLICE */
 }
 
 /* Conteneur pour les images qui défilent en fond */
@@ -34,7 +35,7 @@
 .product-scroller {
   display: flex;
   flex-shrink: 0;
-  width: max-content; /* Permet aux images de déborder pour l'animation */
+  width: max-content;
 }
 
 .product-image {
@@ -44,15 +45,15 @@
   margin: 0 1rem;
   border-radius: var(--image-border-radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  opacity: 0.3; /* On les rend un peu transparentes pour ne pas gêner le texte */
-  transition: transform 0.3s ease;
+  opacity: 0.15; /* On réduit l'opacité pour que le contenu ressorte mieux */
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .product-image:hover {
   transform: scale(1.1);
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
-/* Animations de défilement */
+/* Animations de défilement (inchangées) */
 .scroll-left {
   animation: scrollLeft 60s linear infinite;
 }
@@ -62,7 +63,7 @@
 
 @keyframes scrollLeft {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); } /* Se déplace de la moitié de sa largeur */
+  to { transform: translateX(-50%); }
 }
 @keyframes scrollRight {
   from { transform: translateX(-50%); }
@@ -73,43 +74,54 @@
 .landing-v2-content {
   position: relative;
   z-index: 2;
-  background: rgba(1, 2, 23, 0.5); /* Fond "verre dépoli" très sombre */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 25, 47, 0.7); /* Fond "verre dépoli" bleu nuit */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 3rem;
-  border-radius: 20px;
+  border-radius: 24px;
   text-align: center;
-  max-width: 600px;
+  max-width: 650px;
   width: 90%;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeIn 1s ease-out;
+  animation: content-appear 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+@keyframes content-appear {
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- ANIMATION DU LOGO --- */
 .landing-logo {
   width: 100px;
   margin-bottom: 1.5rem;
+  animation: logo-float 4s ease-in-out infinite;
 }
 
+@keyframes logo-float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+/* --- FIN DE L'ANIMATION DU LOGO --- */
+
 .landing-title {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 2.8rem;
+  font-weight: 700; /* Police plus grasse */
   color: white;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
 }
 
 .landing-subtitle {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.8);
   margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  font-weight: 400; /* Police normale pour le sous-titre */
 }
 
-/* Style des boutons "21ème siècle" */
+/* Style des boutons ultra-moderne */
 .landing-buttons-v2 {
   display: flex;
   gap: 1rem;
@@ -117,31 +129,32 @@
 }
 
 .landing-buttons-v2 .btn {
-  font-weight: bold;
+  font-weight: 600; /* Police semi-grasse */
   border-radius: 50px;
-  padding: 0.8rem 2rem;
+  padding: 0.9rem 2.2rem;
   border: none;
   transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
 .landing-buttons-v2 .btn-signup {
   background: white;
-  color: #1d2b64;
+  color: #0a192f; /* Couleur du fond pour le texte */
 }
 .landing-buttons-v2 .btn-signup:hover {
-  background: #eee;
+  background: #f0f0f0;
   transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
 }
 
 .landing-buttons-v2 .btn-login {
   background: transparent;
   color: white;
-  border: 2px solid white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 .landing-buttons-v2 .btn-login:hover {
-  background: white;
-  color: #1d2b64;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
   transform: translateY(-3px);
 }
 
@@ -153,11 +166,15 @@
   }
   .landing-v2-content {
     padding: 2rem 1.5rem;
+    width: 95%;
   }
   .landing-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
   .landing-subtitle {
     font-size: 1rem;
+  }
+  .landing-buttons-v2 {
+    flex-direction: column;
   }
 }
