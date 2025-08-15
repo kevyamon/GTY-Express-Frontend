@@ -1,8 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import versionInjector from './vite-plugin-version-injector.js'; // <-- 1. IMPORTER NOTRE PLUGIN
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    versionInjector(), // <-- 2. AJOUTER LE PLUGIN ICI
+  ],
   server: {
     proxy: {
       '/api': {
@@ -10,7 +15,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    // AJOUT DE CETTE LIGNE POUR AUTORISER REPLIT
     allowedHosts: ['.replit.dev'],
   },
-})
+});

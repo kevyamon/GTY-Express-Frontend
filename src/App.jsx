@@ -6,6 +6,11 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
+// --- NOS AJOUTS ---
+import { useVersionCheck } from './hooks/useVersionCheck';
+import UpdateModal from './components/UpdateModal';
+// --- FIN DES AJOUTS ---
+
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
@@ -22,6 +27,10 @@ const App = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
+
+  // --- NOTRE NOUVELLE LOGIQUE ---
+  const { isUpdateAvailable, newVersion } = useVersionCheck();
+  // --- FIN DE LA LOGIQUE ---
 
   // --- LOGIQUE DE TRANSITION CORRIGÉE ---
   const [showLogo, setShowLogo] = useState(true);
@@ -98,6 +107,9 @@ const App = () => {
       {userInfo && !userInfo.isAdmin && <ChatTrigger />}
       {userInfo && <WarningDisplay />}
       <ToastContainer />
+
+      {/* --- LE MODAL DE MISE À JOUR S'AFFICHE ICI SI NÉCESSAIRE --- */}
+      <UpdateModal show={isUpdateAvailable} newVersion={newVersion} />
     </div>
   );
 };
