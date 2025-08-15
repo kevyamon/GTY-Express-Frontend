@@ -1,38 +1,77 @@
 import React from 'react';
-import { Container, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './LandingScreen.css'; // On importe notre nouveau style
+
+// --- NOS AJOUTS ---
+// 1. Importer le logo et le fond d'écran
+import logo from '../assets/logo.png';
+import landingBackground from '../assets/landingbackground.png';
+
+// 2. Importer dynamiquement toutes les images du dossier products
+// Cette magie permet de récupérer toutes les images sans les nommer une par une
+const productImagesContext = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}');
+const productImages = Object.keys(productImagesContext).map(key => productImagesContext[key].name);
+
+// 3. Notre composant réécrit pour la nouvelle page
+import './LandingScreen.css';
 
 const LandingScreen = () => {
+  // Divise les images en lignes de 5
+  const chunkedImages = [];
+  for (let i = 0; i < productImages.length; i += 5) {
+    chunkedImages.push(productImages.slice(i, i + 5));
+  }
+
+  // Style pour l'arrondi des images (tu peux changer "40%" ici)
+  const imageStyle = {
+    borderRadius: '40%',
+  };
+
+  const pageStyle = {
+    backgroundImage: `url(${landingBackground})`,
+  };
+
   return (
-    <div className='landing'>
-      <Container>
-        <div className='landing-inner'>
-          <h1 className='animated-text'>Bienvenue sur GTY Express</h1>
-          <p className='lead'>
-            Votre nouvelle destination pour trouver les meilleurs produits, rapidement et simplement.
-          </p>
-          <div className='landing-buttons'>
-            <Link to='/login'>
-              <Button variant='primary' size='lg' className='animated-button'>
-                Se Connecter
-              </Button>
-            </Link>
-            <Link to='/register'>
-              <Button variant='secondary' size='lg' className='animated-button'>
-                S'inscrire
-              </Button>
-            </Link>
+    <div className='landing-v2' style={pageStyle}>
+      <div className='scrolling-background'>
+        {chunkedImages.map((row, rowIndex) => (
+          <div
+            key={rowIndex}
+            className={`product-scroller ${rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right'}`}
+          >
+            {/* On duplique les images dans chaque ligne pour un effet de boucle infini parfait */}
+            {[...row, ...row].map((image, imgIndex) => (
+              <img
+                key={imgIndex}
+                src={image}
+                alt={`product-showcase-${imgIndex}`}
+                className="product-image"
+                style={imageStyle}
+              />
+            ))}
           </div>
+        ))}
+      </div>
 
-          {/* Ajout du crédit de création */}
-          <div className='creator-credit'>
-            <p>Créé par Kevin Amon</p>
-            <p>2250768388770 / amonchristr34@gmail.com</p>
-          </div>
-
+      <div className='landing-v2-content'>
+        <img src={logo} alt="GTY Express Logo" className="landing-logo" />
+        <h1 className='landing-title'>Là où le produit, c'est ton envie.</h1>
+        <p className='landing-subtitle'>
+          Explore des milliers d'articles et profite d'une livraison express en Côte d'Ivoire.
+        </p>
+        <div className='landing-buttons-v2'>
+          <Link to='/register'>
+            <Button className='btn-signup'>
+              Créer un compte
+            </Button>
+          </Link>
+          <Link to='/login'>
+            <Button className='btn-login'>
+              Se Connecter
+            </Button>
+          </Link>
         </div>
-      </Container>
+      </div>
     </div>
   );
 };
