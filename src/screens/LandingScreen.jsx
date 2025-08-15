@@ -55,7 +55,8 @@ const LandingScreen = () => {
       <div className='landing-v2-content'>
         {/* On ajoute une classe pour l'animation du logo */}
         <img src={logo} alt="GTY Express Logo" className="landing-logo animated-logo" />
-        <h1 className='landing-title'>Là où le produit, c'est ton envie.</h1>
+        <h1 className='landing-main-title'>Bienvenue sur GTY Express</h1>
+<h2 className='landing-slogan'>Là où le produit, c'est ton envie.</h2>
         <p className='landing-subtitle'>
           Explore des milliers d'articles et profite d'une livraison express en Côte d'Ivoire.
         </p>
