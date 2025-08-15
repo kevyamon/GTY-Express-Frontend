@@ -1,0 +1,62 @@
+.logo-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111; /* Fond sombre pour la transition */
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.logo-transition-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.logo-container-transition {
+  font-family: 'Arial', sans-serif; /* Choisissez une police qui vous plaît */
+  font-weight: 900;
+  font-size: 4rem; /* Taille du texte */
+  color: white;
+  text-align: center;
+}
+
+/* Chaque lettre est un 'span' pour être animée individuellement */
+.logo-container-transition span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px) scale(0.8);
+  animation: letter-reveal 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* On crée un délai d'animation pour chaque lettre */
+.logo-container-transition .char2 { animation-delay: 0.1s; }
+.logo-container-transition .char3 { animation-delay: 0.2s; }
+.logo-container-transition .char4 { animation-delay: 0.3s; }
+.logo-container-transition .char5 { animation-delay: 0.4s; }
+.logo-container-transition .char6 { animation-delay: 0.5s; }
+.logo-container-transition .char7 { animation-delay: 0.6s; }
+.logo-container-transition .char8 { animation-delay: 0.7s; }
+.logo-container-transition .char9 { animation-delay: 0.8s; }
+.logo-container-transition .char10 { animation-delay: 0.9s; }
+.logo-container-transition .char11 { animation-delay: 1s; }
+
+/* L'animation qui révèle les lettres */
+@keyframes letter-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.8);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
