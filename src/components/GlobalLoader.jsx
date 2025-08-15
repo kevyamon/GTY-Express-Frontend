@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import './GlobalLoader.css';
 
 const GlobalLoader = () => {
-  // Plus tard, nous allons créer un état global pour contrôler "isLoading"
-  const isLoading = false; // Pour l'instant, nous le mettons sur "false"
+  // On se connecte à l'état global du loader
+  const { isLoading } = useSelector((state) => state.loader);
 
   return (
     <div className={`global-loader-overlay ${isLoading ? 'show' : ''}`}>

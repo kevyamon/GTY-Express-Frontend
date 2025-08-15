@@ -9,9 +9,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
 import WarningDisplay from './components/WarningDisplay';
-import WelcomeTransition from './components/WelcomeTransition'; // NOUVEL IMPORT
+import WelcomeTransition from './components/WelcomeTransition';
 import ScrollToTop from './components/ScrollToTop';
-import { clearWelcome } from './slices/authSlice'; // NOUVEL IMPORT
+import GlobalLoader from './components/GlobalLoader'; // --- NOUVEL IMPORT ---
+import { clearWelcome } from './slices/authSlice';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -34,7 +35,8 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      {/* --- Le composant de bienvenue est appelé ici --- */}
+      <GlobalLoader /> {/* --- COMPOSANT AJOUTÉ ICI --- */}
+      
       {showWelcome && <WelcomeTransition onTransitionEnd={handleTransitionEnd} />}
       
       <ScrollToTop />
