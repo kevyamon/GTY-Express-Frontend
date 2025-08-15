@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Table, Button } from 'react-bootstrap'; // Badge n'est plus nécessaire ici
+import React, { useState, useMemo } from 'react';
+import { Button, Form, InputGroup, Image } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import { FaBell } from 'react-icons/fa';
+import { FaBell, FaSearch, FaUserShield, FaUserCog } from 'react-icons/fa';
 import Message from '../../components/Message';
 import WarningModal from '../../components/WarningModal';
 import { useGetUsersQuery, useUpdateUserStatusMutation, useUpdateUserRoleMutation } from '../../slices/adminApiSlice';
-import './UserListScreen.css'; // --- NOUVEL IMPORT DU STYLE ---
+import './UserListScreen.css';
 
 const UserListScreen = () => {
   const { data: users, isLoading, error } = useGetUsersQuery();
@@ -15,15 +15,25 @@ const UserListScreen = () => {
 
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); // État pour la recherche
 
   const { userInfo } = useSelector((state) => state.auth);
+
+  // Filtre les utilisateurs en fonction de la recherche (nom, email, téléphone)
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    return users.filter(user =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.phone.includes(searchQuery)
+    );
+  }, [users, searchQuery]);
 
   const handleShowWarningModal = (user) => {
     setSelectedUser(user);
     setShowWarningModal(true);
   };
 
-  // --- LOGIQUE MISE À JOUR POUR LE TOGGLE ---
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'active' ? 'banned' : 'active';
     try {
@@ -36,7 +46,7 @@ const UserListScreen = () => {
 
   const handleRoleToggle = async (userId, currentIsAdmin) => {
     const newIsAdmin = !currentIsAdmin;
-    const actionText = newIsAdmin ? 'nommer admin' : 'révoquer les droits admin de';
+    const actionText = newIsAdmin ? 'promouvoir en admin' : 'révoquer les droits admin de';
     if (window.confirm(`Êtes-vous sûr de vouloir ${actionText} cet utilisateur ?`)) {
         try {
           await updateUserRole({ userId, isAdmin: newIsAdmin }).unwrap();
@@ -51,72 +61,69 @@ const UserListScreen = () => {
 
   return (
     <>
-      <h1>Gestion des Utilisateurs</h1>
-      {(isUpdatingStatus || isUpdatingRole) && <p>Mise à jour en cours...</p>}
-      {isLoading ? (
-        <p>Chargement...</p>
-      ) : error ? (
-        <Message variant='danger'>{error?.data?.message || error.error}</Message>
-      ) : (
-        <Table striped bordered hover responsive className='table-sm'>
-          <thead>
-            <tr>
-              <th>NOM</th>
-              <th>EMAIL</th>
-              <th>TÉLÉPHONE</th>
-              <th>ADMIN</th>
-              <th>STATUT (Actif / Banni)</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id} style={{ opacity: user.status === 'banned' ? 0.6 : 1 }}>
-                <td>{user.name}</td>
-                <td><a href={`mailto:${user.email}`}>{user.email}</a></td>
-                <td>{user.phone}</td>
-                <td>{user.isAdmin ? '✅' : '❌'}</td>
-                <td>
-                  {/* --- REMPLACEMENT DU BADGE PAR LE TOGGLE --- */}
-                  { user.email !== userInfo.email && !isSuperAdmin(user.email) ? (
+      <div className="user-list-header">
+        <h1>Gestion des Utilisateurs</h1>
+        <InputGroup className="search-input-group">
+          <InputGroup.Text><FaSearch /></InputGroup.Text>
+          <Form.Control
+            placeholder="Rechercher par nom, email, téléphone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </InputGroup>
+      </div>
+
+      {isLoading ? (<p>Chargement...</p>) 
+       : error ? (<Message variant='danger'>{error?.data?.message || error.error}</Message>) 
+       : (
+        <div>
+          {filteredUsers.map((user) => (
+            <div key={user._id} className="user-card" style={{ opacity: user.status === 'banned' ? 0.6 : 1 }}>
+              <div className="user-details-row">
+                <Image src={user.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} alt={user.name} className="user-avatar" />
+                <div className="user-info">
+                  <div className="name">{user.name}</div>
+                  <div className="email">{user.email}</div>
+                </div>
+              </div>
+
+              { user.email !== userInfo.email && !isSuperAdmin(user.email) ? (
+                <>
+                  <div className="user-status">
                     <label className="status-toggle">
                       <input 
                         type="checkbox" 
                         checked={user.status === 'active'}
                         onChange={() => handleStatusToggle(user._id, user.status)}
+                        disabled={isUpdatingStatus}
                       />
                       <span className="slider"></span>
                     </label>
-                  ) : (
-                    <span>{user.status === 'active' ? 'Actif' : 'Banni'}</span>
-                  )}
-                </td>
-                <td>
-                  { user.email !== userInfo.email && !isSuperAdmin(user.email) && (
-                    <>
-                      {/* Le bouton Suspendre/Réactiver a été supprimé car le toggle le remplace */}
-                      <Button
-                        variant={user.isAdmin ? 'danger' : 'info'}
-                        className='btn-sm me-2'
-                        onClick={() => handleRoleToggle(user._id, user.isAdmin)}
-                      >
-                        {user.isAdmin ? 'Révoquer Admin' : 'Nommer Admin'}
-                      </Button>
-                      
-                      <Button
-                        variant='outline-danger'
-                        className='btn-sm'
-                        onClick={() => handleShowWarningModal(user)}
-                      >
-                        <FaBell />
-                      </Button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                  </div>
+                  <div className="user-actions">
+                    <button 
+                      className={`action-btn ${user.isAdmin ? 'role-admin' : 'role-user'}`} 
+                      onClick={() => handleRoleToggle(user._id, user.isAdmin)}
+                      disabled={isUpdatingRole}
+                      title={user.isAdmin ? "Révoquer Admin" : "Nommer Admin"}
+                    >
+                      {user.isAdmin ? <FaUserShield /> : <FaUserCog />}
+                    </button>
+                    <button 
+                      className="action-btn warning" 
+                      onClick={() => handleShowWarningModal(user)}
+                      title="Envoyer un avertissement"
+                    >
+                      <FaBell />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className='user-status'><strong>{user.isAdmin ? "Super Admin" : "Connecté"}</strong></div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {selectedUser && (

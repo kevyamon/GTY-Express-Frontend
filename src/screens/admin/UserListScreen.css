@@ -1,16 +1,96 @@
+.user-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-input-group {
+  max-width: 400px;
+  width: 100%;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.user-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+  border: 2px solid #f8f9fa;
+}
+
+.user-info {
+  flex-grow: 1;
+}
+
+.user-info .name {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.1rem;
+}
+
+.user-info .email {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.user-role, .user-status, .user-actions {
+  flex-shrink: 0;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #6c757d;
+  transition: color 0.2s;
+  padding: 5px;
+}
+
+.action-btn.role-admin { color: #0d6efd; }
+.action-btn.role-user { color: #6c757d; }
+.action-btn.warning { color: #dc3545; }
+
+.action-btn:hover {
+  color: #212529;
+}
+
+/* --- Styles pour le toggle (déjà existant mais on le garde ici pour la cohérence) --- */
 .status-toggle {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 50px; /* Un peu plus petit */
+  height: 28px;
   cursor: pointer;
 }
 
-.status-toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+.status-toggle input { display: none; }
 
 .slider {
   position: absolute;
@@ -18,16 +98,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #dc3545; /* Rouge (Banni) par défaut */
+  background-color: #dc3545;
   transition: .4s;
-  border-radius: 34px;
+  border-radius: 28px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 20px;
+  width: 20px;
   left: 4px;
   bottom: 4px;
   background-color: white;
@@ -35,10 +115,25 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
-  background-color: #198754; /* Vert (Actif) */
-}
+input:checked + .slider { background-color: #198754; }
+input:checked + .slider:before { transform: translateX(22px); }
 
-input:checked + .slider:before {
-  transform: translateX(26px);
+/* --- Responsive pour les mobiles --- */
+@media (max-width: 768px) {
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .user-details-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .user-actions {
+    width: 100%;
+    justify-content: space-around;
+    padding: 0.5rem 0 0 0;
+    border-top: 1px solid #e9ecef;
+  }
 }
