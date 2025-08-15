@@ -6,6 +6,7 @@ import { addToFavorites, removeFromFavorites } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
+import Rating from './Rating'; // <-- 1. ON IMPORTE LE COMPOSANT RATING
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -13,7 +14,6 @@ const Product = ({ product }) => {
   const { favoriteItems } = useSelector((state) => state.favorites);
   const isFavorite = favoriteItems.some((p) => p._id === product._id);
 
-  // --- LOGIQUE "NOUVEAU" AMÉLIORÉE ET SÉCURISÉE ---
   const isNew = () => {
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -22,7 +22,6 @@ const Product = ({ product }) => {
 
   const hasPromo = product.originalPrice && product.originalPrice > product.price;
 
-  // Calcul sécurisé du pourcentage
   const discountPercent = hasPromo
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
@@ -60,7 +59,6 @@ const Product = ({ product }) => {
           <Card.Img src={imageUrl} variant="top" className="product-card-img" />
         </Link>
 
-        {/* Utilisation de ternaires pour un affichage 100% sûr */}
         {hasPromo ? (
           <div className="discount-badge">-{discountPercent}%</div>
         ) : isNew() ? (
@@ -86,6 +84,14 @@ const Product = ({ product }) => {
             {product.name}
           </Link>
         </div>
+        
+        {/* --- 2. ON AJOUTE LES AVIS ICI --- */}
+        <div className="product-rating">
+          {product.numReviews > 0 && (
+            <Rating value={product.rating} text={`(${product.numReviews})`} />
+          )}
+        </div>
+        {/* --- FIN DE L'AJOUT --- */}
 
         <div className="price-container">
           <span className="product-price">{product.price} FCFA</span>

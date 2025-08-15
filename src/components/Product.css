@@ -41,6 +41,7 @@
   margin-bottom: 0.25rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -49,6 +50,13 @@
 
 .product-title a { text-decoration: none; color: inherit; }
 .product-title a:hover { text-decoration: underline; }
+
+/* --- NOTRE AJOUT POUR LES AVIS --- */
+.product-rating {
+  margin-bottom: 0.25rem;
+  min-height: 20px; /* Assure que la mise en page ne saute pas si un produit n'a pas d'avis */
+}
+/* --- FIN DE L'AJOUT --- */
 
 .price-container {
   margin-bottom: 0.25rem;

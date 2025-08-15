@@ -1,7 +1,9 @@
+
 /* src/components/ProductCarousel.css */
 .carousel-container {
   background-color: rgba(255, 255, 255, 0.7);
-  padding: 1.5rem 1rem;
+  /* On ne met que du padding vertical ici pour éviter de couper le contenu */
+  padding: 1.5rem 0; 
   border-radius: 12px;
   backdrop-filter: blur(5px);
 }
@@ -10,7 +12,8 @@
   color: #333;
   font-weight: bold;
   margin-bottom: 1rem;
-  padding-left: 0.5rem;
+  /* On ajoute le padding horizontal ici pour que le titre reste bien aligné */
+  padding-left: 1rem; 
   border-left: 4px solid #0d6efd;
 }
 
@@ -18,6 +21,9 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* Pour un scroll fluide sur iOS */
   padding-bottom: 15px; /* Espace pour la barre de scroll sans couper l'ombre */
+  /* On ajoute un petit padding horizontal directement sur le conteneur scrollable */
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 /* Style de la barre de scroll */
