@@ -3,11 +3,11 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import Product from '../components/Product';
 import Message from '../components/Message';
 import PromoBanner from '../components/PromoBanner';
-import ProductCarousel from '../components/ProductCarousel'; // NOUVEL IMPORT
+import ProductCarousel from '../components/ProductCarousel'; // <-- NOUVEL IMPORT
 import {
   useGetProductsQuery,
-  useGetTopProductsQuery,       // NOUVEL IMPORT
-  useGetPopularProductsQuery,   // NOUVEL IMPORT
+  useGetTopProductsQuery,       // <-- NOUVEL IMPORT
+  useGetPopularProductsQuery,   // <-- NOUVEL IMPORT
 } from '../slices/productsApiSlice';
 import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';

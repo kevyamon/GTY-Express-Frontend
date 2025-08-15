@@ -1,29 +1,28 @@
-
 /* src/components/ProductCarousel.css */
 .carousel-container {
   background-color: rgba(255, 255, 255, 0.7);
-  /* On ne met que du padding vertical ici pour éviter de couper le contenu */
-  padding: 1.5rem 0; 
+  padding: 1.5rem 0; /* On ne met que du padding vertical ici */
   border-radius: 12px;
   backdrop-filter: blur(5px);
+  /* La correction magique : on s'assure que le conteneur ne soit pas affecté par le padding du parent */
+  margin-left: calc(-1 * var(--bs-gutter-x, 0.75rem));
+  margin-right: calc(-1 * var(--bs-gutter-x, 0.75rem));
+  padding-left: var(--bs-gutter-x, 0.75rem);
+  padding-right: var(--bs-gutter-x, 0.75rem);
 }
 
 .carousel-title {
   color: #333;
   font-weight: bold;
   margin-bottom: 1rem;
-  /* On ajoute le padding horizontal ici pour que le titre reste bien aligné */
-  padding-left: 1rem; 
   border-left: 4px solid #0d6efd;
+  padding-left: 0.5rem; /* Réduit pour plus de compacité */
 }
 
 .product-row-scroll-container {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Pour un scroll fluide sur iOS */
-  padding-bottom: 15px; /* Espace pour la barre de scroll sans couper l'ombre */
-  /* On ajoute un petit padding horizontal directement sur le conteneur scrollable */
-  padding-left: 1rem;
-  padding-right: 1rem;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 15px;
 }
 
 /* Style de la barre de scroll */
@@ -45,10 +44,9 @@
 .product-row-inner {
   display: flex;
   flex-wrap: nowrap;
-  width: max-content; /* Permet aux éléments de déborder pour le scroll */
+  width: max-content;
 }
 
-/* On définit une taille fixe pour chaque produit dans le carrousel */
 .product-row-inner > .col,
 .product-row-inner > [class*="col-"] {
   flex: 0 0 200px;
