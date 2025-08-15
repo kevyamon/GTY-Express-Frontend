@@ -20,7 +20,6 @@ const WarningDisplay = () => {
   const [showSupportModal, setShowSupportModal] = useState(false);
 
   useEffect(() => {
-    // Affiche le premier avertissement actif de la liste (le plus récent)
     if (warnings && warnings.length > 0) {
       setCurrentWarning(warnings[0]);
     } else {
@@ -32,37 +31,38 @@ const WarningDisplay = () => {
     if (!currentWarning) return;
     try {
       await dismissWarning(currentWarning._id).unwrap();
-      // Le RTK Query rafraîchira automatiquement la liste,
-      // et le useEffect mettra à jour le `currentWarning` avec le suivant.
     } catch (err) {
       toast.error("Impossible de fermer l'avertissement. Veuillez réessayer.");
     }
   };
 
-  const handleVerifyProfile = () => {
-    handleDismiss(); // Ferme l'avertissement
-    navigate('/profile-details'); // Redirige
+  // --- CORRECTION APPLIQUÉE ICI ---
+  const handleVerifyProfile = async () => {
+    await handleDismiss(); // 1. On ATTEND que l'avertissement soit fermé
+    
+    navigate('/profile-details'); // 2. On redirige SEULEMENT APRÈS
+    
     toast.info('Votre profil est en cours de vérification par nos équipes.');
     
-    // Simule la vérification et envoie un toast après 5 minutes
     setTimeout(() => {
       toast.success('Votre Profil a été vérifié avec succès. Soyez beaucoup plus prudent.', {
-        autoClose: 10000, // Le toast reste 10 secondes
+        autoClose: 10000,
       });
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 5 * 60 * 1000);
   };
+  // --- FIN DE LA CORRECTION ---
 
   if (isLoading || !currentWarning) {
-    return null; // N'affiche rien si pas d'avertissement
+    return null;
   }
 
   return (
     <>
       <Modal
-        show={true} // Toujours visible s'il y a un currentWarning
-        onHide={() => {}} // Ne se ferme pas en cliquant à côté
-        backdrop="static" // Empêche la fermeture au clic
-        keyboard={false} // Empêche la fermeture avec la touche Echap
+        show={true}
+        onHide={() => {}}
+        backdrop="static"
+        keyboard={false}
         centered
         dialogClassName="warning-modal"
       >
@@ -89,7 +89,6 @@ const WarningDisplay = () => {
                 Vérifier mon Profil
               </Button>
             )}
-            {/* Le bouton fermer est un fallback au cas où aucune action n'est cochée */}
             {!currentWarning.actions.contactSupport && !currentWarning.actions.verifyProfile && (
                  <Button variant="danger" onClick={handleDismiss}>Fermer</Button>
             )}
@@ -100,7 +99,7 @@ const WarningDisplay = () => {
       <SupportContactModal
         show={showSupportModal}
         handleClose={() => setShowSupportModal(false)}
-        onContactChosen={handleDismiss} // Ferme l'avertissement principal quand un contact est choisi
+        onContactChosen={handleDismiss}
       />
     </>
   );
