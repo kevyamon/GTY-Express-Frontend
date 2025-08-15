@@ -16,7 +16,9 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning'], // TAG AJOUTÉ
+  // --- MODIFICATION ICI ---
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion'],
+  // --- FIN DE LA MODIFICATION ---
   endpoints: (builder) => ({
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -46,6 +48,11 @@ export const apiSlice = createApi({
           console.log('Nouvel avertissement reçu:', data);
           toast.warn('Vous avez reçu un nouvel avertissement d\'un administrateur.');
           dispatch(apiSlice.util.invalidateTags(['Warning']));
+        });
+        
+        // --- NOUVEL ÉCOUTEUR POUR LES SUGGESTIONS ---
+        socket.on('suggestion_update', () => {
+          dispatch(apiSlice.util.invalidateTags(['Suggestion']));
         });
         // --- FIN DE L'AJOUT ---
 

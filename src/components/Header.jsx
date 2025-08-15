@@ -10,10 +10,12 @@ import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
 import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/messageApiSlice';
 import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice';
+import { useGetSuggestionsQuery } from '../slices/suggestionApiSlice';
 import { logout } from '../slices/authSlice';
 import { apiSlice, useSocketQuery } from '../slices/apiSlice';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
+import SuggestionModal from './SuggestionModal';
 import './Header.css';
 
 const Header = () => {
@@ -21,13 +23,14 @@ const Header = () => {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
       const item = localStorage.getItem('adminLastSeen');
-      return item ? JSON.parse(item) : { orders: new Date(0), users: new Date(0) };
+      return item ? JSON.parse(item) : { orders: new Date(0), users: new Date(0), suggestions: new Date(0) };
     } catch (e) {
-      return { orders: new Date(0), users: new Date(0) };
+      return { orders: new Date(0), users: new Date(0), suggestions: new Date(0) };
     }
   });
 
@@ -35,17 +38,19 @@ const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
   useSocketQuery(undefined, { skip: !userInfo });
   useGetProfileDetailsQuery(undefined, { skip: !userInfo });
+  
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: complaints } = useGetComplaintsQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: users } = useGetUsersQuery(undefined, { skip: !userInfo?.isAdmin });
+  const { data: suggestions } = useGetSuggestionsQuery(undefined, { skip: !userInfo?.isAdmin });
   const { data: notifications } = useGetNotificationsQuery(undefined, { skip: !userInfo });
   const { data: conversations } = useGetConversationsQuery(undefined, { skip: !userInfo });
+  
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllMessagesAsRead] = useMarkAllAsReadMutation();
   const homePath = userInfo ? '/products' : '/';
 
-  // --- LOGIQUE DES COMPTEURS SÉCURISÉE ---
   const newOrdersCount = useMemo(() => {
     if (userInfo?.isAdmin && Array.isArray(adminOrders)) {
       const lastSeenDate = new Date(lastSeen.orders);
@@ -68,14 +73,20 @@ const Header = () => {
     }
     return 0;
   }, [userInfo, users, lastSeen.users]);
+  
+  const newSuggestionsCount = useMemo(() => {
+    if (userInfo?.isAdmin && Array.isArray(suggestions)) {
+      return suggestions.filter(s => !s.archivedBy.includes(userInfo._id)).length;
+    }
+    return 0;
+  }, [userInfo, suggestions]);
 
   const totalAdminCount = useMemo(() => {
-    return newOrdersCount + pendingComplaintsCount + newUsersCount;
-  }, [newOrdersCount, pendingComplaintsCount, newUsersCount]);
-
+    return newOrdersCount + pendingComplaintsCount + newUsersCount + newSuggestionsCount;
+  }, [newOrdersCount, pendingComplaintsCount, newUsersCount, newSuggestionsCount]);
+  
   const unreadMessagesCount = useMemo(() => userInfo && Array.isArray(conversations) ? conversations.filter(c => c.isUnread).length : 0, [conversations, userInfo]);
   const unreadNotifsCount = useMemo(() => userInfo && Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0, [notifications, userInfo]);
-  // --- FIN DE LA LOGIQUE SÉCURISÉE ---
 
   const handleMarkAsSeen = (key) => {
     if (key) {
@@ -160,6 +171,16 @@ const Header = () => {
                     <LinkContainer to="/profile-details"><NavDropdown.Item>Informations</NavDropdown.Item></LinkContainer>
                     <LinkContainer to="/profile"><NavDropdown.Item>Mes Commandes</NavDropdown.Item></LinkContainer>
                     <LinkContainer to="/favorites"><NavDropdown.Item>Mes Favoris</NavDropdown.Item></LinkContainer>
+                    {!userInfo.isAdmin && (
+                      <>
+                        <LinkContainer to="/profile/suggestions">
+                          <NavDropdown.Item>Mes Suggestions</NavDropdown.Item>
+                        </LinkContainer>
+                        <NavDropdown.Item onClick={() => setShowSuggestionModal(true)}>
+                          Faire une suggestion
+                        </NavDropdown.Item>
+                      </>
+                    )}
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
@@ -210,6 +231,11 @@ const Header = () => {
         )}
       </header>
 
+      <SuggestionModal 
+        show={showSuggestionModal} 
+        handleClose={() => setShowSuggestionModal(false)} 
+      />
+
       {userInfo && userInfo.isAdmin && (
         <AdminMenuModal 
           show={showAdminModal}
@@ -217,6 +243,7 @@ const Header = () => {
           newUsersCount={newUsersCount}
           newOrdersCount={newOrdersCount}
           pendingComplaintsCount={pendingComplaintsCount}
+          newSuggestionsCount={newSuggestionsCount}
           onNavigate={handleMarkAsSeen}
         />
       )}

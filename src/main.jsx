@@ -15,7 +15,7 @@ import App from './App.jsx';
 import './App.css';
 import './index.css';
 
-// ... (tous les autres imports d'écrans restent ici)
+// ... (imports)
 import LandingScreen from './screens/LandingScreen.jsx';
 import HomeScreen from './screens/HomeScreen.jsx';
 import ProductScreen from './screens/ProductScreen.jsx';
@@ -45,6 +45,7 @@ import StoresScreen from './screens/StoresScreen.jsx';
 import PrivacyScreen from './screens/PrivacyScreen.jsx';
 import ChatScreen from './screens/ChatScreen.jsx';
 import BannedScreen from './screens/BannedScreen.jsx';
+import MySuggestionsScreen from './screens/MySuggestionsScreen.jsx';
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -52,7 +53,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 import AuthGuard from './components/AuthGuard.jsx';
 
 // Écrans Admin
-import DashboardScreen from './screens/admin/DashboardScreen.jsx'; // NOUVEL IMPORT
+import DashboardScreen from './screens/admin/DashboardScreen.jsx';
 import ProductListScreen from './screens/admin/ProductListScreen.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
@@ -61,6 +62,7 @@ import PromotionListScreen from './screens/admin/PromotionListScreen.jsx';
 import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import ComplaintListScreen from './screens/admin/ComplaintListScreen.jsx';
+import SuggestionListScreen from './screens/admin/SuggestionListScreen.jsx'; // --- NOUVEL IMPORT ---
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -94,6 +96,7 @@ const router = createBrowserRouter(
         <Route path="" element={<PrivateRoute />}>
           <Route path='/profile' element={<ProfileScreen />} />
           <Route path='/profile-details' element={<ProfileDetailsScreen />} />
+          <Route path='/profile/suggestions' element={<MySuggestionsScreen />} />
           <Route path="/products" element={<HomeScreen />} />
           <Route path="/cart" element={<CartScreen />} />
           <Route path="/favorites" element={<FavoritesScreen />} />
@@ -108,7 +111,7 @@ const router = createBrowserRouter(
 
         {/* --- Routes Admin (uniquement admins connectés) --- */}
         <Route path="" element={<AdminRoute />}>
-          <Route path="/admin/dashboard" element={<DashboardScreen />} /> {/* NOUVELLE ROUTE */}
+          <Route path="/admin/dashboard" element={<DashboardScreen />} />
           <Route path="/admin/productlist" element={<ProductListScreen />} />
           <Route path="/admin/userlist" element={<UserListScreen />} />
           <Route path="/admin/complaintlist" element={<ComplaintListScreen />} />
@@ -117,6 +120,7 @@ const router = createBrowserRouter(
           <Route path="/admin/product/add" element={<ProductAddScreen />} />
           <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
           <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
+          <Route path="/admin/suggestionlist" element={<SuggestionListScreen />} /> {/* --- NOUVELLE ROUTE --- */}
         </Route>
       </Route>
     </Route>
