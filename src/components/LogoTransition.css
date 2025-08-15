@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #111; /* Fond sombre pour la transition */
+  background-color: rgba(255, 255, 255, 0.9); /* Fond blanc légèrement transparent */
   z-index: 10000;
   display: flex;
   justify-content: center;
@@ -20,22 +20,32 @@
 }
 
 .logo-container-transition {
-  font-family: 'Arial', sans-serif; /* Choisissez une police qui vous plaît */
+  font-family: 'Arial', sans-serif;
   font-weight: 900;
-  font-size: 4rem; /* Taille du texte */
-  color: white;
+  font-size: 4rem;
+  color: #333; /* On passe le texte en sombre pour contraster avec le fond clair */
   text-align: center;
 }
 
-/* Chaque lettre est un 'span' pour être animée individuellement */
+/* On retire l'animation de base ici */
 .logo-container-transition span {
   display: inline-block;
-  opacity: 0;
-  transform: translateY(30px) scale(0.8);
-  animation: letter-reveal 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  opacity: 0; /* Les lettres sont invisibles au départ */
 }
 
-/* On crée un délai d'animation pour chaque lettre */
+/* --- NOUVELLE LOGIQUE D'ANIMATION --- */
+
+/* On applique l'animation "monte" aux lettres IMPAIRES (1ère, 3ème, 5ème...) */
+.logo-container-transition span:nth-child(odd) {
+  animation: reveal-from-bottom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* On applique l'animation "descend" aux lettres PAIRES (2ème, 4ème, 6ème...) */
+.logo-container-transition span:nth-child(even) {
+  animation: reveal-from-top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* On conserve les délais pour l'effet "vague" */
 .logo-container-transition .char2 { animation-delay: 0.1s; }
 .logo-container-transition .char3 { animation-delay: 0.2s; }
 .logo-container-transition .char4 { animation-delay: 0.3s; }
@@ -47,16 +57,26 @@
 .logo-container-transition .char10 { animation-delay: 0.9s; }
 .logo-container-transition .char11 { animation-delay: 1s; }
 
-/* L'animation qui révèle les lettres */
-@keyframes letter-reveal {
+/* L'animation qui fait monter les lettres */
+@keyframes reveal-from-bottom {
   from {
     opacity: 0;
-    transform: translateY(30px) scale(0.8);
-    filter: blur(5px);
+    transform: translateY(50px); /* Vient de plus bas */
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* L'animation qui fait descendre les lettres */
+@keyframes reveal-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-50px); /* Vient de plus haut */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
