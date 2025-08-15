@@ -7,6 +7,8 @@ const CHECK_INTERVAL = 2 * 60 * 1000;
 export const useVersionCheck = () => {
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [newVersion, setNewVersion] = useState('');
+  // --- NOTRE AJOUT : UN ÉTAT POUR STOCKER LA DATE ---
+  const [deployedAt, setDeployedAt] = useState(null);
 
   const checkVersion = useCallback(async () => {
     try {
@@ -24,6 +26,8 @@ export const useVersionCheck = () => {
       if (localVersion !== serverVersion) {
         setIsUpdateAvailable(true);
         setNewVersion(serverMeta.displayVersion); // On utilise la version "propre" pour l'affichage
+        // On récupère aussi la date de déploiement de la nouvelle version
+        setDeployedAt(serverMeta.deployedAt); 
       }
     } catch (error) {
       console.error('Erreur lors de la vérification de version:', error);
@@ -39,5 +43,6 @@ export const useVersionCheck = () => {
     return () => clearInterval(intervalId);
   }, [checkVersion]);
 
-  return { isUpdateAvailable, newVersion };
+  // On retourne toutes les informations nécessaires
+  return { isUpdateAvailable, newVersion, deployedAt };
 };

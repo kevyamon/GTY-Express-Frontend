@@ -17,12 +17,18 @@ export default function versionInjector() {
         // 2. Récupérer le hash du dernier commit Git
         const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
         const fullVersion = `${displayVersion}-${gitCommitHash}`;
+        
+        // --- NOTRE AJOUT : CAPTURER LA DATE DE DÉPLOIEMENT ---
+        const deployedAt = new Date().toISOString();
+        // --- FIN DE L'AJOUT ---
 
-        // 3. Créer le fichier meta.json dans le dossier public/dist
+        // 3. Créer le fichier meta.json avec TOUTES les informations
         const metaData = {
           displayVersion: displayVersion,
           fullVersion: fullVersion,
+          deployedAt: deployedAt, // <-- On ajoute la date ici
         };
+        
         const distPath = path.resolve(process.cwd(), 'dist');
         if (!fs.existsSync(distPath)) {
           fs.mkdirSync(distPath, { recursive: true });
