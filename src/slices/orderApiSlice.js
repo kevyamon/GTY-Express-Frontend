@@ -9,25 +9,31 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     getPaypalClientId: builder.query({ query: () => ({ url: '/api/config/paypal' }) }),
     getMyOrders: builder.query({ query: () => ({ url: `${ORDERS_URL}/myorders` }), providesTags: ['Order'] }),
     
-    // --- NOUVELLE REQUÊTE POUR L'HISTORIQUE COMPLET ---
     getMyPurchases: builder.query({
       query: () => ({ url: `${ORDERS_URL}/mypurchases` }),
-      providesTags: ['Order'], // Partage le même tag pour rester synchronisé
+      providesTags: ['Order'],
     }),
-    // --- FIN DE L'AJOUT ---
-
+    
     getOrders: builder.query({ query: () => ({ url: ORDERS_URL }), providesTags: ['Order'] }),
     updateOrderStatus: builder.mutation({ query: ({ orderId, status, isPaid }) => ({ url: `${ORDERS_URL}/${orderId}/status`, method: 'PUT', body: { status, isPaid } }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
     cancelOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }), invalidatesTags: ['Order'] }),
     deleteOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}`, method: 'DELETE' }), invalidatesTags: ['Order'] }),
 
-    // --- NOUVELLE MUTATION POUR VALIDER UN COUPON ---
     validateCoupon: builder.mutation({
       query: (data) => ({
         url: `${ORDERS_URL}/validate-coupon`,
         method: 'POST',
         body: data,
       }),
+    }),
+
+    // --- NOUVELLE MUTATION POUR L'ARCHIVAGE ---
+    archiveOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/archive`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['Order'], // Pour rafraîchir la liste des commandes
     }),
     // --- FIN DE L'AJOUT ---
   }),
@@ -44,5 +50,6 @@ export const {
   useUpdateOrderStatusMutation, 
   useDeleteOrderMutation, 
   useCancelOrderMutation,
-  useValidateCouponMutation, // Nouvel export
+  useValidateCouponMutation,
+  useArchiveOrderMutation, // Nouvel export
 } = orderApiSlice;

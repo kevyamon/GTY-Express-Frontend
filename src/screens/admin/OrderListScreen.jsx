@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Row, Col, Form, InputGroup, Badge, Collapse } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaSearch, FaChevronDown, FaChevronUp, FaArchive } from 'react-icons/fa'; // Ajout de l'icône d'archivage
 import Message from '../../components/Message';
 import { 
   useGetOrdersQuery, 
   useUpdateOrderStatusMutation, 
-  useDeleteOrderMutation 
+  useDeleteOrderMutation,
+  useArchiveOrderMutation // --- NOUVEL IMPORT ---
 } from '../../slices/orderApiSlice';
 import './OrderListScreen.css';
 
@@ -14,6 +15,8 @@ const OrderListScreen = () => {
   const { data: orders, isLoading, error } = useGetOrdersQuery();
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
+  // --- NOUVELLE MUTATION ---
+  const [archiveOrder, { isLoading: isArchiving }] = useArchiveOrderMutation();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
@@ -58,6 +61,18 @@ const OrderListScreen = () => {
           }
     }
   };
+
+  // --- NOUVELLE FONCTION POUR GÉRER L'ARCHIVAGE ---
+  const handleArchiveOrder = async (orderId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir archiver cette commande ? Elle disparaîtra de cette liste.')) {
+        try {
+            await archiveOrder(orderId).unwrap();
+            toast.info('Commande archivée avec succès.');
+        } catch (err) {
+            toast.error(err?.data?.message || err.error);
+        }
+    }
+  };
   
   const getStatusVariant = (status) => {
     switch (status) {
@@ -89,7 +104,11 @@ const OrderListScreen = () => {
         </Col>
       </Row>
 
-      {(isUpdating || isDeleting) && <p>Mise à jour en cours...</p>}
+      {(isUpdating || isDeleting || isArchiving) && <p>Mise à jour en cours...</p>}
+
+      {filteredOrders.length === 0 && (
+        <Message variant='info'>Aucune commande active à afficher.</Message>
+      )}
 
       {filteredOrders.map((order) => (
         <div key={order._id} className="order-list-card">
@@ -125,6 +144,10 @@ const OrderListScreen = () => {
                   {!order.isPaid && <Button variant="success" size="sm" onClick={() => handleMarkAsPaid(order._id)} disabled={order.status === 'Annulée'}>Marquer comme Payé</Button>}
                   <Button variant="warning" size="sm" onClick={() => handleStatusChange(order._id, 'Annulée')} disabled={order.status === 'Annulée' || order.status === 'Livrée'}>Annuler</Button>
                   <Button variant="danger" size="sm" onClick={() => handleDeleteOrder(order._id)}>Supprimer</Button>
+                  {/* --- NOUVEAU BOUTON D'ARCHIVAGE --- */}
+                  <Button variant="dark" size="sm" onClick={() => handleArchiveOrder(order._id)} title="Archiver la commande">
+                    <FaArchive /> Archiver
+                  </Button>
                 </div>
               </div>
             </div>
