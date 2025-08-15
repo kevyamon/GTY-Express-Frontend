@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Table, Button, Form, Row, Col, InputGroup, Image, Spinner, Card, Modal } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Form, Row, Col, InputGroup, Image, Spinner, Card, Modal } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import Message from '../../components/Message';
 import { useGetAllBannersQuery, useCreateBannerMutation, useDeleteBannerMutation, useUpdateBannerMutation } from '../../slices/promoBannerApiSlice';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -15,29 +15,45 @@ const PromoBannerListScreen = () => {
   const [deleteBanner, { isLoading: loadingDelete }] = useDeleteBannerMutation();
   const [updateBanner, { isLoading: loadingUpdate }] = useUpdateBannerMutation();
 
-  const [endDate, setEndDate] = useState('');
-  const [animatedTexts, setAnimatedTexts] = useState([{ text: "Jusqu'à -60%" }, { text: 'Choice Day' }]);
-  const [coupons, setCoupons] = useState([
-    { title: '-5000 FCFA', subtitle: "dès 75000 FCFA", code: 'PROMO5K' },
-    { title: '-10000 FCFA', subtitle: "dès 120000 FCFA", code: 'PROMO10K' },
-    { title: '-25000 FCFA', subtitle: "dès 200000 FCFA", code: 'PROMO25K' },
-  ]);
-  const [floatingImages, setFloatingImages] = useState([]);
-  const [loadingUpload, setLoadingUpload] = useState(false);
+  // --- ÉTATS POUR LE FORMULAIRE ---
+  const [formState, setFormState] = useState({
+    endDate: '',
+    animatedTexts: [{ text: '' }],
+    coupons: [],
+    floatingImages: [],
+  });
 
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [bannerToEdit, setBannerToEdit] = useState(null);
 
-  const handleTextChange = (index, value) => {
-    const newTexts = [...animatedTexts];
-    newTexts[index].text = value;
-    setAnimatedTexts(newTexts);
+  // --- GESTION DES CHAMPS DU FORMULAIRE ---
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({ ...prev, [name]: value }));
   };
-  const addTextField = () => setAnimatedTexts([...animatedTexts, { text: '' }]);
-  const removeTextField = (index) => setAnimatedTexts(animatedTexts.filter((_, i) => i !== index));
 
+  // Gestion des textes animés
+  const handleTextChange = (index, value) => {
+    const newTexts = [...formState.animatedTexts];
+    newTexts[index] = { ...newTexts[index], text: value };
+    setFormState(prev => ({ ...prev, animatedTexts: newTexts }));
+  };
+  const addTextField = () => setFormState(prev => ({ ...prev, animatedTexts: [...prev.animatedTexts, { text: '' }] }));
+  const removeTextField = (index) => setFormState(prev => ({ ...prev, animatedTexts: prev.animatedTexts.filter((_, i) => i !== index) }));
+
+  // Gestion des coupons
+  const handleCouponChange = (index, field, value) => {
+    const newCoupons = [...formState.coupons];
+    newCoupons[index] = { ...newCoupons[index], [field]: value };
+    setFormState(prev => ({ ...prev, coupons: newCoupons }));
+  };
+  const addCouponField = () => setFormState(prev => ({ ...prev, coupons: [...prev.coupons, { title: '', subtitle: '', code: '', discountType: 'percentage', discountValue: 0 }] }));
+  const removeCouponField = (index) => setFormState(prev => ({ ...prev, coupons: prev.coupons.filter((_, i) => i !== index) }));
+
+  // Gestion des images
   const uploadFileHandler = async (e) => {
-    if (floatingImages.length >= 6) { toast.error("Maximum 6 images."); return; }
+    if (formState.floatingImages.length >= 6) { toast.error("Maximum 6 images."); return; }
     const file = e.target.files[0];
     if (!file) return;
     const formData = new FormData();
@@ -46,13 +62,14 @@ const PromoBannerListScreen = () => {
     setLoadingUpload(true);
     try {
       const { data } = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, formData);
-      setFloatingImages([...floatingImages, { url: data.secure_url }]);
+      setFormState(prev => ({ ...prev, floatingImages: [...prev.floatingImages, { url: data.secure_url }] }));
       toast.success('Image ajoutée');
     } catch (error) { toast.error("Le téléversement a échoué"); }
     finally { setLoadingUpload(false); }
   };
-  const removeFloatingImage = (index) => setFloatingImages(floatingImages.filter((_, i) => i !== index));
+  const removeFloatingImage = (index) => setFormState(prev => ({ ...prev, floatingImages: prev.floatingImages.filter((_, i) => i !== index) }));
 
+  // --- ACTIONS CRUD ---
   const deleteHandler = async (id) => {
     if (window.confirm('Êtes-vous sûr ?')) {
       try { await deleteBanner(id).unwrap(); toast.success('Bannière supprimée'); }
@@ -63,74 +80,121 @@ const PromoBannerListScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await createBanner({ animatedTexts, endDate, coupons, floatingImages }).unwrap();
+      await createBanner(formState).unwrap();
       toast.success('Nouvelle bannière créée et activée !');
-      setAnimatedTexts([{ text: "Jusqu'à -60%" }, { text: 'Choice Day' }]);
-      setEndDate('');
-      setFloatingImages([]);
+      setFormState({ endDate: '', animatedTexts: [{ text: '' }], coupons: [], floatingImages: [] });
     } catch (err) { toast.error(err?.data?.message || err.error); }
   };
 
   const handleEdit = (banner) => {
     setBannerToEdit(banner);
-    setEndDate(new Date(banner.endDate).toISOString().split('T')[0]);
-    setAnimatedTexts(banner.animatedTexts || []);
-    setCoupons(banner.coupons || []);
-    setFloatingImages(banner.floatingImages || []);
+    setFormState({
+      endDate: new Date(banner.endDate).toISOString().split('T')[0],
+      animatedTexts: banner.animatedTexts || [{ text: '' }],
+      coupons: banner.coupons || [],
+      floatingImages: banner.floatingImages || [],
+    });
     setShowEditModal(true);
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-        await updateBanner({ _id: bannerToEdit._id, animatedTexts, endDate, coupons, floatingImages }).unwrap();
+        await updateBanner({ _id: bannerToEdit._id, ...formState }).unwrap();
         toast.success('Bannière mise à jour !');
         setShowEditModal(false);
     } catch (err) {
         toast.error(err?.data?.message || err.error);
     }
   };
-
+  
   const activeBanners = banners ? banners.filter(b => b.isActive) : [];
 
-  return (
-    <div>
-      <h1>Gestion de la Bannière Promo Avancée</h1>
+  const renderForm = (isModal = false) => (
+    <Form onSubmit={isModal ? handleUpdate : submitHandler}>
+      <Card className="mb-3">
+        <Card.Header>Détails de la Promotion</Card.Header>
+        <Card.Body>
+          <Form.Group controlId={isModal ? 'endDateEdit' : 'endDate'}>
+            <Form.Label>Date de fin</Form.Label>
+            <Form.Control type='date' name="endDate" value={formState.endDate} onChange={handleFormChange} required />
+          </Form.Group>
+        </Card.Body>
+      </Card>
 
-      <Form onSubmit={submitHandler} className="my-4 p-3 border rounded">
-        <h5>Créer une nouvelle bannière (cela désactivera l'ancienne)</h5>
-        <Form.Group controlId='endDate' className='my-2'>
-          <Form.Label>Date de fin de la promotion</Form.Label>
-          <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-        </Form.Group>
-        <hr />
-        <h6>Textes Animés</h6>
-        {animatedTexts.map((item, index) => (
-            <InputGroup className="mb-2" key={index}>
-                <Form.Control type='text' value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
-                <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
-            </InputGroup>
-        ))}
-        <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
-        <hr />
-        <h6>Images Flottantes (6 max)</h6>
-        <Form.Group controlId='images' className='my-2'>
-            <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || floatingImages.length >= 6} />
+      <Card className="mb-3">
+        <Card.Header>Coupons de Réduction</Card.Header>
+        <Card.Body>
+          {formState.coupons.map((coupon, index) => (
+            <div key={index} className="p-2 border rounded mb-2">
+              <Row>
+                <Col md={6}><Form.Control placeholder="Titre (ex: -5000 FCFA)" value={coupon.title} onChange={(e) => handleCouponChange(index, 'title', e.target.value)} /></Col>
+                <Col md={6}><Form.Control placeholder="Sous-titre (ex: dès 75000 FCFA)" value={coupon.subtitle} onChange={(e) => handleCouponChange(index, 'subtitle', e.target.value)} /></Col>
+              </Row>
+              <Row className="mt-2">
+                <Col md={4}><Form.Control placeholder="Code (ex: PROMO5K)" value={coupon.code} onChange={(e) => handleCouponChange(index, 'code', e.target.value.toUpperCase())} /></Col>
+                <Col md={4}>
+                  <Form.Select value={coupon.discountType} onChange={(e) => handleCouponChange(index, 'discountType', e.target.value)}>
+                    <option value="percentage">Pourcentage (%)</option>
+                    <option value="fixed">Montant Fixe (FCFA)</option>
+                  </Form.Select>
+                </Col>
+                <Col md={3}><Form.Control type="number" placeholder="Valeur" value={coupon.discountValue} onChange={(e) => handleCouponChange(index, 'discountValue', e.target.value)} /></Col>
+                <Col md={1}><Button variant="danger" onClick={() => removeCouponField(index)}><FaTrash /></Button></Col>
+              </Row>
+            </div>
+          ))}
+          <Button variant="success" size="sm" onClick={addCouponField}><FaPlus /> Ajouter un coupon</Button>
+        </Card.Body>
+      </Card>
+
+      {/* Sections Textes et Images restent similaires */}
+      <Card className="mb-3">
+        <Card.Header>Textes Animés</Card.Header>
+        <Card.Body>
+            {formState.animatedTexts.map((item, index) => (
+                <InputGroup className="mb-2" key={index}>
+                    <Form.Control type='text' placeholder="Texte de l'offre" value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
+                    <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
+                </InputGroup>
+            ))}
+            <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
+        </Card.Body>
+      </Card>
+      <Card>
+        <Card.Header>Images Flottantes (6 max)</Card.Header>
+        <Card.Body>
+          <Form.Group controlId={isModal ? 'imagesEdit' : 'images'}>
+            <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || formState.floatingImages.length >= 6} />
             {loadingUpload && <Spinner size="sm" />}
-        </Form.Group>
-        <Row>
-            {floatingImages.map((img, index) => (
+          </Form.Group>
+          <Row className="mt-2">
+            {formState.floatingImages.map((img, index) => (
                 <Col xs={4} md={2} key={index} className="position-relative">
                     <Image src={img.url} thumbnail />
                     <Button variant="danger" size="sm" onClick={() => removeFloatingImage(index)} style={{position: 'absolute', top: '5px', right: '15px'}}>X</Button>
                 </Col>
             ))}
-        </Row>
-        <hr/>
+          </Row>
+        </Card.Body>
+      </Card>
+      
+      {!isModal && (
         <Button type='submit' variant='primary' className='mt-3' disabled={loadingCreate}>
           {loadingCreate ? 'Création...' : 'Créer et Activer la Bannière'}
         </Button>
-      </Form>
+      )}
+    </Form>
+  );
+
+  return (
+    <div>
+      <h1>Gestion de la Bannière Promo</h1>
+
+      <div className="my-4 p-3 border rounded bg-light">
+        <h5>Créer une nouvelle bannière (cela désactivera l'ancienne)</h5>
+        {renderForm(false)}
+      </div>
 
       <h5 className="mt-4">Bannière Actuelle</h5>
       {isLoading ? <p>Chargement...</p> : 
@@ -155,43 +219,13 @@ const PromoBannerListScreen = () => {
       {bannerToEdit && (
         <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
             <Modal.Header closeButton><Modal.Title>Modifier la Bannière</Modal.Title></Modal.Header>
-            <Form onSubmit={handleUpdate}>
-                <Modal.Body>
-                <Form.Group controlId='endDateEdit' className='my-2'>
-                    <Form.Label>Date de fin</Form.Label>
-                    <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-                </Form.Group>
-                <hr />
-                <h6>Textes Animés</h6>
-                {animatedTexts.map((item, index) => (
-                    <InputGroup className="mb-2" key={index}>
-                        <Form.Control type='text' value={item.text} onChange={(e) => handleTextChange(index, e.target.value)} />
-                        <Button variant="outline-danger" onClick={() => removeTextField(index)}>X</Button>
-                    </InputGroup>
-                ))}
-                <Button variant="outline-secondary" size="sm" onClick={addTextField}>Ajouter un texte</Button>
-                <hr />
-                <h6>Images Flottantes (6 max)</h6>
-                <Form.Group controlId='imagesEdit' className='my-2'>
-                    <Form.Control type='file' onChange={uploadFileHandler} disabled={loadingUpload || floatingImages.length >= 6} />
-                    {loadingUpload && <Spinner size="sm" />}
-                </Form.Group>
-                <Row>
-                    {floatingImages.map((img, index) => (
-                        <Col xs={4} md={2} key={index} className="position-relative">
-                            <Image src={img.url} thumbnail />
-                            <Button variant="danger" size="sm" onClick={() => removeFloatingImage(index)} style={{position: 'absolute', top: '5px', right: '15px'}}>X</Button>
-                        </Col>
-                    ))}
-                </Row>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>Annuler</Button>
-                    <Button type='submit' variant='primary' disabled={loadingUpdate}>
-                        {loadingUpdate ? 'Sauvegarde...' : 'Sauvegarder les Modifications'}
-                    </Button>
-                </Modal.Footer>
-            </Form>
+            <Modal.Body>{renderForm(true)}</Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowEditModal(false)}>Annuler</Button>
+                <Button variant='primary' onClick={handleUpdate} disabled={loadingUpdate}>
+                    {loadingUpdate ? 'Sauvegarde...' : 'Sauvegarder les Modifications'}
+                </Button>
+            </Modal.Footer>
         </Modal>
       )}
     </div>

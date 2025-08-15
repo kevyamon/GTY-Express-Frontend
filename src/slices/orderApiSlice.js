@@ -20,6 +20,16 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     updateOrderStatus: builder.mutation({ query: ({ orderId, status, isPaid }) => ({ url: `${ORDERS_URL}/${orderId}/status`, method: 'PUT', body: { status, isPaid } }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
     cancelOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }), invalidatesTags: ['Order'] }),
     deleteOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}`, method: 'DELETE' }), invalidatesTags: ['Order'] }),
+
+    // --- NOUVELLE MUTATION POUR VALIDER UN COUPON ---
+    validateCoupon: builder.mutation({
+      query: (data) => ({
+        url: `${ORDERS_URL}/validate-coupon`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    // --- FIN DE L'AJOUT ---
   }),
 });
 
@@ -29,9 +39,10 @@ export const {
   usePayOrderMutation, 
   useGetPaypalClientIdQuery,
   useGetMyOrdersQuery,
-  useGetMyPurchasesQuery, // NOUVEL EXPORT
+  useGetMyPurchasesQuery,
   useGetOrdersQuery, 
   useUpdateOrderStatusMutation, 
   useDeleteOrderMutation, 
   useCancelOrderMutation,
+  useValidateCouponMutation, // Nouvel export
 } = orderApiSlice;

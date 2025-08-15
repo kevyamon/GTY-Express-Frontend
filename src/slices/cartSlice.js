@@ -11,6 +11,7 @@ const initialState = localStorage.getItem('cart')
       shippingPrice: 0,
       taxPrice: 0,
       totalPrice: 0,
+      coupon: null, // --- AJOUT DU CHAMP COUPON ---
     };
 
 const cartSlice = createSlice({
@@ -44,8 +45,19 @@ const cartSlice = createSlice({
     },
     clearCartItems: (state, action) => {
       state.cartItems = [];
+      state.coupon = null; // On retire le coupon en vidant le panier
       return updateCart(state);
     },
+    // --- NOUVEAUX REDUCERS POUR LES COUPONS ---
+    applyCoupon: (state, action) => {
+      state.coupon = action.payload;
+      return updateCart(state);
+    },
+    removeCoupon: (state) => {
+      state.coupon = null;
+      return updateCart(state);
+    },
+    // --- FIN DE L'AJOUT ---
   },
 });
 
@@ -55,6 +67,8 @@ export const {
   saveShippingAddress,
   savePaymentMethod,
   clearCartItems,
+  applyCoupon, // Nouvel export
+  removeCoupon, // Nouvel export
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
