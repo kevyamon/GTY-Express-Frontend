@@ -1,19 +1,59 @@
-.details-row {
-  background-color: #f8f9fa;
+.order-list-card {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+}
+
+.order-id {
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.order-card-body {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.customer-info .name {
+  font-weight: 600;
+}
+
+.customer-info .email {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.order-total {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* --- Style pour le panneau d'actions dépliant --- */
 .details-cell {
-  padding: 1rem !important;
-  text-align: left;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
 }
 
 .actions-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0.75rem;
   align-items: center;
-}
-
-.actions-container .btn {
-  margin-bottom: 5px;
 }

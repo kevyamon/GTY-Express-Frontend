@@ -2,9 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { Button, Form, InputGroup, Image } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import { FaBell, FaSearch, FaUserShield, FaUserCog } from 'react-icons/fa';
+import { FaBell, FaSearch, FaUserShield, FaUserCog, FaInfoCircle } from 'react-icons/fa';
 import Message from '../../components/Message';
 import WarningModal from '../../components/WarningModal';
+import UserInfoModal from '../../components/UserInfoModal';
 import { useGetUsersQuery, useUpdateUserStatusMutation, useUpdateUserRoleMutation } from '../../slices/adminApiSlice';
 import './UserListScreen.css';
 
@@ -14,24 +15,31 @@ const UserListScreen = () => {
   const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
 
   const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // État pour la recherche
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Filtre les utilisateurs en fonction de la recherche (nom, email, téléphone)
+  // --- CORRECTION DE LA LOGIQUE DE FILTRAGE ---
   const filteredUsers = useMemo(() => {
     if (!users) return [];
     return users.filter(user =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone.includes(searchQuery)
+      (user.phone && user.phone.includes(searchQuery)) // On vérifie si user.phone existe
     );
   }, [users, searchQuery]);
+  // --- FIN DE LA CORRECTION ---
 
   const handleShowWarningModal = (user) => {
     setSelectedUser(user);
     setShowWarningModal(true);
+  };
+
+  const handleShowInfoModal = (user) => {
+    setSelectedUser(user);
+    setShowInfoModal(true);
   };
 
   const handleStatusToggle = async (userId, currentStatus) => {
@@ -101,6 +109,13 @@ const UserListScreen = () => {
                     </label>
                   </div>
                   <div className="user-actions">
+                    <button
+                      className="action-btn"
+                      onClick={() => handleShowInfoModal(user)}
+                      title="Voir les détails"
+                    >
+                      <FaInfoCircle />
+                    </button>
                     <button 
                       className={`action-btn ${user.isAdmin ? 'role-admin' : 'role-user'}`} 
                       onClick={() => handleRoleToggle(user._id, user.isAdmin)}
@@ -127,11 +142,18 @@ const UserListScreen = () => {
       )}
 
       {selectedUser && (
-        <WarningModal 
-          show={showWarningModal}
-          handleClose={() => setShowWarningModal(false)}
-          user={selectedUser}
-        />
+        <>
+          <WarningModal 
+            show={showWarningModal}
+            handleClose={() => setShowWarningModal(false)}
+            user={selectedUser}
+          />
+          <UserInfoModal
+            show={showInfoModal}
+            handleClose={() => setShowInfoModal(false)}
+            user={selectedUser}
+          />
+        </>
       )}
     </>
   );
