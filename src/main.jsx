@@ -10,7 +10,7 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
-import { VersionProvider } from './contexts/VersionContext'; // --- NOUVEL IMPORT ---
+import { VersionProvider } from '../contexts/VersionContext'; // --- NOUVEL IMPORT ---
 
 // Fichiers de style
 import './App.css';
