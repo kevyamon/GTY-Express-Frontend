@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 // --- NOUVELLE ICÔNE IMPORTÉE ---
-import { FaTachometerAlt, FaUsers, FaBoxOpen, FaClipboardList, FaBullhorn, FaExclamationTriangle, FaImages, FaLightbulb } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaBoxOpen, FaClipboardList, FaBullhorn, FaExclamationTriangle, FaImages, FaLightbulb, FaBroadcastTower } from 'react-icons/fa';
 import './AdminMenuModal.css';
 
 const AdminMenuModal = ({ 
@@ -11,7 +11,7 @@ const AdminMenuModal = ({
   newUsersCount, 
   newOrdersCount, 
   pendingComplaintsCount,
-  newSuggestionsCount, // --- NOUVELLE PROP AJOUTÉE ---
+  newSuggestionsCount,
   onNavigate
 }) => {
 
@@ -21,8 +21,9 @@ const AdminMenuModal = ({
     { path: '/admin/orderlist', label: 'Gestion Commandes', icon: <FaClipboardList />, count: newOrdersCount, key: 'orders' },
     { path: '/admin/productlist', label: 'Gestion Produits', icon: <FaBoxOpen />, count: 0, key: null },
     { path: '/admin/complaintlist', label: 'Gestion Réclamations', icon: <FaExclamationTriangle />, count: pendingComplaintsCount, key: 'complaints' },
-    // --- NOUVELLE LIGNE POUR LES SUGGESTIONS ---
     { path: '/admin/suggestionlist', label: 'Boîte à Suggestions', icon: <FaLightbulb />, count: newSuggestionsCount, key: 'suggestions' },
+    // --- NOUVELLE LIGNE POUR L'ANNONCE GLOBALE ---
+    { path: '/admin/global-message', label: 'Annonce Globale', icon: <FaBroadcastTower />, count: 0, key: null },
     { path: '/admin/promotionlist', label: 'Gestion Promotions', icon: <FaBullhorn />, count: 0, key: null },
     { path: '/admin/promobannerlist', label: 'Gestion Bannière', icon: <FaImages />, count: 0, key: null },
   ];

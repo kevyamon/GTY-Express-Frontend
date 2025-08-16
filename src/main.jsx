@@ -48,10 +48,8 @@ import ChatScreen from './screens/ChatScreen.jsx';
 import BannedScreen from './screens/BannedScreen.jsx';
 import MySuggestionsScreen from './screens/MySuggestionsScreen.jsx';
 
-// --- NOUVEAUX IMPORTS ---
 import PopularProductsScreen from './screens/PopularProductsScreen.jsx';
 import TopProductsScreen from './screens/TopProductsScreen.jsx';
-
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -69,6 +67,9 @@ import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import ComplaintListScreen from './screens/admin/ComplaintListScreen.jsx';
 import SuggestionListScreen from './screens/admin/SuggestionListScreen.jsx';
+// --- NOUVEL IMPORT DE L'ÉCRAN ADMIN ---
+import GlobalMessageScreen from './screens/admin/GlobalMessageScreen.jsx';
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -104,7 +105,6 @@ const router = createBrowserRouter(
           <Route path='/profile-details' element={<ProfileDetailsScreen />} />
           <Route path='/profile/suggestions' element={<MySuggestionsScreen />} />
           <Route path="/products" element={<HomeScreen />} />
-          {/* --- NOUVELLES ROUTES --- */}
           <Route path="/products/popular" element={<PopularProductsScreen />} />
           <Route path="/products/top-rated" element={<TopProductsScreen />} />
           <Route path="/cart" element={<CartScreen />} />
@@ -130,6 +130,8 @@ const router = createBrowserRouter(
           <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
           <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
           <Route path="/admin/suggestionlist" element={<SuggestionListScreen />} />
+          {/* --- NOUVELLE ROUTE ADMIN AJOUTÉE --- */}
+          <Route path="/admin/global-message" element={<GlobalMessageScreen />} />
         </Route>
       </Route>
     </Route>

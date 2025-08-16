@@ -20,7 +20,9 @@ import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
-import SuggestionModal from './components/SuggestionModal'; // --- NE PAS OUBLIER CET IMPORT ---
+import SuggestionModal from './components/SuggestionModal';
+// --- NOUVEL IMPORT AJOUTÉ ---
+import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -34,7 +36,7 @@ const App = () => {
   const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
-  const [showSuggestionModal, setShowSuggestionModal] = useState(false); // --- ÉTAT POUR GÉRER LE MODAL DE SUGGESTION ---
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
@@ -122,6 +124,9 @@ const App = () => {
           <ScrollToTopButton />
         </>
       )}
+      
+      {/* --- NOUVEAU COMPOSANT AJOUTÉ ICI --- */}
+      {userInfo && <GlobalMessageDisplay />}
 
       {userInfo && <WarningDisplay />}
       <ToastContainer />
@@ -131,7 +136,7 @@ const App = () => {
         handleClose={handleCloseUpdateModal} 
         newVersion={newVersion} 
         deployedAt={deployedAt}
-        onCommentClick={() => setShowSuggestionModal(true)} // --- ON DIT AU MODAL D'OUVRIR L'AUTRE MODAL ---
+        onCommentClick={() => setShowSuggestionModal(true)}
       />
 
       <InstallPwaModal 
@@ -139,7 +144,6 @@ const App = () => {
         handleClose={handleCloseInstallModal}
       />
 
-      {/* --- LE MODAL DE SUGGESTION EST MAINTENANT GÉRÉ ICI --- */}
       <SuggestionModal 
         show={showSuggestionModal}
         handleClose={() => setShowSuggestionModal(false)}

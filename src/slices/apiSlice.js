@@ -17,15 +17,13 @@ const baseQuery = fetchBaseQuery({
 export const apiSlice = createApi({
   baseQuery,
   // --- MODIFICATION ICI ---
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
   // --- FIN DE LA MODIFICATION ---
   endpoints: (builder) => ({
-    // --- NOUVEL ENDPOINT POUR LA VERSION ---
     getVersion: builder.query({
       query: () => '/api/version',
       providesTags: ['Version'],
     }),
-    // --- FIN DE L'AJOUT ---
 
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -50,6 +48,14 @@ export const apiSlice = createApi({
           console.log('Socket.IO déconnecté.');
         });
         
+        // --- NOUVEL ÉVÉNEMENT AJOUTÉ ---
+        socket.on('new_global_message', (data) => {
+          console.log('Nouveau message global reçu:', data);
+          toast.info("Une nouvelle annonce est disponible !", { autoClose: 5000 });
+          dispatch(apiSlice.util.invalidateTags(['GlobalMessage']));
+        });
+        // --- FIN DE L'AJOUT ---
+
         socket.on('new_warning', (data) => {
           console.log('Nouvel avertissement reçu:', data);
           toast.warn('Vous avez reçu un nouvel avertissement d\'un administrateur.');
@@ -133,4 +139,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useSocketQuery, useGetVersionQuery } = apiSlice; // On exporte le nouveau hook
+export const { useSocketQuery, useGetVersionQuery } = apiSlice;
