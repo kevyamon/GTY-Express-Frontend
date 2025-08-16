@@ -1,24 +1,25 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import packageJson from './package.json';
+import { execSync } from 'child_process'; // <-- On importe un module Node.js
+
+// On récupère le hash du dernier commit Git
+const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 export default defineConfig({
   define: {
+    // On injecte la version et le hash dans les variables d'environnement de l'app
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version),
+    'import.meta.env.VITE_COMMIT_HASH': JSON.stringify(commitHash),
   },
   plugins: [
     react(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'script',
-      // --- MODIFICATION : Configuration explicite du Workbox ---
       workbox: {
-        // On force le service worker à se mettre en "attente"
-        // C'est LA clé pour que le modal "Mise à jour disponible" puisse s'afficher.
         skipWaiting: false,
-        // On désactive également la prise de contrôle automatique.
         clientsClaim: false,
       },
       manifest: {

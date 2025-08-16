@@ -1,27 +1,15 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import { FaRocket } from 'react-icons/fa';
-import './UpdateModal.css';
+import './UpdateModal.css'; // On va créer un nouveau style pour ce modal
 
-// --- MODIFICATION : Le composant est maintenant plus simple ---
-// Il reçoit directement les fonctions 'handleClose' et 'onConfirmUpdate' de son parent (PWAManager).
 const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
-
-  const handleUpdate = () => {
-    // Il appelle simplement la fonction pour mettre à jour que le PWAManager lui a fournie.
-    onConfirmUpdate(); 
-  };
-
-  const handleLater = () => {
-    // Il appelle la fonction pour fermer que le PWAManager lui a fournie.
-    handleClose();
-    // Et il affiche le message informatif comme tu l'as demandé.
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
-  };
+  // On récupère les variables injectées par Vite
+  const appVersion = import.meta.env.VITE_APP_VERSION;
+  const commitHash = import.meta.env.VITE_COMMIT_HASH;
 
   return (
-    <Modal show={show} onHide={handleLater} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
+    <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
       <Modal.Body className="update-modal-body">
         <div className="rocket-animation-container">
           <div className="rocket-icon"><FaRocket /></div>
@@ -31,14 +19,26 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
 
         <h2>Mise à Jour Disponible !</h2>
         <p className="lead-text">
-          Une nouvelle version de GTY Express est prête à être installée pour améliorer votre expérience.
+          Une nouvelle version de GTY Express est prête. Mettez à jour pour profiter des dernières améliorations.
         </p>
+        
+        {/* Section d'information sur la version */}
+        <div className="version-details">
+          <div className="info-item">
+            <span className="label"><span className="info-icon">#️⃣</span> Version</span>
+            <span className="value">{appVersion}</span>
+          </div>
+          <div className="info-item">
+            <span className="label"><span className="info-icon">📦</span> Build</span>
+            <span className="value">{commitHash}</span>
+          </div>
+        </div>
 
-        <div className="buttons-container" style={{marginTop: '1.5rem'}}>
-          <Button className="update-button" onClick={handleUpdate}>
+        <div className="buttons-container">
+          <Button className="update-button" onClick={onConfirmUpdate}>
             Mettre à jour maintenant
           </Button>
-          <Button className="later-button" onClick={handleLater}>
+          <Button className="later-button" onClick={handleClose}>
             Plus tard
           </Button>
         </div>

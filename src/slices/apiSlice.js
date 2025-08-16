@@ -18,14 +18,7 @@ export const apiSlice = createApi({
   baseQuery,
   tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
   endpoints: (builder) => ({
-    // --- MODIFICATION : On ajoute le point de terminaison pour la version ---
-    // C'est cette requête que le PWAManager va appeler toutes les minutes.
-    // Le tag 'Version' est là pour une gestion de cache propre.
-    getVersion: builder.query({
-      query: () => '/api/version',
-      providesTags: ['Version'],
-    }),
-    // --- FIN DE LA MODIFICATION ---
+    // --- ON RETIRE L'ENDPOINT getVersion ICI ---
 
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -139,5 +132,5 @@ export const apiSlice = createApi({
   }),
 });
 
-// --- MODIFICATION : On exporte le nouveau hook pour qu'il soit utilisable ---
-export const { useSocketQuery, useGetVersionQuery } = apiSlice;
+// --- ON RETIRE L'EXPORT DE useGetVersionQuery ---
+export const { useSocketQuery } = apiSlice;

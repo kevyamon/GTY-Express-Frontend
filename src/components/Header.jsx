@@ -2,9 +2,9 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
-import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload, FaBars } from 'react-icons/fa';
+import { FaTag, FaComments, FaBell, FaSyncAlt, FaDownload, FaBars } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -12,7 +12,9 @@ import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/me
 import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice';
 import { useGetSuggestionsQuery } from '../slices/suggestionApiSlice';
 import { logout } from '../slices/authSlice';
-import { apiSlice, useSocketQuery } from '../slices/apiSlice';
+// --- MODIFICATION : On importe setIsModalOpen et on retire useSocketQuery ---
+import { apiSlice } from '../slices/apiSlice';
+import { setIsModalOpen } from '../slices/pwaSlice'; 
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
@@ -27,32 +29,31 @@ const Header = ({ handleShowInstallModal }) => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION 1 : On récupère le nouvel état 'isModalOpen' qui a remplacé 'updateDeclined' ---
+  // --- MODIFICATION : Logique de mise à jour simplifiée ---
   const { isUpdateAvailable, isUpdateInProgress, isModalOpen } = useSelector((state) => state.pwa);
 
   const handleUpdateClick = () => {
-    if (!isUpdateAvailable) {
-      toast.success('Vous utilisez déjà la dernière version de GTY Express.');
-    } else {
-      // Si la mise à jour est dispo mais le modal fermé, on le rouvre.
+    if (isUpdateAvailable) {
+      // Si la mise à jour est dispo, cliquer sur le bouton rouvre le modal
       dispatch(setIsModalOpen(true));
+    } else {
+      toast.info('Vous utilisez déjà la dernière version.');
     }
   };
 
-  // --- MODIFICATION 2 : Logique d'affichage et de style du bouton ---
-  const getUpdateVariant = () => {
-    // Si l'utilisateur a fermé le modal (donc isModalOpen est false mais isUpdateAvailable est true), on affiche en rouge.
-    if (isUpdateAvailable && !isModalOpen) return 'danger';
-    if (isUpdateAvailable) return 'success';
-    return 'outline-secondary';
-  };
-  
-  // Le bouton s'affiche dès qu'une mise à jour est disponible ou en cours d'installation.
+  // Le bouton s'affiche si une mise à jour est prête ou en cours.
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
   
-  // Le clignotement s'active si la mise à jour est en cours, OU si elle est dispo mais que le modal a été fermé.
+  // Le clignotement s'active si la MàJ est en cours, ou si elle est dispo ET que le modal est fermé.
   const shouldBlink = isUpdateInProgress || (isUpdateAvailable && !isModalOpen);
-  // --- FIN DES MODIFICATIONS ---
+
+  // Détermine la couleur du bouton
+  const getUpdateVariant = () => {
+    if (isUpdateAvailable && !isModalOpen) return 'danger'; // Rouge si refusé
+    if (isUpdateAvailable) return 'success'; // Vert si dispo
+    return 'outline-secondary'; // Gris par défaut
+  };
+  // --- FIN DE LA MODIFICATION ---
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
@@ -65,7 +66,9 @@ const Header = ({ handleShowInstallModal }) => {
 
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
-  useSocketQuery(undefined, { skip: !userInfo });
+  
+  // On utilise le hook `useSocketQuery` directement depuis `apiSlice`
+  apiSlice.useSocketQuery(undefined, { skip: !userInfo });
   useGetProfileDetailsQuery(undefined, { skip: !userInfo });
   
   const { data: adminOrders } = useGetOrdersQuery(undefined, { skip: !userInfo?.isAdmin });
@@ -190,7 +193,7 @@ const Header = ({ handleShowInstallModal }) => {
 
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
-              {/* --- MODIFICATION 3 : Le bouton est maintenant entièrement dynamique --- */}
+              
               {userInfo && showUpdateButton && (
                 <Button 
                     variant={getUpdateVariant()} 
@@ -202,6 +205,7 @@ const Header = ({ handleShowInstallModal }) => {
                   {isUpdateInProgress ? 'Installation...' : 'Màj'}
                 </Button>
               )}
+
               <LinkContainer to="/promotions">
                 <Nav.Link className="text-danger fw-bold d-flex align-items-center ms-3">
                   <FaTag className="me-1" /> PROMO

@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify'; // On garde toast pour les notifications
 import { setIsModalOpen, setUpdateAvailable, setUpdateInProgress } from '../slices/pwaSlice';
-// --- MODIFICATION : On importe le hook pour interroger notre backend ---
-import { useGetVersionQuery } from '../slices/apiSlice';
 import UpdateModal from './UpdateModal';
 import UpdateCompleteModal from './UpdateCompleteModal';
+
+// Le nouvel intervalle de vérification en millisecondes (toutes les 60 secondes)
+const CHECK_INTERVAL = 60000;
 
 function PWAManager() {
   const dispatch = useDispatch();
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
   const { isModalOpen } = useSelector((state) => state.pwa);
-
-  // --- MODIFICATION : On interroge notre backend toutes les minutes ---
-  // `pollingInterval` force Redux Toolkit Query à redemander les données à intervalle régulier.
-  // 60000 millisecondes = 1 minute.
-  const { data: versionInfo } = useGetVersionQuery(undefined, {
-    pollingInterval: 60000, 
-  });
 
   const {
     needRefresh: [needRefresh],
@@ -25,9 +20,11 @@ function PWAManager() {
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
+      // Cette partie gère l'affichage du modal "Mise à jour terminée"
       if (sessionStorage.getItem('swUpdateCompleted')) {
         setShowUpdateComplete(true);
         sessionStorage.removeItem('swUpdateCompleted');
+        // On réinitialise complètement l'état de la mise à jour
         dispatch(setUpdateAvailable(false));
         dispatch(setUpdateInProgress(false));
         dispatch(setIsModalOpen(false));
@@ -38,25 +35,25 @@ function PWAManager() {
     },
   });
 
+  // Ce hook lance la vérification automatique en arrière-plan
   useEffect(() => {
-    if (versionInfo?.commitHash) {
-      const lastKnownHash = localStorage.getItem('gitCommitHash');
-      
-      // Si le hash du backend est différent de celui qu'on a en mémoire...
-      if (lastKnownHash !== versionInfo.commitHash) {
-        console.log('Nouveau commit détecté ! Vérification de la mise à jour...');
-        // ...on déclenche la vérification du Service Worker.
-        updateServiceWorker(true);
-        // Et on sauvegarde le nouveau hash.
-        localStorage.setItem('gitCommitHash', versionInfo.commitHash);
-      }
-    }
-  }, [versionInfo, updateServiceWorker]);
+    const interval = setInterval(() => {
+      // On demande silencieusement au navigateur de vérifier s'il y a une nouvelle version du SW
+      updateServiceWorker(true);
+    }, CHECK_INTERVAL);
 
+    // On nettoie l'intervalle quand le composant est détruit
+    return () => clearInterval(interval);
+  }, [updateServiceWorker]);
+
+  // Ce hook réagit quand le SW nous dit qu'une mise à jour est prête
   useEffect(() => {
     if (needRefresh) {
       dispatch(setUpdateAvailable(true));
-      dispatch(setIsModalOpen(true));
+      // On attend 5 secondes avant de montrer le modal, comme tu l'as demandé
+      setTimeout(() => {
+        dispatch(setIsModalOpen(true));
+      }, 5000); 
     }
   }, [needRefresh, dispatch]);
 
@@ -67,17 +64,17 @@ function PWAManager() {
     await updateServiceWorker(true);
   };
 
-  const handleCloseUpdate = () => {
+  const handleLater = () => {
     dispatch(setIsModalOpen(false));
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
+    // Le bouton dans le header deviendra rouge grâce à cet état
   };
 
   return (
     <>
       <UpdateModal
         show={isModalOpen}
-        handleClose={handleCloseUpdate}
-        onConfirmUpdate={handleUpdate}
+        handleClose={handleLater} // Si l'utilisateur clique sur "Plus tard"
+        onConfirmUpdate={handleUpdate} // S'il clique sur "Mettre à jour"
       />
       <UpdateCompleteModal
         show={showUpdateComplete}

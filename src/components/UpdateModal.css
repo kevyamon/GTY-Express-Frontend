@@ -81,9 +81,6 @@
 .info-item:last-child {
   border-bottom: none;
 }
-.info-item.corrections-info {
-  align-items: flex-start;
-}
 
 .info-item .label {
   font-weight: 500;
@@ -99,25 +96,9 @@
   font-size: 1rem;
 }
 
-.info-item .info-icon.verified {
-  color: white;
-  background-color: #3dceff;
-  border-radius: 50%;
-  padding: 2px;
-  font-size: 0.8rem; /* Emoji plus petit */
-}
-
 .info-item .value {
   color: #ffffff;
   font-weight: 600;
-  font-size: 0.9rem; /* Texte plus petit */
-}
-
-.info-item .corrections-list {
-  padding-left: 0;
-  margin: 0;
-  list-style-type: none;
-  text-align: right;
   font-size: 0.9rem; /* Texte plus petit */
 }
 
@@ -144,11 +125,6 @@
 .buttons-container .update-button {
   background-color: #ffffff;
   color: #1d2b64;
-}
-
-.buttons-container .comment-button {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
 }
 
 .buttons-container .later-button {
