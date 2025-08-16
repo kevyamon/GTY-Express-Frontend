@@ -11,12 +11,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script',
-      // --- AMÉLIORATION AJOUTÉE ICI ---
       workbox: {
         // Force le nouveau Service Worker à s'activer dès qu'il est prêt
         skipWaiting: true,
+        // --- AJOUT : Pour forcer la prise de contrôle immédiate ---
+        clientsClaim: true,
       },
-      // --- FIN DE L'AMÉLIORATION ---
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY',
