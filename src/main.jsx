@@ -55,6 +55,7 @@ import TopProductsScreen from './screens/TopProductsScreen.jsx';
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+// COMMENTAIRE : On importe notre nouveau gardien.
 import AuthGuard from './components/AuthGuard.jsx';
 
 // Écrans Admin
@@ -74,6 +75,8 @@ import GlobalMessageScreen from './screens/admin/GlobalMessageScreen.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
+      {/* COMMENTAIRE : On place AuthGuard ici. Il englobe TOUTES les routes de l'application.
+          Peu importe où l'utilisateur essaie d'aller, AuthGuard vérifiera son statut en premier. */}
       <Route element={<AuthGuard />}>
         {/* --- Routes Publiques --- */}
         <Route index={true} path="/" element={<LandingScreen />} />

@@ -18,14 +18,14 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* Style pour la carte "Accès Refusé" */
+/* COMMENTAIRE : Style pour la carte rouge "Accès Refusé" */
 .status-card.refused {
   background-color: #fff0f1;
   border: 1px solid #ffccd1;
   color: #58151c;
 }
 
-/* Style pour la carte "Compte Réactivé" */
+/* COMMENTAIRE : Style pour la carte verte "Compte Réactivé" */
 .status-card.reactivated {
   background-color: #f0fff4;
   border: 1px solid #cce8d4;
@@ -65,10 +65,16 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
+/* COMMENTAIRE : Jolis dégradés pour les boutons */
 .btn-gradient-danger {
   background-image: linear-gradient(to right, #d32f2f 0%, #ff4b2b 100%);
 }
 
 .btn-gradient-primary {
   background-image: linear-gradient(to right, #8e2de2 0%, #4a00e0 100%);
+}
+
+/* COMMENTAIRE : Dégradé vert pour le bouton de la page de réactivation */
+.btn-gradient-success {
+    background-image: linear-gradient(to right, #28a745 0%, #20c997 100%);
 }

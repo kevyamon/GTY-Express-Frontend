@@ -17,27 +17,27 @@ const BannedScreen = () => {
     const [showComplaintModal, setShowComplaintModal] = useState(false);
     const [countdown, setCountdown] = useState(15);
 
-    // Détermine si le compte vient d'être réactivé en vérifiant le statut dans Redux
+    // COMMENTAIRE : Détermine si le compte vient d'être réactivé en vérifiant le statut dans Redux.
     const isReactivated = userInfo?.status === 'active';
 
-    // Logique du compte à rebours pour la redirection
+    // COMMENTAIRE : Logique du compte à rebours pour la redirection.
     useEffect(() => {
         let countdownTimer;
         let redirectTimer;
 
         if (isReactivated) {
-            // Démarre le décompte visuel
+            // Démarre le décompte visuel de 15 secondes.
             countdownTimer = setInterval(() => {
                 setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
             }, 1000);
 
-            // Démarre la redirection automatique après 15 secondes
+            // Démarre la redirection automatique après 15 secondes.
             redirectTimer = setTimeout(() => {
-                logoutHandler(true); // se déconnecte sans message pour une redirection fluide
+                logoutHandler(true); // Se déconnecte sans message pour une redirection fluide.
             }, 15000);
         }
 
-        // Nettoyage des timers quand le composant est démonté ou l'état change
+        // Nettoyage des timers pour éviter les fuites de mémoire.
         return () => {
             clearInterval(countdownTimer);
             clearTimeout(redirectTimer);
@@ -50,7 +50,7 @@ const BannedScreen = () => {
           dispatch(logout());
           navigate('/login');
           if (!isRedirect) {
-            alert('Vous avez été déconnecté.');
+            // On n'affiche plus d'alerte, la redirection suffit.
           }
         } catch (err) { console.error(err); }
     };
@@ -61,22 +61,20 @@ const BannedScreen = () => {
                 {isReactivated ? (
                     // --- VUE COMPTE RÉACTIVÉ ---
                     <div className="status-card reactivated">
-                        <h1><FaCheckCircle /> Compte Réactivé</h1>
+                        <h1><FaCheckCircle /> Compte Réactivé !</h1>
                         <p>
-                            Votre compte a été réactivé ! Vous allez être redirigé vers la page de connexion dans <strong>{countdown} secondes</strong>.
-                            Cliquez sur "Se reconnecter" pour y aller immédiatement. GTY Express s'excuse pour les désagréments occasionnés.
+                            Bonne nouvelle ! Votre compte a été réactivé. Vous allez être redirigé vers la page de connexion dans <strong>{countdown} secondes</strong> pour pouvoir vous reconnecter.
                         </p>
                         <Button className="btn-gradient-success" onClick={() => logoutHandler(true)}>
-                            Se reconnecter
+                            Se reconnecter maintenant
                         </Button>
                     </div>
                 ) : (
                     // --- VUE ACCÈS REFUSÉ ---
                     <div className="status-card refused">
-                        <h1><FaUserSlash /> Accès Refusé</h1>
+                        <h1><FaUserSlash /> Accès Suspendu</h1>
                         <p>
-                            Votre compte a été suspendu ou banni.
-                            Veuillez faire une réclamation pour contester cette décision.
+                            Votre compte a été temporairement suspendu. Si vous pensez qu'il s'agit d'une erreur, vous pouvez nous contacter.
                         </p>
                         <Button className="btn-gradient-primary" onClick={() => setShowComplaintModal(true)}>
                             Faire une réclamation

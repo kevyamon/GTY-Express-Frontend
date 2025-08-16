@@ -9,24 +9,30 @@ const AuthGuard = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Si l'utilisateur est banni et n'est pas déjà sur la page de bannissement
+    // COMMENTAIRE : Ce 'useEffect' est le coeur du système. Il s'exécute à chaque changement
+    // de 'userInfo' (par exemple, après une mise à jour via WebSocket) ou de page.
+
+    // --- CONDITION 1 : L'UTILISATEUR EST BANNI ---
+    // Si l'utilisateur est banni et n'est pas déjà sur la page de bannissement...
     if (userInfo?.status === 'banned' && location.pathname !== '/banned') {
+      // ...on le redirige de force vers la page de bannissement. C'est l'effet "boom !".
       navigate('/banned', { replace: true });
     }
-    // Si l'utilisateur est réactivé et se trouve toujours sur la page de bannissement
+    // --- CONDITION 2 : L'UTILISATEUR EST RÉACTIVÉ ---
+    // S'il est de nouveau actif mais se trouve toujours sur la page de bannissement...
     else if (userInfo?.status === 'active' && location.pathname === '/banned') {
-      // On le renvoie à la page d'accueil des produits pour qu'il puisse continuer sa navigation
+      // ...on le renvoie sur la page principale des produits pour qu'il puisse reprendre sa navigation.
       navigate('/products', { replace: true });
     }
   }, [userInfo, navigate, location]);
 
-  // Si l'utilisateur est banni, on n'affiche que la page de bannissement (gérée par la redirection ci-dessus).
-  // On empêche le reste du site (l'Outlet) de s'afficher pour ne pas qu'il voie les menus, etc.
-  if (userInfo?.status === 'banned') {
-    return <Outlet />;
+  // Si l'utilisateur est banni, on n'affiche rien d'autre que la page de bannissement 
+  // (qui est gérée par la redirection ci-dessus). On bloque l'affichage du reste du site.
+  if (userInfo?.status === 'banned' && location.pathname !== '/banned') {
+    return null; // Affiche une page blanche le temps de la redirection.
   }
 
-  // Si tout va bien, on affiche la page demandée.
+  // Si tout va bien (statut "active"), on affiche la page demandée normalement.
   return <Outlet />;
 };
 
