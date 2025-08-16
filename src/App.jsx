@@ -6,7 +6,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-// On retire tous les imports liés à l'ancien système de version
 import InstallPwaModal from './components/InstallPwaModal';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -20,7 +19,6 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-// --- NOUVEL IMPORT DU MANAGER ---
 import PWAManager from './components/PWAManager';
 import './App.css';
 import bgImage from '../background.jpg';
@@ -30,9 +28,11 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
   
+  // --- MODIFICATION 1 : Détecter les pages spéciales ---
   const isLandingPage = location.pathname === '/';
+  // On vérifie si la page actuelle est la page de bannissement.
+  const isBannedPage = location.pathname === '/banned';
   
-  // On retire toute la logique de `useVersionCheck` et `UpdateModal`
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
@@ -88,7 +88,9 @@ const App = () => {
       
       <ScrollToTop />
 
-      <Header handleShowInstallModal={handleShowInstallModal} />
+      {/* --- MODIFICATION 2 : Affichage conditionnel des composants --- */}
+      {/* On n'affiche le Header que si ce n'est PAS la page de bannissement. */}
+      {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
         <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
@@ -100,9 +102,11 @@ const App = () => {
         </Container>
       </main>
       
-      {!isLandingPage && <Footer />}
+      {/* On n'affiche le Footer que si ce n'est ni la page d'accueil, ni la page de bannissement. */}
+      {!isLandingPage && !isBannedPage && <Footer />}
 
-      {!isLandingPage && (
+      {/* On n'affiche les boutons flottants que si l'utilisateur est connecté ET que ce n'est pas une page spéciale. */}
+      {!isLandingPage && !isBannedPage && (
         <>
           {userInfo && !userInfo.isAdmin && <ChatTrigger />}
           <ScrollToTopButton />
@@ -113,7 +117,6 @@ const App = () => {
       {userInfo && <WarningDisplay />}
       <ToastContainer />
       
-      {/* --- LE PWAMANAGER GÈRE MAINTENANT TOUS LES MODALS DE MISE À JOUR --- */}
       <PWAManager />
 
       <InstallPwaModal 
