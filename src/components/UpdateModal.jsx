@@ -1,22 +1,25 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { FaRocket, FaRegCommentDots, FaRegClock, FaCodeBranch, FaCheckCircle, FaWrench } from 'react-icons/fa';
+import { FaRocket } from 'react-icons/fa';
 import './UpdateModal.css';
 
-// --- LE COMPOSANT EST SIMPLIFIÉ ---
+// --- MODIFICATION : Le composant est simplifié ---
+// Il reçoit maintenant directement les fonctions pour confirmer ou fermer.
 const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
 
   const handleUpdate = () => {
-    // On appelle la fonction de confirmation qui vient du parent
+    // Appelle la fonction de confirmation qui vient du PWAManager.
     onConfirmUpdate(); 
-    // On ferme le modal
+    // Ferme le modal.
     handleClose();
   };
 
   const handleLater = () => {
+    // Ferme le modal.
     handleClose();
-    toast.info('Vous pouvez mettre à jour à tout moment en rafraîchissant la page.');
+    // Affiche un message informatif à l'utilisateur comme demandé.
+    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   };
 
   return (
@@ -33,11 +36,9 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
           Une nouvelle version de GTY Express est prête à être installée pour améliorer votre expérience.
         </p>
 
-        {/* La section des détails a été retirée car ce modal est maintenant un simple prompt */}
-
         <div className="buttons-container" style={{marginTop: '1.5rem'}}>
           <Button className="update-button" onClick={handleUpdate}>
-            Installer et recharger
+            Mettre à jour maintenant
           </Button>
           <Button className="later-button" onClick={handleLater}>
             Plus tard

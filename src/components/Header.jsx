@@ -1,7 +1,6 @@
 import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-// COMMENTAIRE : 'useSelector' est déjà là, c'est ce que nous allons utiliser.
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
@@ -18,7 +17,6 @@ import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
-// COMMENTAIRE : L'ancien import de 'useVersion' a bien été retiré.
 import './Header.css';
 
 const Header = ({ handleShowInstallModal }) => {
@@ -29,22 +27,27 @@ const Header = ({ handleShowInstallModal }) => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION 1 : Connexion au state Redux PWA ---
-  // On utilise useSelector pour récupérer l'état de la mise à jour depuis le store Redux.
-  // Fini les appels directs ou les contextes dédiés.
-  const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
+  // --- MODIFICATION 1 : On récupère aussi 'updateDeclined' ---
+  const { isUpdateAvailable, isUpdateInProgress, updateDeclined } = useSelector((state) => state.pwa);
 
-  // --- MODIFICATION 2 : Logique de clic simplifiée ---
-  // Cette fonction utilise maintenant les états Redux pour afficher le bon message.
   const handleUpdateClick = () => {
+    // La logique ici reste la même, elle informe l'utilisateur.
     if (!isUpdateAvailable) {
       toast.success('Vous utilisez déjà la dernière version de GTY Express.');
     } else {
       toast.info('Une mise à jour est prête à être installée. Confirmez via la fenêtre qui est apparue.');
     }
   };
-  // --- FIN DES MODIFICATIONS ---
 
+  // --- MODIFICATION 2 : Logique d'affichage du bouton ---
+  const getUpdateVariant = () => {
+    if (isUpdateAvailable && updateDeclined) return 'danger'; // Màj refusée -> Rouge
+    if (isUpdateAvailable) return 'success'; // Màj disponible -> Vert
+    return 'outline-secondary'; // Pas de Màj -> Gris
+  };
+
+  const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
+  // --- FIN DES MODIFICATIONS ---
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
@@ -182,14 +185,12 @@ const Header = ({ handleShowInstallModal }) => {
 
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
-              {userInfo && (
-                // --- MODIFICATION 3 : Le bouton est maintenant dynamique ---
-                // Sa couleur ('variant') et sa classe (pour l'animation de clignotement)
-                // dépendent directement des états Redux 'isUpdateAvailable' et 'isUpdateInProgress'.
+              {/* --- MODIFICATION 3 : Affichage conditionnel du bouton --- */}
+              {userInfo && showUpdateButton && (
                 <Button 
-                    variant={isUpdateAvailable ? "success" : "outline-secondary"} 
+                    variant={getUpdateVariant()} 
                     onClick={handleUpdateClick} 
-                    className={`ms-3 d-flex align-items-center ${isUpdateInProgress ? 'update-available-blink' : ''}`} 
+                    className={`ms-3 d-flex align-items-center update-available-blink`} 
                     size="sm"
                 >
                   <FaSyncAlt className="me-1" />

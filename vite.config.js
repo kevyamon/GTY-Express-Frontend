@@ -2,25 +2,25 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-// On importe le package.json pour lire la version
 import packageJson from './package.json';
 
 export default defineConfig({
-  // --- AJOUT DE CETTE SECTION ---
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version),
   },
-  // --- FIN DE L'AJOUT ---
   plugins: [
     react(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'script',
-      // --- MODIFICATION : BLOC WORKBOX SUPPRIMÉ ---
-      // En retirant les lignes 'skipWaiting' et 'clientsClaim',
-      // on permet au nouveau Service Worker d'attendre l'autorisation
-      // de l'utilisateur avant de s'activer. C'est ce qui va
-      // déclencher l'affichage du modal de mise à jour.
+      // --- MODIFICATION : Configuration explicite du Workbox ---
+      workbox: {
+        // On force le service worker à se mettre en "attente"
+        // C'est LA clé pour que le modal "Mise à jour disponible" puisse s'afficher.
+        skipWaiting: false,
+        // On désactive également la prise de contrôle automatique.
+        clientsClaim: false,
+      },
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY',

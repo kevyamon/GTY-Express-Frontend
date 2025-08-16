@@ -1,8 +1,6 @@
 import React from 'react';
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-// --- MODIFICATION 1 : Import de useSelector ---
-// On importe le hook 'useSelector' pour pouvoir lire les données du store Redux.
 import { useSelector } from 'react-redux';
 import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
 import './MobileMenuModal.css';
@@ -17,15 +15,24 @@ const MobileMenuModal = ({
   handleAdminModal,
 }) => {
 
-  // --- MODIFICATION 2 : Connexion au state Redux PWA ---
-  // Comme pour le Header, on récupère directement l'état de la PWA depuis Redux.
-  // Cela garantit que le menu mobile et le header affichent toujours la même information.
-  const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
+  // --- MODIFICATION 1 : Connexion aux états PWA ---
+  // On récupère tous les états nécessaires, y compris 'updateDeclined'.
+  const { isUpdateAvailable, isUpdateInProgress, updateDeclined } = useSelector((state) => state.pwa);
 
   const handleLinkClick = (action) => {
     if (action) action();
     handleClose();
   };
+  
+  // --- MODIFICATION 2 : Logique d'affichage ---
+  // Le bouton ne s'affiche que si une mise à jour est disponible ou en cours.
+  const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
+  
+  const getIconColor = () => {
+      if (isUpdateAvailable && updateDeclined) return '#dc3545'; // Rouge si refusé
+      if (isUpdateAvailable) return '#198754'; // Vert si disponible
+      return '#6c757d'; // Gris par défaut
+  }
 
   return (
     <Modal show={show} onHide={handleClose} fullscreen="md-down" dialogClassName="mobile-menu-modal" contentClassName="mobile-menu-content">
@@ -49,21 +56,26 @@ const MobileMenuModal = ({
             <ListGroup.Item action className="promo-link"><FaBullhorn /> PROMO</ListGroup.Item>
           </LinkContainer>
 
-          {/* --- MODIFICATION 3 : L'élément de liste est maintenant dynamique --- */}
-          {/* L'icône, le texte et les badges de cet élément changent en fonction de l'état de la mise à jour,
-              exactement comme le bouton sur le Header du bureau. */}
-          <ListGroup.Item 
-            action 
-            onClick={() => handleLinkClick(handleUpdateClick)} 
-            className={`d-flex justify-content-between align-items-center ${isUpdateInProgress ? 'update-available-blink' : ''}`}
-          >
-            <div>
-              <FaSyncAlt style={{ color: isUpdateAvailable ? '#198754' : '#6c757d' }} />
-              <span className="ms-3">Mise à jour</span>
-            </div>
-            {isUpdateAvailable && !isUpdateInProgress && <Badge bg="success">Prête</Badge>}
-            {isUpdateInProgress && <Badge bg="warning">En cours...</Badge>}
-          </ListGroup.Item>
+          {/* --- MODIFICATION 3 : Affichage conditionnel et dynamique --- */}
+          {showUpdateButton && (
+            <ListGroup.Item 
+              action 
+              onClick={() => handleLinkClick(handleUpdateClick)} 
+              className={`d-flex justify-content-between align-items-center ${isUpdateInProgress || updateDeclined ? 'update-available-blink' : ''}`}
+            >
+              <div>
+                <FaSyncAlt style={{ color: getIconColor() }} />
+                <span className="ms-3">Mise à jour</span>
+              </div>
+              {isUpdateInProgress 
+                ? <Badge bg="warning">En cours...</Badge> 
+                : updateDeclined 
+                ? <Badge bg="danger">Requise</Badge> 
+                : isUpdateAvailable 
+                ? <Badge bg="success">Prête</Badge> 
+                : null}
+            </ListGroup.Item>
+          )}
 
           <ListGroup.Item className="separator">Mon Espace</ListGroup.Item>
 
