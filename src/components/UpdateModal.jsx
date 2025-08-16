@@ -2,11 +2,9 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { FaRocket, FaRegCommentDots, FaRegClock, FaCodeBranch, FaCheckCircle, FaWrench } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 import './UpdateModal.css';
 
-const UpdateModal = ({ show, handleClose, newVersion, deployedAt }) => {
-  const navigate = useNavigate();
+const UpdateModal = ({ show, handleClose, newVersion, deployedAt, onCommentClick }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Un instant...';
@@ -21,18 +19,17 @@ const UpdateModal = ({ show, handleClose, newVersion, deployedAt }) => {
   };
 
   const handleComment = () => {
-    handleClose(); 
-    navigate('/profile/suggestions');
-    toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
+    handleClose();
+    onCommentClick(); // Appelle la fonction du parent pour ouvrir l'autre modal
   };
 
   const handleLater = () => {
-    handleClose(); 
+    handleClose();
     toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
   };
 
   return (
-    <Modal show={show} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
+    <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
       <Modal.Body className="update-modal-body">
         <div className="rocket-animation-container">
           <div className="rocket-icon"><FaRocket /></div>
