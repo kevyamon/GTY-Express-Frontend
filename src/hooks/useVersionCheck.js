@@ -2,30 +2,32 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from 'react-toastify';
 
-const CHECK_INTERVAL = 60000; // Vérification toutes les 60 secondes
+// On augmente l'intervalle pour ne pas surcharger le serveur
+const CHECK_INTERVAL = 5 * 60 * 1000; // Vérification toutes les 5 minutes
 
 export const useVersionCheck = () => {
-  // États internes pour gérer le processus de mise à jour
+  // --- NOUVEAUX ÉTATS ---
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [newVersionInfo, setNewVersionInfo] = useState(null); // Pour stocker les infos de la NOUVELLE version
+  // --- FIN DES NOUVEAUX ÉTATS ---
+
   const [isUpdateInProgress, setIsUpdateInProgress] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
 
+  // Le hook du Service Worker est toujours là, il fait le travail lourd en arrière-plan
   const {
-    needRefresh: [needRefresh],
+    needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
-      // Si on détecte qu'une mise à jour vient de se terminer (après rechargement)
+      // Cette partie gère l'affichage du modal "Mise à jour terminée !"
+      // que nous finirons à l'étape 4.
       if (sessionStorage.getItem('swUpdateCompleted')) {
-        toast.success('Application mise à jour avec succès !');
         sessionStorage.removeItem('swUpdateCompleted');
-        // On réinitialise tous les états
-        setIsUpdateAvailable(false);
-        setIsUpdateInProgress(false);
-        setIsModalOpen(false);
-        setUpdateDeclined(false);
+        // On force la réinitialisation pour afficher le modal de succès
+        window.dispatchEvent(new Event('updateCompleted'));
       }
     },
     onRegisterError(error) {
@@ -33,30 +35,43 @@ export const useVersionCheck = () => {
     },
   });
 
-  // Lance la vérification périodique
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // On ne vérifie que si aucune mise à jour n'est déjà en attente ou en cours
-      if (!isUpdateAvailable && !isUpdateInProgress) {
-        updateServiceWorker(true);
+  // --- NOUVELLE FONCTION POUR VÉRIFIER LE FICHIER version.json ---
+  const checkForUpdate = useCallback(async () => {
+    try {
+      // On ajoute un paramètre aléatoire pour éviter que le navigateur mette le fichier en cache
+      const response = await fetch(`/version.json?t=${new Date().getTime()}`);
+      if (!response.ok) return;
+
+      const serverVersionInfo = await response.json();
+      const currentVersion = import.meta.env.VITE_APP_VERSION;
+
+      // Si la version sur le serveur est différente de celle de l'application
+      if (serverVersionInfo.version !== currentVersion) {
+        setNewVersionInfo(serverVersionInfo); // On stocke les infos de la nouvelle version
+        setIsUpdateAvailable(true);
+        // On demande au Service Worker de télécharger la mise à jour
+        updateServiceWorker(true); 
       }
-    }, CHECK_INTERVAL);
+    } catch (error) {
+      console.error('Impossible de vérifier la version:', error);
+    }
+  }, [updateServiceWorker]);
+  // --- FIN DE LA NOUVELLE FONCTION ---
 
+  // On lance la vérification au chargement, puis toutes les 5 minutes
+  useEffect(() => {
+    checkForUpdate(); // Vérification immédiate
+    const interval = setInterval(checkForUpdate, CHECK_INTERVAL);
     return () => clearInterval(interval);
-  }, [updateServiceWorker, isUpdateAvailable, isUpdateInProgress]);
+  }, [checkForUpdate]);
 
-  // Réagit quand le Service Worker signale qu'une mise à jour est prête
+  // Quand le Service Worker confirme que la mise à jour est prête (needRefresh = true)
   useEffect(() => {
     if (needRefresh) {
-      setIsUpdateAvailable(true);
-      // On attend 5 secondes avant de proposer la mise à jour
-      setTimeout(() => {
-        setIsModalOpen(true);
-      }, 5000);
+      setIsModalOpen(true);
     }
   }, [needRefresh]);
 
-  // Fonction pour lancer la mise à jour
   const confirmUpdate = useCallback(async () => {
     setIsModalOpen(false);
     setIsUpdateInProgress(true);
@@ -64,26 +79,24 @@ export const useVersionCheck = () => {
     await updateServiceWorker(true);
   }, [updateServiceWorker]);
 
-  // Fonction pour refuser temporairement
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
-    setUpdateDeclined(true); // On note que l'utilisateur a refusé
+    setUpdateDeclined(true);
     toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   }, []);
 
-  // Fonction pour rouvrir le modal
   const openUpdateModal = useCallback(() => {
     if (isUpdateAvailable) {
       setIsModalOpen(true);
     }
   }, [isUpdateAvailable]);
 
-  // On retourne toutes les valeurs et fonctions dont l'application aura besoin
   return {
     isUpdateAvailable,
     isUpdateInProgress,
     isModalOpen,
     updateDeclined,
+    newVersionInfo, // On retourne les infos de la nouvelle version
     confirmUpdate,
     declineUpdate,
     openUpdateModal,

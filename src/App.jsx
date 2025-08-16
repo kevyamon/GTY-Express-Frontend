@@ -19,7 +19,8 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-// --- On retire l'import de PWAManager ---
+// --- NOUVEL IMPORT ---
+import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -33,6 +34,8 @@ const App = () => {
   
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  // --- NOUVEL ÉTAT POUR LE MODAL DE SUCCÈS ---
+  const [showUpdateComplete, setShowUpdateComplete] = useState(false);
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
@@ -40,6 +43,23 @@ const App = () => {
   const [showLogo, setShowLogo] = useState(true);
   const [logoKey, setLogoKey] = useState(Date.now());
   const isInitialLoad = useRef(true);
+
+  // --- NOUVELLE LOGIQUE POUR DÉTECTER LA FIN DE LA MISE À JOUR ---
+  useEffect(() => {
+    const handleUpdateCompleted = () => {
+      setShowUpdateComplete(true);
+    };
+
+    // On écoute l'événement personnalisé que notre hook envoie
+    window.addEventListener('updateCompleted', handleUpdateCompleted);
+
+    // On nettoie l'écouteur quand le composant est démonté
+    return () => {
+      window.removeEventListener('updateCompleted', handleUpdateCompleted);
+    };
+  }, []);
+  // --- FIN DE LA NOUVELLE LOGIQUE ---
+
 
   useEffect(() => {
     if (isInitialLoad.current) {
@@ -110,8 +130,12 @@ const App = () => {
       {userInfo && <GlobalMessageDisplay />}
       {userInfo && <WarningDisplay />}
       <ToastContainer />
-      
-      {/* --- On retire le composant PWAManager d'ici --- */}
+
+      {/* --- AJOUT DU MODAL DE SUCCÈS --- */}
+      <UpdateCompleteModal 
+        show={showUpdateComplete}
+        handleClose={() => setShowUpdateComplete(false)}
+      />
 
       <InstallPwaModal 
         show={showInstallModal}

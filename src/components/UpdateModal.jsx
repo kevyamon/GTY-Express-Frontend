@@ -1,12 +1,14 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-// --- MODIFICATION : On importe une nouvelle icône ---
 import { FaRocket, FaInfoCircle, FaCalendarAlt, FaCodeBranch } from 'react-icons/fa';
 import './UpdateModal.css';
 
-const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
-  const appVersion = import.meta.env.VITE_APP_VERSION;
-  const commitDateISO = import.meta.env.VITE_COMMIT_DATE;
+// --- MODIFICATION IMPORTANTE : On ajoute "newVersionInfo" dans les props ---
+const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo }) => {
+
+  // On utilise les informations de la nouvelle version si elles existent, sinon on met des valeurs par défaut
+  const displayVersion = newVersionInfo?.version || 'Chargement...';
+  const commitDateISO = newVersionInfo?.commitDate || new Date().toISOString();
 
   const formattedDate = new Date(commitDateISO).toLocaleString('fr-FR', {
     dateStyle: 'long',
@@ -29,17 +31,17 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
         
         <div className="version-details">
           <div className="info-item">
-            <span className="label"><FaInfoCircle className="info-icon" /> Version</span>
-            <span className="value">{appVersion}</span>
+            <span className="label"><FaInfoCircle className="info-icon" /> Nouvelle Version</span>
+            {/* --- MODIFICATION : On affiche la nouvelle version --- */}
+            <span className="value">{displayVersion}</span>
           </div>
-          {/* --- MODIFICATION : La ligne "Commit" est remplacée --- */}
           <div className="info-item">
             <span className="label"><FaCodeBranch className="info-icon" /> Editeur</span>
             <span className="value">GTY Express dev Team</span>
           </div>
-          {/* --- FIN DE LA MODIFICATION --- */}
           <div className="info-item">
             <span className="label"><FaCalendarAlt className="info-icon" /> Date</span>
+            {/* --- MODIFICATION : On affiche la date de la nouvelle version --- */}
             <span className="value">{formattedDate}</span>
           </div>
         </div>
