@@ -132,5 +132,5 @@ export const apiSlice = createApi({
   }),
 });
 
-// --- ON RETIRE L'EXPORT DE useGetVersionQuery ---
+// --- ON RETIRE L'EXPORT DE useGetVersionQuery  ---
 export const { useSocketQuery } = apiSlice;
