@@ -4,7 +4,6 @@ import { Row, Col, Image, ListGroup, Card, Button, Form, Carousel } from 'react-
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice.js';
-// --- CORRECTION FINALE DE L'IMPORT ---
 import { useGetMyPurchasesQuery } from '../slices/orderApiSlice.js'; 
 import { addToCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
@@ -27,7 +26,6 @@ const ProductScreen = () => {
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
   
-  // --- LOGIQUE DE VÉRIFICATION FIABILISÉE AVEC L'HISTORIQUE COMPLET ---
   const { data: purchaseHistory } = useGetMyPurchasesQuery(undefined, { skip: !userInfo });
   const hasPurchased = useMemo(() => {
     if (!purchaseHistory || !product) return false;
@@ -36,11 +34,18 @@ const ProductScreen = () => {
       order.orderItems.some(item => item.product === product._id)
     );
   }, [purchaseHistory, product]);
-  // --- FIN DE LA CORRECTION ---
 
   const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation();
 
   const handleSelect = (selectedIndex) => setIndex(selectedIndex);
+
+  // --- MODIFICATION 1 : SCROLL AUTOMATIQUE ---
+  // Ce `useEffect` s'exécute une seule fois, au moment où la page s'affiche.
+  // Il remonte instantanément la fenêtre tout en haut pour que l'image du produit soit visible.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  // --- FIN DE LA MODIFICATION 1 ---
 
   useEffect(() => {
     if (error) {
@@ -106,11 +111,15 @@ const ProductScreen = () => {
                 <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
                 <ListGroup.Item className="description-box">
                   <strong>Description:</strong>
-                  <p>
+                  {/* --- MODIFICATION 2 : DESCRIPTION CLIQUABLE --- */}
+                  {/* J'ai ajouté l'événement 'onClick' directement sur le paragraphe.
+                      Il appelle maintenant la même fonction que le bouton "Lire la suite". */}
+                  <p onClick={toggleDescription} style={{ cursor: 'pointer' }}>
                     {product.description.length > TRUNCATE_LENGTH && !isDescriptionExpanded
                       ? `${product.description.substring(0, TRUNCATE_LENGTH)}...`
                       : product.description}
                   </p>
+                  {/* --- FIN DE LA MODIFICATION 2 --- */}
                   {product.description.length > TRUNCATE_LENGTH && (
                     <button onClick={toggleDescription} className="toggle-description-btn">
                       {isDescriptionExpanded ? 'Réduire' : 'Lire la suite >'}

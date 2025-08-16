@@ -6,7 +6,7 @@ import { addToFavorites, removeFromFavorites } from '../slices/favoritesSlice';
 import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
-import Rating from './Rating'; // <-- 1. ON IMPORTE LE COMPOSANT RATING
+import Rating from './Rating';
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -85,13 +85,11 @@ const Product = ({ product }) => {
           </Link>
         </div>
         
-        {/* --- 2. ON AJOUTE LES AVIS ICI --- */}
         <div className="product-rating">
           {product.numReviews > 0 && (
             <Rating value={product.rating} text={`(${product.numReviews})`} />
           )}
         </div>
-        {/* --- FIN DE L'AJOUT --- */}
 
         <div className="price-container">
           <span className="product-price">{product.price} FCFA</span>
@@ -101,6 +99,16 @@ const Product = ({ product }) => {
             </span>
           ) : null}
         </div>
+
+        {/* --- MODIFICATION : AJOUT DE LA MARQUE --- */}
+        {/* On vérifie si le produit a une marque, et si oui, on l'affiche. */}
+        {product.brand && (
+          <div className="brand-container">
+            <span className="product-brand">{product.brand}</span>
+          </div>
+        )}
+        {/* --- FIN DE LA MODIFICATION --- */}
+
 
         <div className="stock-status-container">
           <StockStatus countInStock={product.countInStock} />

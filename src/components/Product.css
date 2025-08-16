@@ -51,12 +51,10 @@
 .product-title a { text-decoration: none; color: inherit; }
 .product-title a:hover { text-decoration: underline; }
 
-/* --- NOTRE AJOUT POUR LES AVIS --- */
 .product-rating {
   margin-bottom: 0.25rem;
-  min-height: 20px; /* Assure que la mise en page ne saute pas si un produit n'a pas d'avis */
+  min-height: 20px; 
 }
-/* --- FIN DE L'AJOUT --- */
 
 .price-container {
   margin-bottom: 0.25rem;
@@ -74,6 +72,21 @@
   text-decoration: line-through;
   margin-left: 0.4rem;
 }
+
+/* --- MODIFICATION : AJOUT DU STYLE POUR LA MARQUE --- */
+.brand-container {
+  margin-bottom: 0.25rem;
+}
+
+.product-brand {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #c71585; /* Couleur du texte */
+  background-color: #ffeff7; /* Fond rose clair */
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+/* --- FIN DE LA MODIFICATION --- */
 
 .stock-status-container {
   margin-top: auto;
