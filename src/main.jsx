@@ -10,7 +10,7 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
-import { VersionProvider } from './contexts/VersionContext'; // --- NOUVEL IMPORT ---
+import { VersionProvider } from './contexts/VersionContext';
 
 // Fichiers de style
 import './App.css';
@@ -47,6 +47,11 @@ import PrivacyScreen from './screens/PrivacyScreen.jsx';
 import ChatScreen from './screens/ChatScreen.jsx';
 import BannedScreen from './screens/BannedScreen.jsx';
 import MySuggestionsScreen from './screens/MySuggestionsScreen.jsx';
+
+// --- NOUVEAUX IMPORTS ---
+import PopularProductsScreen from './screens/PopularProductsScreen.jsx';
+import TopProductsScreen from './screens/TopProductsScreen.jsx';
+
 
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
@@ -99,6 +104,9 @@ const router = createBrowserRouter(
           <Route path='/profile-details' element={<ProfileDetailsScreen />} />
           <Route path='/profile/suggestions' element={<MySuggestionsScreen />} />
           <Route path="/products" element={<HomeScreen />} />
+          {/* --- NOUVELLES ROUTES --- */}
+          <Route path="/products/popular" element={<PopularProductsScreen />} />
+          <Route path="/products/top-rated" element={<TopProductsScreen />} />
           <Route path="/cart" element={<CartScreen />} />
           <Route path="/favorites" element={<FavoritesScreen />} />
           <Route path="/shipping" element={<ShippingScreen />} />
@@ -131,13 +139,11 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      {/* --- LE VERSION PROVIDER ENVELOPPE L'APPLICATION --- */}
       <VersionProvider>
         <PayPalScriptProvider deferLoading={true}>
           <RouterProvider router={router} />
         </PayPalScriptProvider>
       </VersionProvider>
-      {/* --- FIN DE L'AJOUT --- */}
     </Provider>
   </React.StrictMode>
 );

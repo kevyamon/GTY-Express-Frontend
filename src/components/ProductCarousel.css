@@ -1,10 +1,9 @@
 /* src/components/ProductCarousel.css */
 .carousel-container {
   background-color: rgba(255, 255, 255, 0.7);
-  padding: 1.5rem 0; /* On ne met que du padding vertical ici */
+  padding: 1.5rem 0;
   border-radius: 12px;
   backdrop-filter: blur(5px);
-  /* La correction magique : on s'assure que le conteneur ne soit pas affecté par le padding du parent */
   margin-left: calc(-1 * var(--bs-gutter-x, 0.75rem));
   margin-right: calc(-1 * var(--bs-gutter-x, 0.75rem));
   padding-left: var(--bs-gutter-x, 0.75rem);
@@ -16,7 +15,7 @@
   font-weight: bold;
   margin-bottom: 1rem;
   border-left: 4px solid #0d6efd;
-  padding-left: 0.5rem; /* Réduit pour plus de compacité */
+  padding-left: 0.5rem;
 }
 
 .product-row-scroll-container {
@@ -25,7 +24,6 @@
   padding-bottom: 15px;
 }
 
-/* Style de la barre de scroll */
 .product-row-scroll-container::-webkit-scrollbar {
   height: 8px;
 }
@@ -51,6 +49,11 @@
 .product-row-inner > [class*="col-"] {
   flex: 0 0 200px;
   max-width: 200px;
+}
+
+/* --- NOUVEAU STYLE POUR LA CARTE "VOIR TOUT" --- */
+.see-all-card {
+  min-height: 250px; /* S'assure qu'il a la même hauteur que les cartes produits */
 }
 
 @media (max-width: 767px) {

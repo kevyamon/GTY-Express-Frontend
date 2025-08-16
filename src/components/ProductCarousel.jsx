@@ -1,22 +1,25 @@
-// src/components/ProductCarousel.jsx
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import Product from './Product';
 import Message from './Message';
-import './ProductCarousel.css'; // Nous allons créer ce fichier juste après
+import './ProductCarousel.css';
 
-const ProductCarousel = ({ title, products, isLoading, error }) => {
+// --- AMÉLIORATION : On ajoute les props "linkTo" et "limit" ---
+const ProductCarousel = ({ title, products, isLoading, error, linkTo, limit }) => {
   if (isLoading) {
-    return null; // On n'affiche rien pendant le chargement pour ne pas surcharger
+    return null;
   }
 
   if (error) {
     return <Message variant='danger'>{error?.data?.message || error.error}</Message>;
   }
 
-  // On n'affiche la section que s'il y a des produits à montrer
   if (!products || products.length === 0) {
     return null;
   }
+  
+  // Le bouton "Voir tout" ne s'affiche que si on atteint la limite de produits
+  const showSeeAllButton = limit && products.length === limit;
 
   return (
     <div className='carousel-container my-4'>
@@ -28,6 +31,14 @@ const ProductCarousel = ({ title, products, isLoading, error }) => {
               <Product product={product} />
             </Col>
           ))}
+          {/* --- NOUVEAU : Le bouton "Voir Tout" --- */}
+          {showSeeAllButton && (
+            <Col className="d-flex align-items-center justify-content-center see-all-card p-1">
+              <LinkContainer to={linkTo}>
+                <Button variant="outline-primary">Voir Tout</Button>
+              </LinkContainer>
+            </Col>
+          )}
         </Row>
       </div>
     </div>

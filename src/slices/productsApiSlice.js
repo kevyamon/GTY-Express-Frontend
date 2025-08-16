@@ -4,9 +4,10 @@ const PRODUCTS_URL = '/api/products';
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: ({ keyword = '', category = '', promotion = 'false' }) => ({
+      // --- MODIFIÉ : On ajoute pageType pour pouvoir exclure des produits ---
+      query: ({ keyword = '', category = '', promotion = 'false', pageType = '' }) => ({
         url: PRODUCTS_URL,
-        params: { keyword, category, promotion },
+        params: { keyword, category, promotion, pageType },
       }),
       keepUnusedDataFor: 5,
       providesTags: ['Product'],
@@ -36,18 +37,24 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
     }),
     
-    // --- NOS AJOUTS POUR LA PAGE D'ACCUEIL ---
     getTopProducts: builder.query({
-      query: () => `${PRODUCTS_URL}/top`,
+      // --- MODIFIÉ : On peut maintenant passer une limite ---
+      query: ({ limit } = {}) => ({
+        url: `${PRODUCTS_URL}/top`,
+        params: { limit },
+      }),
       keepUnusedDataFor: 5,
       providesTags: ['Product'],
     }),
     getPopularProducts: builder.query({
-      query: () => `${PRODUCTS_URL}/popular`,
+      // --- MODIFIÉ : On peut maintenant passer une limite ---
+      query: ({ limit } = {}) => ({
+        url: `${PRODUCTS_URL}/popular`,
+        params: { limit },
+      }),
       keepUnusedDataFor: 5,
       providesTags: ['Product'],
     }),
-    // --- FIN DES AJOUTS ---
   }),
 });
 
@@ -58,7 +65,6 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useCreateReviewMutation,
-  // --- NOS NOUVEAUX EXPORTS ---
   useGetTopProductsQuery,
   useGetPopularProductsQuery,
 } = productsApiSlice;
