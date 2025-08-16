@@ -1,15 +1,13 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { FaRocket, FaInfoCircle, FaCalendarAlt } from 'react-icons/fa'; // On ajoute des icônes
+// --- MODIFICATION : On importe une nouvelle icône ---
+import { FaRocket, FaInfoCircle, FaCalendarAlt, FaCodeBranch } from 'react-icons/fa';
 import './UpdateModal.css';
 
 const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
-  // On récupère les nouvelles variables injectées par notre plugin
   const appVersion = import.meta.env.VITE_APP_VERSION;
-  const commitHash = import.meta.env.VITE_COMMIT_HASH;
   const commitDateISO = import.meta.env.VITE_COMMIT_DATE;
 
-  // Fonction pour formater joliment la date
   const formattedDate = new Date(commitDateISO).toLocaleString('fr-FR', {
     dateStyle: 'long',
     timeStyle: 'short',
@@ -34,10 +32,12 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
             <span className="label"><FaInfoCircle className="info-icon" /> Version</span>
             <span className="value">{appVersion}</span>
           </div>
+          {/* --- MODIFICATION : La ligne "Commit" est remplacée --- */}
           <div className="info-item">
-            <span className="label"><span className="info-icon">#️⃣</span> Commit</span>
-            <span className="value">{commitHash}</span>
+            <span className="label"><FaCodeBranch className="info-icon" /> Editeur</span>
+            <span className="value">GTY Express dev Team</span>
           </div>
+          {/* --- FIN DE LA MODIFICATION --- */}
           <div className="info-item">
             <span className="label"><FaCalendarAlt className="info-icon" /> Date</span>
             <span className="value">{formattedDate}</span>
