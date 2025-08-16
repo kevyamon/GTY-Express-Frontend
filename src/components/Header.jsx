@@ -4,9 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-// --- NOS AJOUTS ---
+// --- LA CORRECTION EST ICI ---
 import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload } from 'react-icons/fa';
-// --- FIN DES AJOUTS ---
+// --- FIN DE LA CORRECTION ---
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
