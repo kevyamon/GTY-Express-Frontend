@@ -1,20 +1,22 @@
 .global-message-modal .modal-content {
-  border-radius: 12px;
+  border-radius: 16px; /* Bords plus arrondis */
   border: none;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif; /* Application de la police Poppins */
 }
 
 .global-message-modal .modal-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background-color: #f7f7f7; /* Fond légèrement gris */
+  border-bottom: none; /* On retire la ligne de séparation */
   padding: 1rem 1.5rem;
 }
 
 .global-message-title {
-  font-size: 1.25rem;
+  font-size: 1.2rem; /* Taille de police ajustée */
   font-weight: 600;
   display: flex;
   align-items: center;
+  color: #333; /* Couleur de texte plus foncée */
 }
 
 .global-message-icon {
@@ -22,14 +24,24 @@
   margin-right: 0.75rem;
 }
 
+.global-message-modal .modal-body {
+  padding: 1.5rem; /* Plus d'espace intérieur */
+}
+
 .global-message-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  white-space: pre-wrap; /* Respecte les sauts de ligne du message */
-  padding: 1rem 0;
+  font-size: 1.05rem; /* Taille de police du texte principal */
+  line-height: 1.7; /* Espacement des lignes amélioré */
+  white-space: pre-wrap;
+  color: #555; /* Texte un peu moins noir */
 }
 
 .global-message-modal .modal-footer {
   border-top: none;
-  padding: 0 1.5rem 1rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.global-message-modal .modal-footer .btn {
+  border-radius: 50px; /* Bouton arrondi */
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
 }

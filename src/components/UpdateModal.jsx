@@ -13,14 +13,19 @@ const UpdateModal = ({ show, handleClose, newVersion, deployedAt, onCommentClick
     });
   };
 
+  // --- CORRECTION APPLIQUÉE ICI ---
   const handleUpdate = () => {
+    // On se contente de fermer la fenêtre et d'informer l'utilisateur.
+    // Le service worker de la PWA, configuré en 'autoUpdate', prendra le relais
+    // pour recharger la page proprement une fois qu'il sera prêt.
     handleClose();
-    window.location.reload();
+    toast.info("L'application va se mettre à jour en arrière-plan et se rechargera automatiquement.", { autoClose: 5000 });
   };
+  // --- FIN DE LA CORRECTION ---
 
   const handleComment = () => {
     handleClose();
-    onCommentClick(); // Appelle la fonction du parent pour ouvrir l'autre modal
+    onCommentClick();
   };
 
   const handleLater = () => {
