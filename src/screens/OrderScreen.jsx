@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
+import { FaShippingFast, FaCreditCard, FaUser, FaAt, FaPhone } from 'react-icons/fa';
 import Message from '../components/Message';
 import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
@@ -10,6 +11,7 @@ import {
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
 } from '../slices/orderApiSlice';
+import './OrderScreen.css';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
@@ -68,65 +70,95 @@ const OrderScreen = () => {
     <>
       <h3 className="mb-4">Détails de la commande {order._id.substring(0, 10)}...</h3>
       <Row>
-        <Col md={8}>
-          <ListGroup variant='flush'>
-            <ListGroup.Item className="mb-3">
+        <Col md={7}>
+          <Card className="mb-4 order-card">
+            <Card.Header as="h5">Suivi de la Commande</Card.Header>
+            <Card.Body>
               <OrderStatusTracker order={order} />
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <h2>Livraison</h2>
-              <p><strong>Nom: </strong> {order.user.name}</p>
-              <p><strong>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
-              <p><strong>Adresse:</strong> {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}</p>
-              <p><strong>Téléphone:</strong> {order.shippingAddress.phone}</p>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <h2>Articles Commandés</h2>
-              {order.orderItems.map((item, index) => {
-                // --- LOGIQUE D'IMAGE CORRIGÉE ---
-                let imageToDisplay = 'https://via.placeholder.com/150'; // Image par défaut
-                if (item.images && item.images.length > 0) {
-                  imageToDisplay = item.images[0];
-                } else if (item.image) {
-                  imageToDisplay = item.image;
-                }
-                const imageUrl = imageToDisplay.startsWith('/')
-                  ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
-                  : imageToDisplay;
+            </Card.Body>
+          </Card>
 
-                return (
-                  <ListGroup.Item key={index}>
-                    <Row className="align-items-center">
-                      <Col xs={2} md={1}><Image src={imageUrl} alt={item.name} fluid rounded /></Col>
-                      <Col><Link to={`/product/${item.product}`}>{item.name}</Link></Col>
-                      <Col md={4} className="text-end">{item.qty} x {item.price} FCFA = {(item.qty * item.price).toFixed(2)} FCFA</Col>
-                    </Row>
-                  </ListGroup.Item>
-                )
-              })}
-            </ListGroup.Item>
-          </ListGroup>
-        </Col>
-        <Col md={4}>
-          <Card>
+          <Card className="mb-4 order-card">
+            <Card.Header as="h5">Détails de Livraison et Paiement</Card.Header>
             <ListGroup variant='flush'>
-              <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-              <ListGroup.Item><Row><Col>Total</Col><Col><strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row></ListGroup.Item>
               <ListGroup.Item>
-                <h4>Statut du Paiement</h4>
+                <p><strong><FaUser className="me-2"/>Client:</strong> {order.user.name}</p>
+                <p><strong><FaAt className="me-2"/>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
+                <p><strong><FaPhone className="me-2"/>Téléphone:</strong> {order.shippingAddress.phone}</p>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <p><strong><FaShippingFast className="me-2"/>Adresse de livraison:</strong></p>
+                {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}
+              </ListGroup.Item>
+               <ListGroup.Item>
+                <p><strong><FaCreditCard className="me-2"/>Méthode de paiement:</strong> {order.paymentMethod}</p>
                 {order.isPaid ? (<Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>) : (<Message variant='danger'>Non payé</Message>)}
               </ListGroup.Item>
-              {!order.isPaid && order.paymentMethod !== 'Cash' && (
-                <ListGroup.Item><Link to={`/payment-gateway/${order._id}`}><Button className='btn-primary w-100'>Terminer le paiement</Button></Link></ListGroup.Item>
+            </ListGroup>
+          </Card>
+        </Col>
+
+        <Col md={5}>
+          <Card className="order-summary-card">
+            <Card.Header as="h4" className="text-center">Récapitulatif</Card.Header>
+            <ListGroup variant='flush'>
+              <ListGroup.Item className="summary-item">
+                <span>Sous-total</span>
+                <strong>{(order.itemsPrice || 0).toFixed(2)} FCFA</strong>
+              </ListGroup.Item>
+              {order.coupon && (
+                <ListGroup.Item className="summary-item text-success">
+                  <span>Réduction ({order.coupon.code})</span>
+                  <strong>-{(order.coupon.discountAmount || 0).toFixed(2)} FCFA</strong>
+                </ListGroup.Item>
               )}
-              {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
-                <ListGroup.Item>
-                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>Marquer comme livré</Button>
-                  {loadingUpdate && <p>Chargement...</p>}
+              <ListGroup.Item className="summary-total">
+                <span>Total</span>
+                <strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong>
+              </ListGroup.Item>
+              {!order.isPaid && order.paymentMethod !== 'Cash' && (
+                <ListGroup.Item className="p-3">
+                  <Link to={`/payment-gateway/${order._id}`}>
+                    <Button className='btn-primary w-100' size="lg">Terminer le paiement</Button>
+                  </Link>
+                </ListGroup.Item>
+              )}
+               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
+                <ListGroup.Item className="p-3">
+                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>
+                    Marquer comme livré
+                  </Button>
+                  {loadingUpdate && <p className="text-center mt-2">Chargement...</p>}
                 </ListGroup.Item>
               )}
             </ListGroup>
           </Card>
+          
+          <h5 className="mt-4">Articles Commandés</h5>
+          <ListGroup variant='flush'>
+            {order.orderItems.map((item, index) => {
+              let imageToDisplay = 'https://via.placeholder.com/150';
+              if (item.images && item.images.length > 0) {
+                imageToDisplay = item.images[0];
+              } else if (item.image) {
+                imageToDisplay = item.image;
+              }
+              const imageUrl = imageToDisplay.startsWith('/')
+                ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+                : imageToDisplay;
+
+              return (
+                <ListGroup.Item key={index} className="order-item-row">
+                  <Image src={imageUrl} alt={item.name} className="order-item-image" />
+                  <div className="order-item-details">
+                    <Link to={`/product/${item.product}`}>{item.name}</Link>
+                    <span>{item.qty} x {item.price} FCFA</span>
+                  </div>
+                  <strong>{(item.qty * item.price).toFixed(2)} FCFA</strong>
+                </ListGroup.Item>
+              )
+            })}
+          </ListGroup>
         </Col>
       </Row>
     </>
