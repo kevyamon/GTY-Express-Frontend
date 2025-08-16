@@ -4,7 +4,10 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9); /* Fond blanc légèrement transparent */
+  /* --- AMÉLIORATION : Fond flou (verre dépoli) --- */
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 10000;
   display: flex;
   justify-content: center;
@@ -20,11 +23,12 @@
 }
 
 .logo-container-transition {
-  font-family: 'Arial', sans-serif;
-  font-weight: 900;
-  font-size: 4rem;
-  color: #333; /* On passe le texte en sombre pour contraster avec le fond clair */
+  font-family: 'Poppins', sans-serif; /* Police plus moderne */
+  font-weight: 700; /* Un peu moins agressif que 900 */
+  font-size: 3.5rem; /* Légèrement plus petit pour l'élégance */
+  color: #1d2b64; /* --- AMÉLIORATION : Couleur bleu nuit profond --- */
   text-align: center;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Ombre portée plus douce */
 }
 
 /* On retire l'animation de base ici */
@@ -46,26 +50,26 @@
 }
 
 /* On conserve les délais pour l'effet "vague" */
-.logo-container-transition .char2 { animation-delay: 0.1s; }
-.logo-container-transition .char3 { animation-delay: 0.2s; }
-.logo-container-transition .char4 { animation-delay: 0.3s; }
-.logo-container-transition .char5 { animation-delay: 0.4s; }
-.logo-container-transition .char6 { animation-delay: 0.5s; }
-.logo-container-transition .char7 { animation-delay: 0.6s; }
-.logo-container-transition .char8 { animation-delay: 0.7s; }
-.logo-container-transition .char9 { animation-delay: 0.8s; }
-.logo-container-transition .char10 { animation-delay: 0.9s; }
-.logo-container-transition .char11 { animation-delay: 1s; }
+.logo-container-transition .char2 { animation-delay: 0.05s; } /* Délais plus rapides */
+.logo-container-transition .char3 { animation-delay: 0.1s; }
+.logo-container-transition .char4 { animation-delay: 0.15s; }
+.logo-container-transition .char5 { animation-delay: 0.2s; }
+.logo-container-transition .char6 { animation-delay: 0.25s; }
+.logo-container-transition .char7 { animation-delay: 0.3s; }
+.logo-container-transition .char8 { animation-delay: 0.35s; }
+.logo-container-transition .char9 { animation-delay: 0.4s; }
+.logo-container-transition .char10 { animation-delay: 0.45s; }
+.logo-container-transition .char11 { animation-delay: 0.5s; }
 
 /* L'animation qui fait monter les lettres */
 @keyframes reveal-from-bottom {
   from {
     opacity: 0;
-    transform: translateY(50px); /* Vient de plus bas */
+    transform: translateY(50px) scale(0.8); /* Vient de plus bas avec un effet de zoom */
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -73,10 +77,10 @@
 @keyframes reveal-from-top {
   from {
     opacity: 0;
-    transform: translateY(-50px); /* Vient de plus haut */
+    transform: translateY(-50px) scale(0.8); /* Vient de plus haut avec un effet de zoom */
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
