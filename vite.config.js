@@ -8,15 +8,15 @@ export default defineConfig({
     react(),
     versionInjector(), 
     VitePWA({
-      // --- MODIFICATION 1 : On change la stratégie de mise à jour ---
-      // 'autoUpdate' va vérifier automatiquement à chaque chargement de page.
       registerType: 'autoUpdate',
       
       workbox: {
-        // --- MODIFICATION 2 : On dit au Service Worker d'être proactif ---
-        // skipWaiting: true -> Le nouveau Service Worker s'active dès qu'il est prêt.
-        skipWaiting: true,
-        // clientsClaim: true -> Il prend le contrôle de la page immédiatement.
+        // --- C'EST LA CORRECTION CRUCIALE ---
+        // On remet cette option à 'false'.
+        // Le Service Worker attendra notre ordre avant de s'activer.
+        skipWaiting: false,
+        
+        // On garde celle-ci pour que la prise de contrôle soit propre.
         clientsClaim: true,
       },
       manifest: {
