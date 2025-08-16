@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-// --- LA CORRECTION EST ICI ---
 import { FaGooglePlay, FaApple, FaShareSquare, FaPlusSquare, FaUndo, FaDownload } from 'react-icons/fa';
-import './InstallPwaModal.css'; // On importera le style juste après
+import './InstallPwaModal.css';
 
 const androidSteps = [
   {
@@ -35,18 +34,17 @@ const iosSteps = [
 ];
 
 const InstallPwaModal = ({ show, handleClose }) => {
-  const [view, setView] = useState('selection'); // 'selection', 'android', 'ios'
+  const [view, setView] = useState('selection');
   const [visibleSteps, setVisibleSteps] = useState([]);
   const [showEndButtons, setShowEndButtons] = useState(false);
 
   useEffect(() => {
-    // Réinitialise la vue quand le modal se ferme
     if (!show) {
       setTimeout(() => {
         setView('selection');
         setVisibleSteps([]);
         setShowEndButtons(false);
-      }, 300); // Délai pour l'animation de fermeture
+      }, 300);
     }
   }, [show]);
 
@@ -56,14 +54,18 @@ const InstallPwaModal = ({ show, handleClose }) => {
     setShowEndButtons(false);
     const steps = os === 'android' ? androidSteps : iosSteps;
 
+    // --- AMÉLIORATION DE L'AFFICHAGE DES INSTRUCTIONS ---
+    const initialDelay = 100; // Délai très court pour la première instruction
+    const interval = 2500;   // Intervalle de 2.5s entre les instructions suivantes
+
     steps.forEach((step, index) => {
+      const delay = initialDelay + (index * interval); // Calcul du délai
       setTimeout(() => {
         setVisibleSteps((prev) => [...prev, step]);
-        // Si c'est la dernière étape, on affiche les boutons de fin
         if (index === steps.length - 1) {
           setTimeout(() => setShowEndButtons(true), 1000);
         }
-      }, (index + 1) * 2500); // Affiche une étape toutes les 2.5 secondes
+      }, delay);
     });
   };
 
@@ -71,15 +73,20 @@ const InstallPwaModal = ({ show, handleClose }) => {
     const os = view;
     setVisibleSteps([]);
     setShowEndButtons(false);
-    // On redémarre l'animation plus rapidement cette fois
     const steps = os === 'android' ? androidSteps : iosSteps;
+    
+    // --- MÊME AMÉLIORATION POUR LA RÉPÉTITION ---
+    const initialDelay = 100; // Délai initial court
+    const interval = 1500;   // Intervalle de répétition plus rapide
+
      steps.forEach((step, index) => {
+      const delay = initialDelay + (index * interval); // Nouveau calcul
       setTimeout(() => {
         setVisibleSteps((prev) => [...prev, step]);
         if (index === steps.length - 1) {
           setTimeout(() => setShowEndButtons(true), 1000);
         }
-      }, (index + 1) * 1500); // 1.5 secondes par étape
+      }, delay);
     });
   };
 
