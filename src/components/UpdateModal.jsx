@@ -47,4 +47,4 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
   );
 };
 
-export default UpdateModal;
+export default UpdateModal; 
