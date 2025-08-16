@@ -15,7 +15,11 @@ export const useVersionCheck = () => {
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
+      // NOUVELLE LOGIQUE FIABLE :
+      // On vérifie si notre "drapeau" existe dans le stockage de session.
       if (sessionStorage.getItem('swUpdateCompleted')) {
+        // Si oui, on retire le drapeau et on envoie un événement global
+        // pour dire à l'application d'afficher le modal de succès.
         sessionStorage.removeItem('swUpdateCompleted');
         window.dispatchEvent(new Event('updateCompleted'));
       }
@@ -28,7 +32,7 @@ export const useVersionCheck = () => {
   // --- C'EST CETTE PARTIE QUI CHANGE COMPLÈTEMENT ---
   useEffect(() => {
     // Cette fonction ne s'exécute que lorsque le Service Worker nous dit
-    // qu'une mise à jour a été téléchargée et est prête.
+    // qu'une mise à jour a été téléchargée et est prête (needRefresh = true).
     if (needRefresh) {
       const fetchVersionInfo = async () => {
         try {
@@ -49,15 +53,14 @@ export const useVersionCheck = () => {
 
       fetchVersionInfo();
     }
-    // On ne dépend que de 'needRefresh', le signal du Service Worker.
   }, [needRefresh]);
   // --- FIN DE LA MODIFICATION MAJEURE ---
 
   const confirmUpdate = useCallback(async () => {
     setIsModalOpen(false);
     setIsUpdateInProgress(true);
+    // On pose notre "drapeau" juste avant de lancer la mise à jour.
     sessionStorage.setItem('swUpdateCompleted', 'true');
-    // On appelle updateServiceWorker(true) ICI pour dire "installe la version en attente".
     await updateServiceWorker(true);
   }, [updateServiceWorker]);
 

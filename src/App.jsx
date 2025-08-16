@@ -19,7 +19,6 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-// --- NOUVEL IMPORT ---
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
 import bgImage from '../background.jpg';
@@ -34,7 +33,6 @@ const App = () => {
   
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
-  // --- NOUVEL ÉTAT POUR LE MODAL DE SUCCÈS ---
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
 
   const handleShowInstallModal = () => setShowInstallModal(true);

@@ -12,9 +12,9 @@ export default defineConfig({
       
       workbox: {
         // --- C'EST LA CORRECTION CRUCIALE ---
-        // On remet cette option à 'false'.
-        // Le Service Worker attendra notre ordre avant de s'activer.
-        skipWaiting: false,
+        // On passe cette option à 'true'.
+        // Le Service Worker s'activera dès qu'il sera prêt.
+        skipWaiting: true,
         
         // On garde celle-ci pour que la prise de contrôle soit propre.
         clientsClaim: true,
