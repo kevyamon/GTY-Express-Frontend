@@ -1,0 +1,41 @@
+.suggestions-container {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.suggestion-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: 100%; /* Permet aux cartes d'avoir la même hauteur */
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-card .card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.suggestion-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  flex-grow: 1; /* Pousse le footer en bas */
+  white-space: pre-wrap; /* Respecte les sauts de ligne */
+}
+
+.suggestion-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: 0.5rem;
+}

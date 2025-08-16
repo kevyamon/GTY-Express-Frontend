@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, InputGroup, Image } from 'react-bootstrap';
+import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+// --- MODIFICATION : On importe les icônes ---
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera } from 'react-icons/fa';
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+// --- MODIFICATION : On importe le nouveau fichier CSS ---
+import './ProfileDetailsScreen.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -34,6 +38,7 @@ const ProfileDetailsScreen = () => {
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
+    if (!file) return;
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -45,15 +50,14 @@ const ProfileDetailsScreen = () => {
         formData, config
       );
 
-      // L'upload a réussi, on met à jour le profil immédiatement avec la nouvelle image
       const res = await updateProfile({
         _id: userInfo._id,
         profilePicture: data.secure_url,
       }).unwrap();
 
-      dispatch(setCredentials(res)); // On met à jour l'état global
+      dispatch(setCredentials(res));
       toast.success('Photo de profil mise à jour !');
-      setProfilePicture(data.secure_url); // On met à jour l'affichage local
+      setProfilePicture(data.secure_url);
 
     } catch (error) {
       toast.error("Le téléversement de l'image a échoué");
@@ -69,7 +73,6 @@ const ProfileDetailsScreen = () => {
       return;
     }
     try {
-      // On met à jour uniquement les champs de texte ici
       const res = await updateProfile({
         _id: userInfo._id, name, email, phone, password,
       }).unwrap();
@@ -83,68 +86,99 @@ const ProfileDetailsScreen = () => {
   };
 
   return (
+    // --- MODIFICATION : On utilise une Row pour centrer la carte ---
     <Row className="justify-content-md-center">
-      <Col md={6}>
-        <h2>Informations Personnelles</h2>
-        <Form onSubmit={submitHandler}>
-          <Form.Group controlId='profilePicture' className='my-3 text-center'>
-            <Image 
-              src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'} // Affiche une image par défaut si aucune photo
-              alt={name}
-              roundedCircle 
-              style={{ width: '120px', height: '120px', objectFit: 'cover', border: '3px solid #eee' }} 
-            />
-            <Form.Control 
-              label='Choisir une nouvelle photo' 
-              onChange={uploadFileHandler} 
-              type='file' 
-              className="mt-2" 
-            />
-            {loadingUpload && <p>Téléversement de l'image...</p>}
-          </Form.Group>
+      <Col md={8} lg={6}>
+        {/* On enveloppe tout dans une Card pour un look plus propre */}
+        <Card className="profile-details-card">
+          <Card.Body>
+            <h2 className="text-center mb-4">Informations Personnelles</h2>
+            <Form onSubmit={submitHandler}>
+              {/* Zone pour la photo de profil, plus stylisée */}
+              <Form.Group controlId='profilePicture' className='my-3 text-center'>
+                <div className="profile-picture-container">
+                  <Image 
+                    src={profilePicture || 'https://i.imgur.com/Suf6O8w.png'}
+                    alt={name}
+                    roundedCircle 
+                    className="profile-picture-img"
+                  />
+                  <label htmlFor="image-upload" className="profile-picture-upload-label">
+                    <FaCamera />
+                  </label>
+                  <Form.Control 
+                    id="image-upload"
+                    onChange={uploadFileHandler} 
+                    type='file' 
+                    hidden
+                  />
+                  {loadingUpload && <Spinner animation="border" className="profile-picture-spinner" />}
+                </div>
+              </Form.Group>
 
-          <Form.Group className='my-3' controlId='name'>
-            <Form.Label>Nom</Form.Label>
-            <Form.Control type='text' placeholder='Entrez votre nom' value={name} onChange={(e) => setName(e.target.value)}></Form.Control>
-          </Form.Group>
+              {/* Champ Nom avec icône */}
+              <Form.Group className='my-3' controlId='name'>
+                <Form.Label>Nom</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text><FaUser /></InputGroup.Text>
+                  <Form.Control type='text' placeholder='Entrez votre nom' value={name} onChange={(e) => setName(e.target.value)} />
+                </InputGroup>
+              </Form.Group>
 
-          <Form.Group className='my-3' controlId='email'>
-            <Form.Label>Email</Form.Label>
-            <Form.Control type='email' placeholder='Entrez votre email' value={email} onChange={(e) => setEmail(e.target.value)}></Form.Control>
-          </Form.Group>
+              {/* Champ Email avec icône */}
+              <Form.Group className='my-3' controlId='email'>
+                <Form.Label>Email</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text><FaEnvelope /></InputGroup.Text>
+                  <Form.Control type='email' placeholder='Entrez votre email' value={email} onChange={(e) => setEmail(e.target.value)} />
+                </InputGroup>
+              </Form.Group>
 
-          <Form.Group className='my-3' controlId='phone'>
-            <Form.Label>Numéro de téléphone</Form.Label>
-            <Form.Control type='tel' placeholder='Ajoutez votre numéro' value={phone} onChange={(e) => setPhone(e.target.value)}></Form.Control>
-          </Form.Group>
+              {/* Champ Téléphone avec icône */}
+              <Form.Group className='my-3' controlId='phone'>
+                <Form.Label>Numéro de téléphone</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text><FaPhone /></InputGroup.Text>
+                  <Form.Control type='tel' placeholder='Ajoutez votre numéro' value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </InputGroup>
+              </Form.Group>
 
-          <hr />
+              <hr className="my-4" />
 
-          <Form.Group className='my-3' controlId='password'>
-            <Form.Label>Nouveau Mot de passe</Form.Label>
-            <InputGroup>
-              <Form.Control
-                type={showPassword ? 'text' : 'password'}
-                placeholder='Laissez vide pour ne pas changer'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              ></Form.Control>
-              <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? '🙈' : '👁️'}
-              </Button>
-            </InputGroup>
-          </Form.Group>
+              {/* Champ Mot de passe avec icône */}
+              <Form.Group className='my-3' controlId='password'>
+                <Form.Label>Nouveau Mot de passe</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text><FaLock /></InputGroup.Text>
+                  <Form.Control
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder='Laissez vide pour ne pas changer'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </Button>
+                </InputGroup>
+              </Form.Group>
 
-          <Form.Group className='my-3' controlId='confirmPassword'>
-            <Form.Label>Confirmer le nouveau Mot de passe</Form.Label>
-            <Form.Control type='password' placeholder='Confirmez le mot de passe' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}></Form.Control>
-          </Form.Group>
+              {/* Champ Confirmation avec icône */}
+              <Form.Group className='my-3' controlId='confirmPassword'>
+                <Form.Label>Confirmer le nouveau Mot de passe</Form.Label>
+                <InputGroup>
+                   <InputGroup.Text><FaLock /></InputGroup.Text>
+                  <Form.Control type='password' placeholder='Confirmez le mot de passe' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                </InputGroup>
+              </Form.Group>
 
-          <Button type='submit' variant='primary' disabled={loadingUpdateProfile}>
-            Mettre à jour les informations
-          </Button>
-          {loadingUpdateProfile && <p>Mise à jour...</p>}
-        </Form>
+              <div className="d-grid mt-4">
+                <Button type='submit' variant='primary' size="lg" disabled={loadingUpdateProfile}>
+                  {loadingUpdateProfile ? 'Mise à jour...' : 'Sauvegarder les modifications'}
+                </Button>
+              </div>
+            </Form>
+          </Card.Body>
+        </Card>
       </Col>
     </Row>
   );

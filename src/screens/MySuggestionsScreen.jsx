@@ -1,27 +1,26 @@
 import React, { useState } from 'react';
-import { Button, ListGroup, Form, Modal, Spinner } from 'react-bootstrap';
+import { Button, ListGroup, Form, Modal, Spinner, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaLightbulb } from 'react-icons/fa';
 import Message from '../components/Message';
 import { 
   useGetMySuggestionsQuery, 
   useUpdateSuggestionMutation, 
   useDeleteSuggestionMutation 
 } from '../slices/suggestionApiSlice';
+// --- MODIFICATION : On importe le nouveau fichier CSS ---
+import './MySuggestionsScreen.css';
 
 const MySuggestionsScreen = () => {
-  // Récupération des données
   const { data: suggestions, isLoading, error } = useGetMySuggestionsQuery();
   const [updateSuggestion, { isLoading: isUpdating }] = useUpdateSuggestionMutation();
   const [deleteSuggestion, { isLoading: isDeleting }] = useDeleteSuggestionMutation();
 
-  // États pour le modal de modification
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
   const [editedText, setEditedText] = useState('');
 
-  // Fonctions pour gérer le modal
   const handleShowEditModal = (suggestion) => {
     setSelectedSuggestion(suggestion);
     setEditedText(suggestion.text);
@@ -57,8 +56,11 @@ const MySuggestionsScreen = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Mes Suggestions</h2>
+    // --- MODIFICATION : On utilise un conteneur principal ---
+    <div className="suggestions-container">
+      <h2 className="text-center mb-4">
+        <FaLightbulb className="me-2" /> Mes Suggestions
+      </h2>
       
       {isLoading ? <Spinner animation="border" />
        : error ? <Message variant="danger">{error?.data?.message || error.error}</Message>
@@ -67,29 +69,34 @@ const MySuggestionsScreen = () => {
             Vous n'avez envoyé aucune suggestion pour le moment.
           </Message>
         ) : (
-        <ListGroup>
+        // --- MODIFICATION : On utilise un Row pour les cartes ---
+        <Row>
           {suggestions.map((suggestion) => (
-            <ListGroup.Item key={suggestion._id} className="d-flex justify-content-between align-items-center">
-              <div>
-                <p className="mb-1">{suggestion.text}</p>
-                <small className="text-muted">
-                  Envoyé le {new Date(suggestion.createdAt).toLocaleDateString('fr-FR')}
-                </small>
-              </div>
-              <div>
-                <Button variant="light" size="sm" className="me-2" onClick={() => handleShowEditModal(suggestion)}>
-                  <FaEdit />
-                </Button>
-                <Button variant="outline-danger" size="sm" onClick={() => handleDelete(suggestion._id)} disabled={isDeleting}>
-                  <FaTrash />
-                </Button>
-              </div>
-            </ListGroup.Item>
+            <Col md={6} key={suggestion._id} className="mb-3">
+              <Card className="suggestion-card">
+                <Card.Body>
+                  <Card.Text className="suggestion-text">{suggestion.text}</Card.Text>
+                  <div className="suggestion-footer">
+                    <small className="text-muted">
+                      Envoyé le {new Date(suggestion.createdAt).toLocaleDateString('fr-FR')}
+                    </small>
+                    <div className="suggestion-actions">
+                      <Button variant="light" size="sm" onClick={() => handleShowEditModal(suggestion)}>
+                        <FaEdit className="me-1" /> Modifier
+                      </Button>
+                      <Button variant="outline-danger" size="sm" onClick={() => handleDelete(suggestion._id)} disabled={isDeleting}>
+                        <FaTrash />
+                      </Button>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
           ))}
-        </ListGroup>
+        </Row>
       )}
 
-      {/* --- Modal de Modification --- */}
+      {/* Le Modal de Modification reste le même */}
       <Modal show={showEditModal} onHide={handleCloseEditModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Modifier la suggestion</Modal.Title>
