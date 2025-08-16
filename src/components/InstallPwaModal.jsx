@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { FaGooglePlay, FaApple, FaShareSquare, FaPlusSquare, FaUndo } from 'react-icons/fa';
+// --- LA CORRECTION EST ICI ---
+import { FaGooglePlay, FaApple, FaShareSquare, FaPlusSquare, FaUndo, FaDownload } from 'react-icons/fa';
 import './InstallPwaModal.css'; // On importera le style juste après
 
 const androidSteps = [
