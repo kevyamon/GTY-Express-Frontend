@@ -53,22 +53,20 @@
   object-fit: cover;
 }
 
-/* --- NOUVEAUX STYLES AJOUTÉS --- */
+/* --- STYLES EXISTANTS ET NOUVEAUX --- */
 
-/* Animation pour le bouton "Installer l'appli" */
 @keyframes swirl-animation {
   0% { transform: rotate(0deg) scale(1); }
-  15% { transform: rotate(360deg) scale(1.1); } /* Rotation rapide au début */
-  30% { transform: rotate(360deg) scale(1); } /* Retour à la normale */
-  100% { transform: rotate(360deg) scale(1); } /* Reste stable */
+  15% { transform: rotate(360deg) scale(1.1); }
+  30% { transform: rotate(360deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 .install-app-btn {
   animation: swirl-animation 10s linear infinite;
-  border-radius: 50px !important; /* Pour un look plus épuré */
+  border-radius: 50px !important;
 }
 
-/* Style pour le menu hamburger sur mobile */
 .mobile-hamburger-menu .dropdown-toggle {
   color: white !important;
   font-size: 1.5rem;
@@ -76,5 +74,22 @@
 }
 
 .mobile-hamburger-menu .dropdown-toggle::after {
-  display: none; /* Cache la petite flèche de bootstrap */
+  display: none;
+}
+
+/* --- CORRECTION 2 : On rend les éléments du menu plus compacts --- */
+.mobile-hamburger-menu .dropdown-menu {
+  /* On s'assure que le menu ne soit pas trop large */
+  min-width: 220px;
+}
+
+.mobile-hamburger-menu .dropdown-item {
+  font-size: 0.9rem; /* Police plus petite */
+  padding: 0.5rem 1rem; /* Moins d'espacement vertical */
+  display: flex;
+  align-items: center;
+}
+
+.mobile-hamburger-menu .dropdown-item svg {
+  margin-right: 0.5rem; /* Espace réduit pour l'icône */
 }

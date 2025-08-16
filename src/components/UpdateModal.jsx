@@ -5,11 +5,9 @@ import { FaRocket, FaRegCommentDots, FaRegClock, FaCodeBranch, FaCheckCircle, Fa
 import { useNavigate } from 'react-router-dom';
 import './UpdateModal.css';
 
-// On passe la fonction pour fermer le modal en props
 const UpdateModal = ({ show, handleClose, newVersion, deployedAt }) => {
   const navigate = useNavigate();
 
-  // Fonction pour formater la date et l'heure
   const formatDate = (dateString) => {
     if (!dateString) return 'Un instant...';
     return new Date(dateString).toLocaleString('fr-FR', {
@@ -18,17 +16,19 @@ const UpdateModal = ({ show, handleClose, newVersion, deployedAt }) => {
   };
 
   const handleUpdate = () => {
+    // --- CORRECTION AJOUTÉE ICI ---
+    handleClose(); // On s'assure de fermer le modal d'abord
     window.location.reload();
   };
 
   const handleComment = () => {
     navigate('/profile/suggestions');
-    handleClose(); // On ferme le modal
+    handleClose(); 
     toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
   };
 
   const handleLater = () => {
-    handleClose(); // On ferme le modal
+    handleClose(); 
     toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
   };
 
