@@ -19,7 +19,7 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-import PWAManager from './components/PWAManager';
+// import PWAManager from './components/PWAManager'; // <-- ON RETIRE CET IMPORT
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -28,9 +28,7 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
   
-  // --- MODIFICATION 1 : Détecter les pages spéciales ---
   const isLandingPage = location.pathname === '/';
-  // On vérifie si la page actuelle est la page de bannissement.
   const isBannedPage = location.pathname === '/banned';
   
   const [showInstallModal, setShowInstallModal] = useState(false);
@@ -88,8 +86,6 @@ const App = () => {
       
       <ScrollToTop />
 
-      {/* --- MODIFICATION 2 : Affichage conditionnel des composants --- */}
-      {/* On n'affiche le Header que si ce n'est PAS la page de bannissement. */}
       {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
@@ -102,10 +98,8 @@ const App = () => {
         </Container>
       </main>
       
-      {/* On n'affiche le Footer que si ce n'est ni la page d'accueil, ni la page de bannissement. */}
       {!isLandingPage && !isBannedPage && <Footer />}
 
-      {/* On n'affiche les boutons flottants que si l'utilisateur est connecté ET que ce n'est pas une page spéciale. */}
       {!isLandingPage && !isBannedPage && (
         <>
           {userInfo && !userInfo.isAdmin && <ChatTrigger />}
@@ -117,7 +111,7 @@ const App = () => {
       {userInfo && <WarningDisplay />}
       <ToastContainer />
       
-      <PWAManager />
+      {/* <PWAManager />  <-- ON RETIRE CE COMPOSANT, SA LOGIQUE EST MAINTENANT DANS LE PROVIDER */}
 
       <InstallPwaModal 
         show={showInstallModal}

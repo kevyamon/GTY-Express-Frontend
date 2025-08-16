@@ -2,7 +2,7 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react'; // <-- Ajout de useContext
 import { toast } from 'react-toastify';
 import { FaTag, FaComments, FaBell, FaSyncAlt, FaDownload, FaBars } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
@@ -12,9 +12,8 @@ import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/me
 import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice';
 import { useGetSuggestionsQuery } from '../slices/suggestionApiSlice';
 import { logout } from '../slices/authSlice';
-// --- MODIFICATION : On importe setIsModalOpen et on retire useSocketQuery ---
 import { apiSlice } from '../slices/apiSlice';
-import { setIsModalOpen } from '../slices/pwaSlice'; 
+import { VersionContext } from '../contexts/VersionContext'; // <-- NOUVEL IMPORT
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
@@ -29,29 +28,16 @@ const Header = ({ handleShowInstallModal }) => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION : Logique de mise à jour simplifiée ---
-  const { isUpdateAvailable, isUpdateInProgress, isModalOpen } = useSelector((state) => state.pwa);
+  // --- MODIFICATION : On utilise le Contexte au lieu de Redux ---
+  const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  const handleUpdateClick = () => {
-    if (isUpdateAvailable) {
-      // Si la mise à jour est dispo, cliquer sur le bouton rouvre le modal
-      dispatch(setIsModalOpen(true));
-    } else {
-      toast.info('Vous utilisez déjà la dernière version.');
-    }
-  };
-
-  // Le bouton s'affiche si une mise à jour est prête ou en cours.
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
-  
-  // Le clignotement s'active si la MàJ est en cours, ou si elle est dispo ET que le modal est fermé.
-  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && !isModalOpen);
+  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
-  // Détermine la couleur du bouton
   const getUpdateVariant = () => {
-    if (isUpdateAvailable && !isModalOpen) return 'danger'; // Rouge si refusé
-    if (isUpdateAvailable) return 'success'; // Vert si dispo
-    return 'outline-secondary'; // Gris par défaut
+    if (updateDeclined) return 'danger';
+    if (isUpdateAvailable) return 'success';
+    return 'outline-secondary';
   };
   // --- FIN DE LA MODIFICATION ---
 
@@ -67,7 +53,6 @@ const Header = ({ handleShowInstallModal }) => {
   const { userInfo } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
   
-  // On utilise le hook `useSocketQuery` directement depuis `apiSlice`
   apiSlice.useSocketQuery(undefined, { skip: !userInfo });
   useGetProfileDetailsQuery(undefined, { skip: !userInfo });
   
@@ -197,7 +182,7 @@ const Header = ({ handleShowInstallModal }) => {
               {userInfo && showUpdateButton && (
                 <Button 
                     variant={getUpdateVariant()} 
-                    onClick={handleUpdateClick} 
+                    onClick={openUpdateModal} // <-- On utilise la fonction du contexte
                     className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
                 >
@@ -294,7 +279,6 @@ const Header = ({ handleShowInstallModal }) => {
           handleClose={() => setShowMobileMenu(false)}
           userInfo={userInfo}
           totalAdminCount={totalAdminCount}
-          handleUpdateClick={handleUpdateClick}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
         />
