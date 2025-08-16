@@ -31,24 +31,30 @@ const App = () => {
   
   const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  // --- AMÉLIORATION 1 : On ajoute un état pour savoir si on a déjà vu le modal ---
-  const [hasSeenUpdateModal, setHasSeenUpdateModal] = useState(false);
 
   const [showInstallModal, setShowInstallModal] = useState(false);
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
 
+  // --- AMÉLIORATION 1 : On utilise sessionStorage pour la persistance ---
   useEffect(() => {
-    // --- AMÉLIORATION 2 : On affiche le modal seulement si une MàJ est dispo ET qu'on ne l'a pas déjà vu ---
-    if (isUpdateAvailable && !hasSeenUpdateModal) {
+    // On récupère la version que l'utilisateur a déjà vue pendant cette session
+    const seenVersion = sessionStorage.getItem('seenUpdateVersion');
+
+    // On affiche le modal SEULEMENT si une MàJ est dispo ET si la version détectée
+    // n'est pas celle que l'utilisateur a déjà vue/fermée.
+    if (isUpdateAvailable && newVersion !== seenVersion) {
       setShowUpdateModal(true);
     }
-  }, [isUpdateAvailable, hasSeenUpdateModal]);
+  }, [isUpdateAvailable, newVersion]);
 
   const handleCloseUpdateModal = () => {
     setShowUpdateModal(false);
-    // --- AMÉLIORATION 3 : On mémorise que l'utilisateur a fermé le modal ---
-    setHasSeenUpdateModal(true);
+    // --- AMÉLIORATION 2 : On stocke la version actuelle dans sessionStorage ---
+    // Ainsi, même après un rechargement, on saura que l'utilisateur a déjà vu ce modal.
+    if (newVersion) {
+      sessionStorage.setItem('seenUpdateVersion', newVersion);
+    }
   };
 
   const [showLogo, setShowLogo] = useState(true);
