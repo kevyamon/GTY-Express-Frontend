@@ -12,21 +12,13 @@ import {
 import { useGetActiveBannerQuery } from '../slices/promoBannerApiSlice';
 import './HomeScreen.css';
 
-const ScrollingInfo = () => {
-    const containerStyle = {
-        textAlign: 'center', marginBottom: '1rem', padding: '0.5rem',
-        backgroundColor: 'black', borderRadius: '8px', color: 'yellow',
-        fontSize: '1rem', fontWeight: 'bold', display: 'inline-block',
-    };
-    const arrowStyle = { fontSize: '1.2em', verticalAlign: 'middle' };
-    return (
-        <div className="d-flex justify-content-center mb-3">
-            <div style={containerStyle}>
-                <span>Glissez pour voir plus </span>
-                <span style={arrowStyle}>➡</span>
-            </div>
-        </div>
-    );
+// --- AMÉLIORATION : On crée une fonction pour grouper les produits par 5 ---
+const chunkProducts = (products, size) => {
+    const chunkedArr = [];
+    for (let i = 0; i < products.length; i += size) {
+        chunkedArr.push(products.slice(i, i + size));
+    }
+    return chunkedArr;
 };
 
 const HomeScreen = () => {
@@ -36,6 +28,8 @@ const HomeScreen = () => {
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
+  // --- CORRECTION : On identifie maintenant la page "Tous les produits" ---
+  const isAllProductsPage = location.pathname === '/products';
   const isGeneralPage = !keyword && !categoryFromUrl && !isSupermarket && !isPromo;
 
   let category = categoryFromUrl || 'general';
@@ -48,7 +42,6 @@ const HomeScreen = () => {
   const { data: popularProducts, isLoading: isLoadingPopular, error: errorPopular } = useGetPopularProductsQuery({ limit: 10 });
   const { data: topProducts, isLoading: isLoadingTop, error: errorTop } = useGetTopProductsQuery({ limit: 10 });
   
-  // --- CORRECTION : On retire le paramètre 'pageType' qui est maintenant inutile ---
   const { data: products, isLoading, error } = useGetProductsQuery({
       keyword,
       category,
@@ -56,6 +49,9 @@ const HomeScreen = () => {
   });
 
   const isMobile = window.innerWidth < 767;
+
+  // On utilise la fonction pour grouper les produits pour la vue mobile
+  const mobileProductRows = products ? chunkProducts(products, 5) : [];
 
   return (
     <Container fluid>
@@ -86,24 +82,40 @@ const HomeScreen = () => {
         
         <h1 className='home-screen-title'>{pageTitle}</h1>
 
-        {isMobile && products && products.length > 5 && <ScrollingInfo />}
-
         {isLoading ? (<h2>Chargement...</h2>) 
         : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
         : (
           <>
             {products && products.length === 0 ? ( <Message>Aucun produit à afficher dans cette section pour le moment.</Message> ) : (
-              isMobile ? (
-                  <div className="product-row-scroll-container">
+              // --- NOUVELLE LOGIQUE D'AFFICHAGE ---
+              isMobile && isAllProductsPage ? (
+                // Vue mobile pour "Tous les produits" avec des lignes scrollables
+                <div className="mobile-grid-container">
+                  {mobileProductRows.map((row, rowIndex) => (
+                    <div key={rowIndex} className="product-row-scroll-container">
                       <Row className="product-row-inner">
-                          {products.map((product) => (
+                        {row.map((product) => (
                           <Col key={product._id} className="p-1">
-                              <Product product={product} />
+                            <Product product={product} />
                           </Col>
-                          ))}
+                        ))}
                       </Row>
-                  </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isMobile ? (
+                // Vue mobile classique pour les autres pages (catégories, etc.)
+                <div className="product-row-scroll-container">
+                    <Row className="product-row-inner">
+                        {products.map((product) => (
+                        <Col key={product._id} className="p-1">
+                            <Product product={product} />
+                        </Col>
+                        ))}
+                    </Row>
+                </div>
               ) : (
+                // Vue ordinateur
                   <Row className="product-grid">
                       {products.map((product) => (
                       <Col key={product._id} sm={6} md={4} lg={3} xl={2} className="p-1 p-md-2">

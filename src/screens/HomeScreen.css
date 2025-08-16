@@ -11,9 +11,15 @@
     border-radius: 8px;
 }
 
-/* --- NOUVEAU STYLE POUR ALIGNER LA GRILLE À GAUCHE --- */
 .product-grid {
     justify-content: flex-start !important;
+}
+
+/* --- AMÉLIORATION : Conteneur pour les multiples rangées --- */
+.mobile-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espace entre chaque rangée */
 }
 
 /* --- STYLES POUR LE SCROLL HORIZONTAL UNIQUEMENT SUR MOBILE --- */
@@ -21,13 +27,11 @@
     .product-row-scroll-container {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 10px;
-        margin-bottom: 1rem;
+        scrollbar-width: none; /* Cache la barre de scroll */
     }
 
     .product-row-scroll-container::-webkit-scrollbar {
-        display: none;
+        display: none; /* Cache la barre de scroll pour Chrome/Safari */
     }
 
     .product-row-inner {

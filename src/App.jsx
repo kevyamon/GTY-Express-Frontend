@@ -17,6 +17,7 @@ import WarningDisplay from './components/WarningDisplay';
 import WelcomeTransition from './components/WelcomeTransition';
 import LogoTransition from './components/LogoTransition';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton'; // --- NOUVEL IMPORT ---
 import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import './App.css';
@@ -36,13 +37,8 @@ const App = () => {
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
 
-  // --- AMÉLIORATION 1 : On utilise sessionStorage pour la persistance ---
   useEffect(() => {
-    // On récupère la version que l'utilisateur a déjà vue pendant cette session
     const seenVersion = sessionStorage.getItem('seenUpdateVersion');
-
-    // On affiche le modal SEULEMENT si une MàJ est dispo ET si la version détectée
-    // n'est pas celle que l'utilisateur a déjà vue/fermée.
     if (isUpdateAvailable && newVersion !== seenVersion) {
       setShowUpdateModal(true);
     }
@@ -50,8 +46,6 @@ const App = () => {
 
   const handleCloseUpdateModal = () => {
     setShowUpdateModal(false);
-    // --- AMÉLIORATION 2 : On stocke la version actuelle dans sessionStorage ---
-    // Ainsi, même après un rechargement, on saura que l'utilisateur a déjà vu ce modal.
     if (newVersion) {
       sessionStorage.setItem('seenUpdateVersion', newVersion);
     }
@@ -120,7 +114,14 @@ const App = () => {
       
       {!isLandingPage && <Footer />}
 
-      {userInfo && !userInfo.isAdmin && <ChatTrigger />}
+      {/* --- AJOUT DES DEUX BOUTONS D'ACTION FLOTTANTS --- */}
+      {!isLandingPage && (
+        <>
+          {userInfo && !userInfo.isAdmin && <ChatTrigger />}
+          <ScrollToTopButton />
+        </>
+      )}
+
       {userInfo && <WarningDisplay />}
       <ToastContainer />
 
