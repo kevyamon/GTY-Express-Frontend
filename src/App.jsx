@@ -56,7 +56,7 @@ const App = () => {
       window.removeEventListener('updateCompleted', handleUpdateCompleted);
     };
   }, []);
-  // --- FIN DE LA NOUVELLE LOGIQUE ---
+  // --- FIN DE LA NOUVELLE  LOGIQUE ---
 
 
   useEffect(() => {
