@@ -1,7 +1,9 @@
 import React from 'react';
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useSelector } from 'react-redux'; // On importe useSelector
+// --- MODIFICATION 1 : Import de useSelector ---
+// On importe le hook 'useSelector' pour pouvoir lire les données du store Redux.
+import { useSelector } from 'react-redux';
 import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
 import './MobileMenuModal.css';
 
@@ -15,7 +17,9 @@ const MobileMenuModal = ({
   handleAdminModal,
 }) => {
 
-  // On se connecte à Redux pour connaître l'état de la mise à jour
+  // --- MODIFICATION 2 : Connexion au state Redux PWA ---
+  // Comme pour le Header, on récupère directement l'état de la PWA depuis Redux.
+  // Cela garantit que le menu mobile et le header affichent toujours la même information.
   const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
 
   const handleLinkClick = (action) => {
@@ -45,7 +49,9 @@ const MobileMenuModal = ({
             <ListGroup.Item action className="promo-link"><FaBullhorn /> PROMO</ListGroup.Item>
           </LinkContainer>
 
-          {/* --- LE BOUTON DE MISE À JOUR MOBILE --- */}
+          {/* --- MODIFICATION 3 : L'élément de liste est maintenant dynamique --- */}
+          {/* L'icône, le texte et les badges de cet élément changent en fonction de l'état de la mise à jour,
+              exactement comme le bouton sur le Header du bureau. */}
           <ListGroup.Item 
             action 
             onClick={() => handleLinkClick(handleUpdateClick)} 
