@@ -95,7 +95,7 @@
   width: 100px;
   margin-bottom: 1rem;
   animation: logo-float 4s ease-in-out infinite;
-  border-radius: 50%; /* Ton ajout, conservé ! */
+  border-radius: 50%;
 }
 
 @keyframes logo-float {
@@ -104,24 +104,22 @@
   100% { transform: translateY(0px); }
 }
 
-/* --- NOS MODIFICATIONS POUR LES TITRES --- */
 .landing-main-title {
   font-size: 2.8rem;
   font-weight: 700;
   color: white;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   line-height: 1.2;
-  margin-bottom: 0.5rem; /* Marge réduite */
+  margin-bottom: 0.5rem;
 }
 
 .landing-slogan {
-  font-size: 1.5rem; /* Taille plus petite pour le slogan */
-  font-weight: 400; /* Moins gras que le titre principal */
+  font-size: 1.5rem;
+  font-weight: 400;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.5rem; /* Marge ajustée */
+  margin-bottom: 1.5rem;
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
-/* --- FIN DES MODIFICATIONS --- */
 
 .landing-subtitle {
   font-size: 1.1rem;
@@ -168,26 +166,37 @@
   transform: translateY(-3px);
 }
 
-/* Responsive pour mobile */
+/* --- CORRECTIONS POUR LE RESPONSIVE MOBILE --- */
 @media (max-width: 767px) {
   .product-image {
     height: 100px;
     width: 100px;
   }
   .landing-v2-content {
-    padding: 2rem 1.5rem;
-    width: 95%;
+    padding: 1.5rem 1rem; /* Padding réduit pour moins de hauteur */
+    width: 90%; /* On garde une petite marge sur les côtés */
+  }
+  .landing-logo {
+    width: 80px; /* Logo plus petit */
+    margin-bottom: 1rem;
   }
   .landing-main-title {
-    font-size: 2.2rem;
+    font-size: 1.8rem; /* Titre plus petit */
   }
   .landing-slogan {
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Slogan plus petit */
+    margin-bottom: 1rem;
   }
   .landing-subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem; /* Sous-titre plus petit */
+    margin-bottom: 1.5rem;
   }
   .landing-buttons-v2 {
     flex-direction: column;
+    gap: 0.75rem; /* Espace réduit entre les boutons */
+  }
+  .landing-buttons-v2 .btn {
+    padding: 0.7rem 1.5rem; /* Boutons moins hauts */
+    font-size: 0.9rem;
   }
 }

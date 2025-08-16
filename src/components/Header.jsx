@@ -4,7 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan } from 'react-icons/fa';
+// --- NOS AJOUTS ---
+import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload } from 'react-icons/fa';
+// --- FIN DES AJOUTS ---
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -20,14 +22,14 @@ import UpdateModal from './UpdateModal';
 import { useVersion } from '../contexts/VersionContext';
 import './Header.css';
 
-const Header = () => {
+// On passe la fonction pour ouvrir le modal d'installation en props
+const Header = ({ handleShowInstallModal }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
-  // --- On récupère la date de déploiement ici ---
   const { isUpdateAvailable, latestVersion, deployedAt, refreshApp } = useVersion();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
@@ -168,6 +170,13 @@ const Header = () => {
             <LinkContainer to={homePath}>
               <Navbar.Brand>GTY Express</Navbar.Brand>
             </LinkContainer>
+
+            {/* --- NOTRE NOUVEAU BOUTON "INSTALLER L'APPLI" --- */}
+            <Button variant="info" size="sm" className="ms-2 install-app-btn" onClick={handleShowInstallModal}>
+              <FaDownload className="me-1" /> Installer l'appli
+            </Button>
+            {/* --- FIN DE L'AJOUT --- */}
+
             <Nav className="me-auto">
               {userInfo && <CategoryMenu />}
             </Nav>
@@ -222,7 +231,7 @@ const Header = () => {
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
                 ) : (
-                  <LinkContainer to="/login"><Nav.Link>🙍‍♂️ Se Connecter</Nav.Link></LinkContainer>
+                  <LinkContainer to="/login"><Nav.Link>👤 Se Connecter</Nav.Link></LinkContainer>
                 )}
               </Nav>
             </Navbar.Collapse>
@@ -288,8 +297,8 @@ const Header = () => {
       <UpdateModal
         show={showUpdateModal}
         handleClose={() => setShowUpdateModal(false)}
-        version={latestVersion}
-        deployedAt={deployedAt} // On passe la date au modal
+        newVersion={latestVersion}
+        deployedAt={deployedAt}
         onConfirm={refreshApp}
         onCritique={handleCritique}
       />

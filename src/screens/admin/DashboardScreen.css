@@ -15,6 +15,11 @@
   cursor: pointer;
 }
 
+.stat-card .card-body {
+  /* On s'assure que le padding est raisonnable */
+  padding: 1rem;
+}
+
 .stat-card-icon {
   font-size: 2.5rem;
   opacity: 0.8;
@@ -23,6 +28,8 @@
 .stat-card-value {
   font-size: 2.2rem;
   font-weight: bold;
+  /* Permet au texte de passer à la ligne s'il est trop long */
+  word-break: break-all;
 }
 
 .stat-card-title {
@@ -37,3 +44,23 @@
 .stat-card-warning { background: linear-gradient(135deg, #ffc107, #d39e00); }
 .stat-card-danger { background: linear-gradient(135deg, #dc3545, #b02a37); }
 .stat-card-secondary { background: linear-gradient(135deg, #6c757d, #565e64); }
+
+
+/* --- NOTRE AJOUT POUR LE RESPONSIVE --- */
+@media (max-width: 767px) {
+  .stat-card-icon {
+    font-size: 1.8rem; /* On réduit la taille de l'icône */
+  }
+
+  .stat-card-value {
+    font-size: 1.5rem; /* On réduit drastiquement la taille du chiffre */
+  }
+
+  .stat-card-title {
+    font-size: 0.75rem; /* Et on réduit la taille du titre */
+  }
+
+  .stat-card .card-body {
+    padding: 0.75rem; /* On réduit un peu le padding interne */
+  }
+}

@@ -8,6 +8,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { useVersionCheck } from './hooks/useVersionCheck';
 import UpdateModal from './components/UpdateModal';
+import InstallPwaModal from './components/InstallPwaModal'; // <-- 1. ON IMPORTE LE NOUVEAU MODAL
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -25,13 +26,17 @@ const App = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
-
-  // --- CORRECTION : DÉTECTER LA PAGE D'ACCUEIL ---
-  // On vérifie si le chemin actuel est exactement la racine "/"
+  
   const isLandingPage = location.pathname === '/';
   
   const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+  // --- 2. ON AJOUTE LA LOGIQUE POUR LE MODAL D'INSTALLATION ---
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const handleShowInstallModal = () => setShowInstallModal(true);
+  const handleCloseInstallModal = () => setShowInstallModal(false);
+  // --- FIN DE L'AJOUT ---
 
   useEffect(() => {
     if (isUpdateAvailable) {
@@ -70,14 +75,13 @@ const App = () => {
     setShowLogo(false);
   };
 
-  // On n'applique le style de fond que si ce n'est PAS la page d'accueil
   const appStyle = !isLandingPage ? {
     backgroundImage: `url(${bgImage})`,
     backgroundSize: 'cover',
     backgroundAttachment: 'fixed',
     backgroundPosition: 'center',
     minHeight: '100vh',
-  } : { minHeight: '100vh' }; // Sinon, on met juste une hauteur minimale
+  } : { minHeight: '100vh' };
 
   return (
     <div style={appStyle}>
@@ -93,8 +97,8 @@ const App = () => {
       
       <ScrollToTop />
 
-      {/* On n'affiche le Header et le Footer que si ce n'est PAS la page d'accueil */}
-      {!isLandingPage && <Header />}
+      {/* 3. ON PASSE LA FONCTION D'OUVERTURE AU HEADER */}
+      {!isLandingPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
         <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
@@ -117,6 +121,12 @@ const App = () => {
         handleClose={handleCloseUpdateModal} 
         newVersion={newVersion} 
         deployedAt={deployedAt}
+      />
+
+      {/* 4. ON AFFICHE NOTRE NOUVEAU MODAL */}
+      <InstallPwaModal 
+        show={showInstallModal}
+        handleClose={handleCloseInstallModal}
       />
     </div>
   );

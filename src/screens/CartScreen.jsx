@@ -48,7 +48,6 @@ const CartScreen = () => {
         ) : (
           <ListGroup variant='flush'>
             {cartItems.map((item) => {
-              // LOGIQUE D'IMAGE CORRIGÉE
               let imageToDisplay = 'https://via.placeholder.com/150';
               if (item.images && item.images.length > 0) {
                 imageToDisplay = item.images[0];
@@ -61,22 +60,28 @@ const CartScreen = () => {
 
               return (
                 <ListGroup.Item key={item._id}>
+                  {/* --- CORRECTION POUR LE RESPONSIVE --- */}
                   <Row className="align-items-center">
-                    <Col md={2}>
+                    {/* Colonne Image (petite sur mobile) */}
+                    <Col xs={3} md={2}>
                       <Image src={imageUrl} alt={item.name} fluid rounded />
                     </Col>
-                    <Col md={3}>
+                    {/* Colonne Titre (prend le reste de la ligne sur mobile) */}
+                    <Col xs={9} md={3}>
                       <Link to={`/product/${item._id}`}>{item.name}</Link>
                     </Col>
-                    <Col md={2}>{item.price} FCFA</Col>
-                    <Col md={3}>
+                    {/* Colonne Prix (visible uniquement sur grand écran) */}
+                    <Col md={2} className="d-none d-md-block">{item.price} FCFA</Col>
+                    {/* Colonne Quantité (prend la moitié de la largeur sur mobile) */}
+                    <Col xs={8} md={3} className="mt-2 mt-md-0">
                       <QtySelector
                         value={item.qty}
                         onChange={(newQty) => updateQtyHandler(item, newQty)}
                         max={item.countInStock}
                       />
                     </Col>
-                    <Col md={2}>
+                    {/* Colonne Supprimer (prend l'autre moitié sur mobile) */}
+                    <Col xs={4} md={2} className="text-end mt-2 mt-md-0">
                       <Button
                         type='button'
                         variant='light'
@@ -86,6 +91,7 @@ const CartScreen = () => {
                       </Button>
                     </Col>
                   </Row>
+                  {/* --- FIN DE LA CORRECTION --- */}
                 </ListGroup.Item>
               );
             })}
