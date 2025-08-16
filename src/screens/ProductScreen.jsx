@@ -39,13 +39,9 @@ const ProductScreen = () => {
 
   const handleSelect = (selectedIndex) => setIndex(selectedIndex);
 
-  // --- MODIFICATION 1 : SCROLL AUTOMATIQUE ---
-  // Ce `useEffect` s'exécute une seule fois, au moment où la page s'affiche.
-  // Il remonte instantanément la fenêtre tout en haut pour que l'image du produit soit visible.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  // --- FIN DE LA MODIFICATION 1 ---
 
   useEffect(() => {
     if (error) {
@@ -104,6 +100,15 @@ const ProductScreen = () => {
             <Col md={6} className="product-details-col">
               <ListGroup variant="flush">
                 <ListGroup.Item><h3>{product.name}</h3></ListGroup.Item>
+                
+                {/* --- MODIFICATION : AJOUT DE LA MARQUE --- */}
+                {product.brand && (
+                  <ListGroup.Item>
+                    <span className="product-brand">{product.brand}</span>
+                  </ListGroup.Item>
+                )}
+                {/* --- FIN DE LA MODIFICATION --- */}
+
                 <ListGroup.Item>
                   <Rating value={product.rating} text={`${product.numReviews} avis`} />
                 </ListGroup.Item>
@@ -111,15 +116,11 @@ const ProductScreen = () => {
                 <ListGroup.Item>Prix: {product.price} FCFA</ListGroup.Item>
                 <ListGroup.Item className="description-box">
                   <strong>Description:</strong>
-                  {/* --- MODIFICATION 2 : DESCRIPTION CLIQUABLE --- */}
-                  {/* J'ai ajouté l'événement 'onClick' directement sur le paragraphe.
-                      Il appelle maintenant la même fonction que le bouton "Lire la suite". */}
                   <p onClick={toggleDescription} style={{ cursor: 'pointer' }}>
                     {product.description.length > TRUNCATE_LENGTH && !isDescriptionExpanded
                       ? `${product.description.substring(0, TRUNCATE_LENGTH)}...`
                       : product.description}
                   </p>
-                  {/* --- FIN DE LA MODIFICATION 2 --- */}
                   {product.description.length > TRUNCATE_LENGTH && (
                     <button onClick={toggleDescription} className="toggle-description-btn">
                       {isDescriptionExpanded ? 'Réduire' : 'Lire la suite >'}
