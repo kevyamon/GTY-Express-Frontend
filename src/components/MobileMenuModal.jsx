@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ListGroup, Badge } from 'react-bootstrap';
+import { Modal, ListGroup, Badge, Button } from 'react-bootstrap'; // Ajout de Button
 import { LinkContainer } from 'react-router-bootstrap';
 import { FaTachometerAlt, FaUsers, FaBoxOpen, FaClipboardList, FaBullhorn, FaExclamationTriangle, FaImages, FaLightbulb, FaSyncAlt, FaUser, FaBox, FaSignOutAlt } from 'react-icons/fa';
 import './MobileMenuModal.css';
@@ -9,6 +9,9 @@ const MobileMenuModal = ({
   handleClose, 
   userInfo, 
   totalAdminCount, 
+  // --- NOUVELLES PROPS REÇUES ---
+  isUpdateAvailable,
+  isUpdateInProgress,
   handleUpdateClick, 
   logoutHandler,
   handleAdminModal,
@@ -41,8 +44,18 @@ const MobileMenuModal = ({
             <ListGroup.Item action className="promo-link"><FaBullhorn /> PROMO</ListGroup.Item>
           </LinkContainer>
 
-          <ListGroup.Item action onClick={() => handleLinkClick(handleUpdateClick)}>
-            <FaSyncAlt /> Mise à jour
+          {/* --- LE BOUTON DE MISE À JOUR MOBILE --- */}
+          <ListGroup.Item 
+            action 
+            onClick={() => handleLinkClick(handleUpdateClick)} 
+            className={`d-flex justify-content-between align-items-center ${isUpdateInProgress ? 'update-available-blink' : ''}`}
+          >
+            <div>
+              <FaSyncAlt style={{ color: isUpdateAvailable ? '#198754' : '#6c757d' }} />
+              <span className="ms-3">Mise à jour</span>
+            </div>
+            {isUpdateAvailable && !isUpdateInProgress && <Badge bg="success">Prête</Badge>}
+            {isUpdateInProgress && <Badge bg="warning">En cours...</Badge>}
           </ListGroup.Item>
 
           <ListGroup.Item className="separator">Mon Espace</ListGroup.Item>

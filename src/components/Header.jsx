@@ -16,9 +16,8 @@ import { apiSlice, useSocketQuery } from '../slices/apiSlice';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
-import UpdateModal from './UpdateModal';
-import MobileMenuModal from './MobileMenuModal'; // --- NOUVEL IMPORT ---
-import { useVersion } from '../contexts/VersionContext';
+import MobileMenuModal from './MobileMenuModal';
+// On retire l'import de useVersion
 import './Header.css';
 
 const Header = ({ handleShowInstallModal }) => {
@@ -27,24 +26,25 @@ const Header = ({ handleShowInstallModal }) => {
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false); // --- NOUVEL ÉTAT POUR LE MODAL MOBILE ---
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const { isUpdateAvailable, newVersion, deployedAt } = useVersion();
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  // --- NOUVELLE LOGIQUE CONNECTÉE À REDUX ---
+  const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
 
-  useEffect(() => {
-    if (isUpdateAvailable) {
-      setShowUpdateModal(true);
-    }
-  }, [isUpdateAvailable]);
-
+  // Le clic sur le bouton de mise à jour ne fait rien de spécial,
+  // car le modal est géré automatiquement par le PWAManager.
+  // On pourrait ajouter une logique pour forcer l'affichage si l'utilisateur l'a fermé.
   const handleUpdateClick = () => {
-    if (isUpdateAvailable) {
-      setShowUpdateModal(true);
-    } else {
+    if (!isUpdateAvailable) {
       toast.success('Vous utilisez déjà la dernière version de GTY Express.');
+    } else {
+      // Normalement, le modal est déjà visible. Sinon, on peut forcer un rechargement.
+      // Pour l'instant, on laisse le PWAManager gérer.
+      toast.info('Une mise à jour est prête à être installée.');
     }
   };
+  // --- FIN DE LA NOUVELLE LOGIQUE ---
+
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
@@ -169,7 +169,6 @@ const Header = ({ handleShowInstallModal }) => {
               <FaDownload/>
             </Button>
             
-            {/* --- LE DROPDOWN EST REMPLACÉ PAR UN SIMPLE BOUTON --- */}
             {userInfo && (
               <Button 
                 variant="dark" 
@@ -184,14 +183,15 @@ const Header = ({ handleShowInstallModal }) => {
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               {userInfo && (
+                // --- LE BOUTON EST MAINTENANT CONNECTÉ À REDUX ---
                 <Button 
                     variant={isUpdateAvailable ? "success" : "outline-secondary"} 
                     onClick={handleUpdateClick} 
-                    className={`ms-3 d-flex align-items-center ${isUpdateAvailable ? 'update-available-blink' : ''}`} 
+                    className={`ms-3 d-flex align-items-center ${isUpdateInProgress ? 'update-available-blink' : ''}`} 
                     size="sm"
                 >
-                  {isUpdateAvailable ? <FaSyncAlt className="me-1" /> : <FaBan className="me-1" />}
-                  Màj
+                  <FaSyncAlt className="me-1" />
+                  {isUpdateInProgress ? 'Installation...' : 'Màj'}
                 </Button>
               )}
               <LinkContainer to="/promotions">
@@ -276,13 +276,15 @@ const Header = ({ handleShowInstallModal }) => {
         )}
       </header>
       
-      {/* --- LE MODAL MOBILE EST MAINTENANT APPELÉ ICI --- */}
       {userInfo && (
         <MobileMenuModal
           show={showMobileMenu}
           handleClose={() => setShowMobileMenu(false)}
           userInfo={userInfo}
           totalAdminCount={totalAdminCount}
+          // On passe les nouvelles informations au menu mobile
+          isUpdateAvailable={isUpdateAvailable}
+          isUpdateInProgress={isUpdateInProgress}
           handleUpdateClick={handleUpdateClick}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
@@ -305,13 +307,6 @@ const Header = ({ handleShowInstallModal }) => {
           onNavigate={handleMarkAsSeen}
         />
       )}
-
-      <UpdateModal
-        show={showUpdateModal}
-        handleClose={() => setShowUpdateModal(false)}
-        newVersion={newVersion}
-        deployedAt={deployedAt}
-      />
     </>
   );
 };

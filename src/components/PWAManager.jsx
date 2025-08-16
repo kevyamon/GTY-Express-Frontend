@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { useDispatch } from 'react-redux';
+import { setUpdateAvailable, setUpdateInProgress } from '../slices/pwaSlice';
 import UpdateModal from './UpdateModal';
 import UpdateCompleteModal from './UpdateCompleteModal';
 
 function PWAManager() {
+  const dispatch = useDispatch();
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
 
   const {
@@ -12,10 +15,12 @@ function PWAManager() {
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
-      // Vérifie si une mise à jour vient d'être complétée au chargement
       if (sessionStorage.getItem('swUpdateCompleted')) {
         setShowUpdateComplete(true);
         sessionStorage.removeItem('swUpdateCompleted');
+        // On s'assure que les indicateurs sont à faux après une mise à jour
+        dispatch(setUpdateAvailable(false));
+        dispatch(setUpdateInProgress(false));
       }
     },
     onRegisterError(error) {
@@ -23,10 +28,15 @@ function PWAManager() {
     },
   });
 
+  // Informe Redux qu'une mise à jour est prête
+  useEffect(() => {
+    dispatch(setUpdateAvailable(needRefresh));
+  }, [needRefresh, dispatch]);
+
   const handleUpdate = async () => {
-    // On pose un drapeau pour savoir qu'on a lancé la mise à jour
+    // Informe Redux que la mise à jour commence (pour le clignotement)
+    dispatch(setUpdateInProgress(true)); 
     sessionStorage.setItem('swUpdateCompleted', 'true');
-    // On demande au service worker de s'installer
     await updateServiceWorker(true);
   };
 
