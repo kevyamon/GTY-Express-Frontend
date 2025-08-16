@@ -3,12 +3,8 @@ import { io } from 'socket.io-client';
 import { updateUserStatus, updateUserRole } from './authSlice';
 import { toast } from 'react-toastify';
 
-// --- MODIFICATION : On remplace la variable par l'adresse directe du backend ---
-const BACKEND_URL = 'https://gty-express.onrender.com';
-
 const baseQuery = fetchBaseQuery({
-  // On utilise notre constante ici pour être sûr de toujours viser la bonne adresse.
-  baseUrl: BACKEND_URL,
+  baseUrl: 'https://gty-express.onrender.com', // Adresse directe pour la robustesse
   prepareHeaders: (headers, { getState }) => {
     const { userInfo } = getState().auth;
     if (userInfo && userInfo.token) {
@@ -22,10 +18,14 @@ export const apiSlice = createApi({
   baseQuery,
   tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
   endpoints: (builder) => ({
+    // --- MODIFICATION : On ajoute le point de terminaison pour la version ---
+    // C'est cette requête que le PWAManager va appeler toutes les minutes.
+    // Le tag 'Version' est là pour une gestion de cache propre.
     getVersion: builder.query({
       query: () => '/api/version',
       providesTags: ['Version'],
     }),
+    // --- FIN DE LA MODIFICATION ---
 
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
@@ -33,8 +33,7 @@ export const apiSlice = createApi({
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch, getState }
       ) {
-        // Le socket se connecte aussi directement à l'adresse du backend.
-        const socket = io(BACKEND_URL);
+        const socket = io('https://gty-express.onrender.com');
 
         socket.on('connect', () => {
           console.log('Socket.IO connecté !');
@@ -140,4 +139,5 @@ export const apiSlice = createApi({
   }),
 });
 
+// --- MODIFICATION : On exporte le nouveau hook pour qu'il soit utilisable ---
 export const { useSocketQuery, useGetVersionQuery } = apiSlice;

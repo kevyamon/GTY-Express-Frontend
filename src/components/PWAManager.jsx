@@ -1,29 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useDispatch, useSelector } from 'react-redux';
-// --- MODIFICATION : On importe aussi le nouvel état 'isModalOpen' ---
-import { setUpdateAvailable, setUpdateInProgress, setIsModalOpen } from '../slices/pwaSlice';
+import { setIsModalOpen, setUpdateAvailable, setUpdateInProgress } from '../slices/pwaSlice';
+// --- MODIFICATION : On importe le hook pour interroger notre backend ---
+import { useGetVersionQuery } from '../slices/apiSlice';
 import UpdateModal from './UpdateModal';
 import UpdateCompleteModal from './UpdateCompleteModal';
 
 function PWAManager() {
   const dispatch = useDispatch();
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
-  // --- MODIFICATION : On récupère l'état du modal depuis Redux ---
   const { isModalOpen } = useSelector((state) => state.pwa);
+
+  // --- MODIFICATION : On interroge notre backend toutes les minutes ---
+  // `pollingInterval` force Redux Toolkit Query à redemander les données à intervalle régulier.
+  // 60000 millisecondes = 1 minute.
+  const { data: versionInfo } = useGetVersionQuery(undefined, {
+    pollingInterval: 60000, 
+  });
 
   const {
     needRefresh: [needRefresh],
-    // on va utiliser la fonction 'updateServiceWorker' pour la vérification automatique
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
-      // On ajoute un intervalle pour vérifier les mises à jour toutes les heures
-      setInterval(() => {
-        updateServiceWorker(true);
-      }, 1* 60 * 1000); // 1 Minute
-
       if (sessionStorage.getItem('swUpdateCompleted')) {
         setShowUpdateComplete(true);
         sessionStorage.removeItem('swUpdateCompleted');
@@ -38,25 +39,35 @@ function PWAManager() {
   });
 
   useEffect(() => {
-    // Si une mise à jour est disponible...
+    if (versionInfo?.commitHash) {
+      const lastKnownHash = localStorage.getItem('gitCommitHash');
+      
+      // Si le hash du backend est différent de celui qu'on a en mémoire...
+      if (lastKnownHash !== versionInfo.commitHash) {
+        console.log('Nouveau commit détecté ! Vérification de la mise à jour...');
+        // ...on déclenche la vérification du Service Worker.
+        updateServiceWorker(true);
+        // Et on sauvegarde le nouveau hash.
+        localStorage.setItem('gitCommitHash', versionInfo.commitHash);
+      }
+    }
+  }, [versionInfo, updateServiceWorker]);
+
+  useEffect(() => {
     if (needRefresh) {
-      // ...on met à jour l'état global...
       dispatch(setUpdateAvailable(true));
-      // ...et on demande l'ouverture du modal.
       dispatch(setIsModalOpen(true));
     }
   }, [needRefresh, dispatch]);
 
   const handleUpdate = async () => {
-    dispatch(setIsModalOpen(false)); // On ferme le modal
+    dispatch(setIsModalOpen(false));
     dispatch(setUpdateInProgress(true)); 
     sessionStorage.setItem('swUpdateCompleted', 'true');
     await updateServiceWorker(true);
   };
 
   const handleCloseUpdate = () => {
-    // L'utilisateur a cliqué sur "Plus tard", on ferme juste le modal.
-    // L'état `isUpdateAvailable` reste `true` en arrière-plan.
     dispatch(setIsModalOpen(false));
     toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   };
@@ -64,7 +75,7 @@ function PWAManager() {
   return (
     <>
       <UpdateModal
-        show={isModalOpen} // L'affichage du modal est maintenant contrôlé par Redux
+        show={isModalOpen}
         handleClose={handleCloseUpdate}
         onConfirmUpdate={handleUpdate}
       />
