@@ -42,21 +42,17 @@ const App = () => {
   const [logoKey, setLogoKey] = useState(Date.now());
   const isInitialLoad = useRef(true);
 
-  // --- NOUVELLE LOGIQUE POUR DÉTECTER LA FIN DE LA MISE À JOUR ---
+  // --- NOUVELLE LOGIQUE FIABLE POUR DÉTECTER LA FIN DE LA MISE À JOUR ---
   useEffect(() => {
-    const handleUpdateCompleted = () => {
+    // On vérifie si notre "drapeau" existe dans le stockage de session.
+    if (sessionStorage.getItem('updateCompleted')) {
+      // Si oui, on affiche le modal de succès.
       setShowUpdateComplete(true);
-    };
-
-    // On écoute l'événement personnalisé que notre hook envoie
-    window.addEventListener('updateCompleted', handleUpdateCompleted);
-
-    // On nettoie l'écouteur quand le composant est démonté
-    return () => {
-      window.removeEventListener('updateCompleted', handleUpdateCompleted);
-    };
-  }, []);
-  // --- FIN DE LA NOUVELLE  LOGIQUE ---
+      // Et on retire immédiatement le drapeau pour ne pas le réafficher.
+      sessionStorage.removeItem('updateCompleted');
+    }
+  }, []); // Ce code ne s'exécute qu'une seule fois au chargement de l'application.
+  // --- FIN DE LA NOUVELLE LOGIQUE ---
 
 
   useEffect(() => {
@@ -129,7 +125,7 @@ const App = () => {
       {userInfo && <WarningDisplay />}
       <ToastContainer />
 
-      {/* --- AJOUT DU MODAL DE SUCCÈS --- */}
+      {/* Le modal de succès est maintenant contrôlé par notre logique fiable */}
       <UpdateCompleteModal 
         show={showUpdateComplete}
         handleClose={() => setShowUpdateComplete(false)}

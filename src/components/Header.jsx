@@ -2,7 +2,7 @@ import { Navbar, Nav, Container, NavDropdown, Badge, Form, Button, Image } from 
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useState, useMemo, useContext } from 'react'; // <-- Ajout de useContext
+import { useState, useMemo, useContext } from 'react';
 import { toast } from 'react-toastify';
 import { FaTag, FaComments, FaBell, FaSyncAlt, FaDownload, FaBars } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
@@ -13,7 +13,7 @@ import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice
 import { useGetSuggestionsQuery } from '../slices/suggestionApiSlice';
 import { logout } from '../slices/authSlice';
 import { apiSlice } from '../slices/apiSlice';
-import { VersionContext } from '../contexts/VersionContext'; // <-- NOUVEL IMPORT
+import { VersionContext } from '../contexts/VersionContext';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
@@ -28,15 +28,17 @@ const Header = ({ handleShowInstallModal }) => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION : On utilise le Contexte au lieu de Redux ---
-  const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
+  // --- MODIFICATION : Logique du bouton de mise à jour simplifiée ---
+  const { isUpdateAvailable, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
-  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
+  // Le bouton s'affiche uniquement si une mise à jour est disponible.
+  const showUpdateButton = isUpdateAvailable;
+  // Le bouton clignote si une mise à jour a été refusée, pour rappeler à l'utilisateur.
+  const shouldBlink = updateDeclined;
 
   const getUpdateVariant = () => {
-    if (updateDeclined) return 'danger';
-    if (isUpdateAvailable) return 'success';
+    if (updateDeclined) return 'danger'; // Rouge si refusé
+    if (isUpdateAvailable) return 'success'; // Vert si disponible
     return 'outline-secondary';
   };
   // --- FIN DE LA MODIFICATION ---
@@ -182,12 +184,12 @@ const Header = ({ handleShowInstallModal }) => {
               {userInfo && showUpdateButton && (
                 <Button 
                     variant={getUpdateVariant()} 
-                    onClick={openUpdateModal} // <-- On utilise la fonction du contexte
+                    onClick={openUpdateModal}
                     className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
                 >
                   <FaSyncAlt className="me-1" />
-                  {isUpdateInProgress ? 'Installation...' : 'Màj'}
+                  Màj disponible
                 </Button>
               )}
 

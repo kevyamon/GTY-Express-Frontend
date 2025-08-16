@@ -1,22 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+// On s'assure que le chemin d'importation est correct
 import versionInjector from './vite-plugin-version-injector.js';
 
 export default defineConfig({
   plugins: [
     react(),
-    versionInjector(), 
     VitePWA({
-      registerType: 'autoUpdate',
-      
+      // On retire 'registerType' pour empêcher la mise à jour automatique conflictuelle.
       workbox: {
-        // --- C'EST LA CORRECTION CRUCIALE ---
-        // On passe cette option à 'true'.
-        // Le Service Worker s'activera dès qu'il sera prêt.
+        // Cette option force le nouveau Service Worker à s'activer dès qu'il est prêt.
         skipWaiting: true,
-        
-        // On garde celle-ci pour que la prise de contrôle soit propre.
+        // Celle-ci assure qu'il prend le contrôle de la page immédiatement.
         clientsClaim: true,
       },
       manifest: {
@@ -35,6 +31,8 @@ export default defineConfig({
         ],
       },
     }),
+    // Notre plugin de version est bien appelé ici.
+    versionInjector(), 
   ],
   server: {
     proxy: {

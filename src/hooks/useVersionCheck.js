@@ -1,89 +1,57 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useRegisterSW } from 'virtual:pwa-register/react';
-import { toast } from 'react-toastify';
+
+// Intervalle de vérification : 60 000 millisecondes = 1 minute
+const POLLING_INTERVAL = 60000;
 
 export const useVersionCheck = () => {
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  // L'état qui contiendra les informations sur la mise à jour
   const [newVersionInfo, setNewVersionInfo] = useState(null);
-  const [isUpdateInProgress, setIsUpdateInProgress] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [updateDeclined, setUpdateDeclined] = useState(false);
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
 
-  const {
-    needRefresh: [needRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisteredSW(swUrl, r) {
-      console.log(`Service Worker enregistré: ${swUrl}`);
-      // NOUVELLE LOGIQUE FIABLE :
-      // On vérifie si notre "drapeau" existe dans le stockage de session.
-      if (sessionStorage.getItem('swUpdateCompleted')) {
-        // Si oui, on retire le drapeau et on envoie un événement global
-        // pour dire à l'application d'afficher le modal de succès.
-        sessionStorage.removeItem('swUpdateCompleted');
-        window.dispatchEvent(new Event('updateCompleted'));
+  // La fonction qui effectue la vérification
+  const checkForUpdate = useCallback(async () => {
+    try {
+      // 1. Lire la version actuelle de l'application depuis la balise meta dans l'HTML
+      const currentVersion = document.querySelector('meta[name="app-version"]')?.content;
+      if (!currentVersion) {
+        console.error("La balise meta 'app-version' est introuvable.");
+        return;
       }
-    },
-    onRegisterError(error) {
-      console.error('Erreur d\'enregistrement du Service Worker:', error);
-    },
-  });
 
-  // --- C'EST CETTE PARTIE QUI CHANGE COMPLÈTEMENT ---
-  useEffect(() => {
-    // Cette fonction ne s'exécute que lorsque le Service Worker nous dit
-    // qu'une mise à jour a été téléchargée et est prête (needRefresh = true).
-    if (needRefresh) {
-      const fetchVersionInfo = async () => {
-        try {
-          // On va chercher les détails de la version qui est prête.
-          const response = await fetch(`/version.json?t=${new Date().getTime()}`);
-          if (response.ok) {
-            const serverVersionInfo = await response.json();
-            setNewVersionInfo(serverVersionInfo);
-          }
-        } catch (error) {
-          console.error('Impossible de récupérer les détails de la nouvelle version :', error);
-        } finally {
-          // Quoi qu'il arrive, on marque la mise à jour comme disponible et on ouvre le modal.
-          setIsUpdateAvailable(true);
-          setIsModalOpen(true);
-        }
-      };
+      // 2. Télécharger le fichier version.json du serveur (avec un timestamp pour éviter le cache)
+      const response = await fetch(`/version.json?t=${new Date().getTime()}`);
+      if (!response.ok) return; // Si le fichier n'est pas trouvé, on arrête
+      
+      const serverVersionInfo = await response.json();
 
-      fetchVersionInfo();
+      // 3. Comparer les versions (basé sur le hash du commit)
+      if (serverVersionInfo.commitHash && serverVersionInfo.commitHash !== currentVersion) {
+        console.log('Nouvelle version détectée !', serverVersionInfo);
+        setNewVersionInfo(serverVersionInfo); // Stocke les détails de la nouvelle version
+        setIsUpdateAvailable(true); // Signale qu'une mise à jour est disponible
+      }
+    } catch (error) {
+      console.error("Erreur lors de la vérification de la version :", error);
     }
-  }, [needRefresh]);
-  // --- FIN DE LA MODIFICATION MAJEURE ---
-
-  const confirmUpdate = useCallback(async () => {
-    setIsModalOpen(false);
-    setIsUpdateInProgress(true);
-    // On pose notre "drapeau" juste avant de lancer la mise à jour.
-    sessionStorage.setItem('swUpdateCompleted', 'true');
-    await updateServiceWorker(true);
-  }, [updateServiceWorker]);
-
-  const declineUpdate = useCallback(() => {
-    setIsModalOpen(false);
-    setUpdateDeclined(true);
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   }, []);
 
-  const openUpdateModal = useCallback(() => {
-    if (isUpdateAvailable) {
-      setIsModalOpen(true);
-    }
-  }, [isUpdateAvailable]);
+  useEffect(() => {
+    // 4. Lancer la vérification une première fois au chargement, puis toutes les minutes
+    checkForUpdate(); // Vérification immédiate
+    const interval = setInterval(checkForUpdate, POLLING_INTERVAL);
 
+    // 5. Si une mise à jour est trouvée, on arrête l'intervalle
+    if (isUpdateAvailable) {
+      clearInterval(interval);
+    }
+
+    // Nettoyage de l'intervalle quand le composant est démonté
+    return () => clearInterval(interval);
+  }, [checkForUpdate, isUpdateAvailable]);
+
+  // Le hook retourne un objet simple avec le statut et les détails de la mise à jour
   return {
     isUpdateAvailable,
-    isUpdateInProgress,
-    isModalOpen,
-    updateDeclined,
     newVersionInfo,
-    confirmUpdate,
-    declineUpdate,
-    openUpdateModal,
   };
 };
