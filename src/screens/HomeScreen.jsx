@@ -45,14 +45,14 @@ const HomeScreen = () => {
   else if (isPromo) { promotion = 'true'; pageTitle = 'Promotions'; category = 'all'; }
   if (keyword) { pageTitle = `Recherche : ${keyword}`; }
 
-  // --- NOUVELLE LOGIQUE D'APPEL API ---
   const { data: popularProducts, isLoading: isLoadingPopular, error: errorPopular } = useGetPopularProductsQuery({ limit: 10 });
   const { data: topProducts, isLoading: isLoadingTop, error: errorTop } = useGetTopProductsQuery({ limit: 10 });
+  
+  // --- CORRECTION : On retire le paramètre 'pageType' qui est maintenant inutile ---
   const { data: products, isLoading, error } = useGetProductsQuery({
       keyword,
-      category: isGeneralPage ? '' : category, // Pour la grille principale, on ne filtre pas par catégorie 'general'
+      category,
       promotion,
-      pageType: isGeneralPage ? 'mainGrid' : '' // On spécifie qu'on veut la grille principale
   });
 
   const isMobile = window.innerWidth < 767;
@@ -63,7 +63,6 @@ const HomeScreen = () => {
         {!isLoadingBanner && activeBanner && <PromoBanner bannerData={activeBanner} />}
         {keyword && <Link to={isSupermarket ? '/supermarket' : (isPromo ? '/promotions' : '/products')} className='btn btn-light mb-4'>Retour</Link>}
 
-        {/* --- Affichage conditionnel des carrousels --- */}
         {isGeneralPage && (
           <>
             <ProductCarousel 
@@ -85,7 +84,6 @@ const HomeScreen = () => {
           </>
         )}
         
-        {/* --- Affichage de la grille principale ou des résultats de recherche --- */}
         <h1 className='home-screen-title'>{pageTitle}</h1>
 
         {isMobile && products && products.length > 5 && <ScrollingInfo />}
