@@ -1,7 +1,8 @@
 import React from 'react';
-import { Modal, ListGroup, Badge, Button } from 'react-bootstrap'; // Ajout de Button
+import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { FaTachometerAlt, FaUsers, FaBoxOpen, FaClipboardList, FaBullhorn, FaExclamationTriangle, FaImages, FaLightbulb, FaSyncAlt, FaUser, FaBox, FaSignOutAlt } from 'react-icons/fa';
+import { useSelector } from 'react-redux'; // On importe useSelector
+import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
 import './MobileMenuModal.css';
 
 const MobileMenuModal = ({ 
@@ -9,13 +10,13 @@ const MobileMenuModal = ({
   handleClose, 
   userInfo, 
   totalAdminCount, 
-  // --- NOUVELLES PROPS REÇUES ---
-  isUpdateAvailable,
-  isUpdateInProgress,
   handleUpdateClick, 
   logoutHandler,
   handleAdminModal,
 }) => {
+
+  // On se connecte à Redux pour connaître l'état de la mise à jour
+  const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
 
   const handleLinkClick = (action) => {
     if (action) action();

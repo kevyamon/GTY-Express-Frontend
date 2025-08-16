@@ -17,7 +17,7 @@ import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
-// On retire l'import de useVersion
+// L'import de useVersion a été correctement retiré
 import './Header.css';
 
 const Header = ({ handleShowInstallModal }) => {
@@ -31,16 +31,11 @@ const Header = ({ handleShowInstallModal }) => {
   // --- NOUVELLE LOGIQUE CONNECTÉE À REDUX ---
   const { isUpdateAvailable, isUpdateInProgress } = useSelector((state) => state.pwa);
 
-  // Le clic sur le bouton de mise à jour ne fait rien de spécial,
-  // car le modal est géré automatiquement par le PWAManager.
-  // On pourrait ajouter une logique pour forcer l'affichage si l'utilisateur l'a fermé.
   const handleUpdateClick = () => {
     if (!isUpdateAvailable) {
       toast.success('Vous utilisez déjà la dernière version de GTY Express.');
     } else {
-      // Normalement, le modal est déjà visible. Sinon, on peut forcer un rechargement.
-      // Pour l'instant, on laisse le PWAManager gérer.
-      toast.info('Une mise à jour est prête à être installée.');
+      toast.info('Une mise à jour est prête à être installée. Confirmez via la fenêtre qui est apparue.');
     }
   };
   // --- FIN DE LA NOUVELLE LOGIQUE ---
@@ -183,7 +178,6 @@ const Header = ({ handleShowInstallModal }) => {
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               {userInfo && (
-                // --- LE BOUTON EST MAINTENANT CONNECTÉ À REDUX ---
                 <Button 
                     variant={isUpdateAvailable ? "success" : "outline-secondary"} 
                     onClick={handleUpdateClick} 
@@ -282,9 +276,6 @@ const Header = ({ handleShowInstallModal }) => {
           handleClose={() => setShowMobileMenu(false)}
           userInfo={userInfo}
           totalAdminCount={totalAdminCount}
-          // On passe les nouvelles informations au menu mobile
-          isUpdateAvailable={isUpdateAvailable}
-          isUpdateInProgress={isUpdateInProgress}
           handleUpdateClick={handleUpdateClick}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
