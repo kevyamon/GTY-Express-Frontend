@@ -1,0 +1,43 @@
+.mobile-menu-modal .modal-content {
+  border-radius: 0;
+  border: none;
+}
+
+.mobile-menu-modal .list-group-item {
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.mobile-menu-modal .list-group-item svg {
+  color: #0d6efd;
+}
+
+.mobile-menu-modal .promo-link {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.mobile-menu-modal .promo-link svg {
+  color: #dc3545;
+}
+
+.mobile-menu-modal .logout-link {
+  color: #6c757d;
+}
+
+.mobile-menu-modal .logout-link svg {
+  color: #6c757d;
+}
+
+.mobile-menu-modal .list-group-item.separator {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

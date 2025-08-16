@@ -16,14 +16,13 @@ const UpdateModal = ({ show, handleClose, newVersion, deployedAt }) => {
   };
 
   const handleUpdate = () => {
-    // --- CORRECTION AJOUTÉE ICI ---
-    handleClose(); // On s'assure de fermer le modal d'abord
+    handleClose();
     window.location.reload();
   };
 
   const handleComment = () => {
-    navigate('/profile/suggestions');
     handleClose(); 
+    navigate('/profile/suggestions');
     toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
   };
 

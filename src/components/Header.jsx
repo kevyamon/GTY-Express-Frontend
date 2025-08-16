@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-// --- AJOUT DE L'ICÔNE HAMBURGER (FaBars) ---
 import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload, FaBars } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
@@ -18,6 +17,7 @@ import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
 import UpdateModal from './UpdateModal';
+import MobileMenuModal from './MobileMenuModal'; // --- NOUVEL IMPORT ---
 import { useVersion } from '../contexts/VersionContext';
 import './Header.css';
 
@@ -27,6 +27,7 @@ const Header = ({ handleShowInstallModal }) => {
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false); // --- NOUVEL ÉTAT POUR LE MODAL MOBILE ---
 
   const { isUpdateAvailable, newVersion, deployedAt } = useVersion();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -43,11 +44,6 @@ const Header = ({ handleShowInstallModal }) => {
     } else {
       toast.success('Vous utilisez déjà la dernière version de GTY Express.');
     }
-  };
-
-  const handleCritique = () => {
-    setShowUpdateModal(false);
-    setShowSuggestionModal(true);
   };
 
   const [lastSeen, setLastSeen] = useState(() => {
@@ -169,42 +165,31 @@ const Header = ({ handleShowInstallModal }) => {
               <Navbar.Brand>GTY Express</Navbar.Brand>
             </LinkContainer>
 
-            {/* --- BOUTON INSTALLER L'APPLI (MAINTENANT ÉPURÉ ET ANIMÉ) --- */}
             <Button variant="outline-info" size="sm" className="install-app-btn" onClick={handleShowInstallModal}>
               <FaDownload/>
             </Button>
             
-            {/* --- MENU HAMBURGER POUR MOBILE (VISIBLE UNIQUEMENT SUR MOBILE) --- */}
+            {/* --- LE DROPDOWN EST REMPLACÉ PAR UN SIMPLE BOUTON --- */}
             {userInfo && (
-              <NavDropdown title={<FaBars />} id="mobile-menu" className="d-lg-none ms-auto mobile-hamburger-menu">
-                {userInfo.isAdmin && (
-                  <NavDropdown.Item onClick={() => setShowAdminModal(true)}>
-                    <FaBell className="me-2" /> Section Admin
-                    {totalAdminCount > 0 && <Badge pill bg="danger" className="ms-2">{totalAdminCount}</Badge>}
-                  </NavDropdown.Item>
-                )}
-                 <LinkContainer to="/products">
-                    <NavDropdown.Item>Toutes les catégories</NavDropdown.Item>
-                </LinkContainer>
-                <LinkContainer to="/promotions">
-                  <NavDropdown.Item className="text-danger">PROMO</NavDropdown.Item>
-                </LinkContainer>
-                <NavDropdown.Item onClick={handleUpdateClick}>
-                  <FaSyncAlt className="me-2" /> Mise à jour
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                 <LinkContainer to="/profile-details"><NavDropdown.Item>Mon Profil</NavDropdown.Item></LinkContainer>
-                 <LinkContainer to="/profile"><NavDropdown.Item>Mes Commandes</NavDropdown.Item></LinkContainer>
-                 <NavDropdown.Divider />
-                 <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
-              </NavDropdown>
+              <Button 
+                variant="dark" 
+                onClick={() => setShowMobileMenu(true)} 
+                className="d-lg-none ms-auto mobile-hamburger-menu"
+                aria-label="Ouvrir le menu"
+              >
+                <FaBars />
+              </Button>
             )}
 
-            {/* --- ÉLÉMENTS DU HEADER POUR GRAND ÉCRAN (MASQUÉS SUR MOBILE) --- */}
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               {userInfo && (
-                <Button variant={isUpdateAvailable ? "success" : "outline-secondary"} onClick={handleUpdateClick} className="ms-3 d-flex align-items-center" size="sm">
+                <Button 
+                    variant={isUpdateAvailable ? "success" : "outline-secondary"} 
+                    onClick={handleUpdateClick} 
+                    className={`ms-3 d-flex align-items-center ${isUpdateAvailable ? 'update-available-blink' : ''}`} 
+                    size="sm"
+                >
                   {isUpdateAvailable ? <FaSyncAlt className="me-1" /> : <FaBan className="me-1" />}
                   Màj
                 </Button>
@@ -216,7 +201,7 @@ const Header = ({ handleShowInstallModal }) => {
               </LinkContainer>
             </Nav>
 
-            <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-none" /> {/* On le cache mais on le garde pour la logique de react-bootstrap */}
+            <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-none" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto align-items-center d-none d-lg-flex">
                 {userInfo && userInfo.isAdmin && (
@@ -290,6 +275,19 @@ const Header = ({ handleShowInstallModal }) => {
           </div>
         )}
       </header>
+      
+      {/* --- LE MODAL MOBILE EST MAINTENANT APPELÉ ICI --- */}
+      {userInfo && (
+        <MobileMenuModal
+          show={showMobileMenu}
+          handleClose={() => setShowMobileMenu(false)}
+          userInfo={userInfo}
+          totalAdminCount={totalAdminCount}
+          handleUpdateClick={handleUpdateClick}
+          logoutHandler={logoutHandler}
+          handleAdminModal={() => setShowAdminModal(true)}
+        />
+      )}
 
       <SuggestionModal 
         show={showSuggestionModal} 

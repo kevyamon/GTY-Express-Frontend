@@ -71,25 +71,23 @@
   color: white !important;
   font-size: 1.5rem;
   padding: 0 0.5rem;
+  border: none;
 }
 
 .mobile-hamburger-menu .dropdown-toggle::after {
   display: none;
 }
 
-/* --- CORRECTION 2 : On rend les éléments du menu plus compacts --- */
-.mobile-hamburger-menu .dropdown-menu {
-  /* On s'assure que le menu ne soit pas trop large */
-  min-width: 220px;
+.mobile-hamburger-menu .dropdown-toggle:focus {
+  box-shadow: none;
 }
 
-.mobile-hamburger-menu .dropdown-item {
-  font-size: 0.9rem; /* Police plus petite */
-  padding: 0.5rem 1rem; /* Moins d'espacement vertical */
-  display: flex;
-  align-items: center;
+/* --- NOUVELLE ANIMATION DE CLIGNOTEMENT --- */
+@keyframes blink-animation {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
-.mobile-hamburger-menu .dropdown-item svg {
-  margin-right: 0.5rem; /* Espace réduit pour l'icône */
+.update-available-blink {
+  animation: blink-animation 1.5s infinite;
 }
