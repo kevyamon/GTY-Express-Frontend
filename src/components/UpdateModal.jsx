@@ -1,12 +1,19 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { FaRocket } from 'react-icons/fa';
-import './UpdateModal.css'; // On va créer un nouveau style pour ce modal
+import { FaRocket, FaInfoCircle, FaCalendarAlt } from 'react-icons/fa'; // On ajoute des icônes
+import './UpdateModal.css';
 
 const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
-  // On récupère les variables injectées par Vite
+  // On récupère les nouvelles variables injectées par notre plugin
   const appVersion = import.meta.env.VITE_APP_VERSION;
   const commitHash = import.meta.env.VITE_COMMIT_HASH;
+  const commitDateISO = import.meta.env.VITE_COMMIT_DATE;
+
+  // Fonction pour formater joliment la date
+  const formattedDate = new Date(commitDateISO).toLocaleString('fr-FR', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+  });
 
   return (
     <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
@@ -22,15 +29,18 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
           Une nouvelle version de GTY Express est prête. Mettez à jour pour profiter des dernières améliorations.
         </p>
         
-        {/* Section d'information sur la version */}
         <div className="version-details">
           <div className="info-item">
-            <span className="label"><span className="info-icon">#️⃣</span> Version</span>
+            <span className="label"><FaInfoCircle className="info-icon" /> Version</span>
             <span className="value">{appVersion}</span>
           </div>
           <div className="info-item">
-            <span className="label"><span className="info-icon">📦</span> Build</span>
+            <span className="label"><span className="info-icon">#️⃣</span> Commit</span>
             <span className="value">{commitHash}</span>
+          </div>
+          <div className="info-item">
+            <span className="label"><FaCalendarAlt className="info-icon" /> Date</span>
+            <span className="value">{formattedDate}</span>
           </div>
         </div>
 
@@ -47,4 +57,4 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
   );
 };
 
-export default UpdateModal; 
+export default UpdateModal;

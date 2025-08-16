@@ -1,20 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import packageJson from './package.json';
-import { execSync } from 'child_process'; // <-- On importe un module Node.js
-
-// On récupère le hash du dernier commit Git
-const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+// --- NOUVEAUX IMPORTS ---
+import versionInjector from './vite-plugin-version-injector.js';
 
 export default defineConfig({
-  define: {
-    // On injecte la version et le hash dans les variables d'environnement de l'app
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(packageJson.version),
-    'import.meta.env.VITE_COMMIT_HASH': JSON.stringify(commitHash),
-  },
+  // La section 'define' est maintenant gérée par notre plugin, on peut la retirer d'ici.
   plugins: [
     react(),
+    // On active notre nouveau plugin
+    versionInjector(), 
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'script',
