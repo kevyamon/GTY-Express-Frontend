@@ -4,9 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
-// --- LA CORRECTION EST ICI ---
-import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload } from 'react-icons/fa';
-// --- FIN DE LA CORRECTION ---
+// --- AJOUT DE L'ICÔNE HAMBURGER (FaBars) ---
+import { FaTag, FaComments, FaBell, FaSyncAlt, FaBan, FaDownload, FaBars } from 'react-icons/fa';
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
@@ -22,7 +21,6 @@ import UpdateModal from './UpdateModal';
 import { useVersion } from '../contexts/VersionContext';
 import './Header.css';
 
-// On passe la fonction pour ouvrir le modal d'installation en props
 const Header = ({ handleShowInstallModal }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,7 +28,7 @@ const Header = ({ handleShowInstallModal }) => {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
-  const { isUpdateAvailable, latestVersion, deployedAt, refreshApp } = useVersion();
+  const { isUpdateAvailable, newVersion, deployedAt } = useVersion();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
@@ -171,47 +169,67 @@ const Header = ({ handleShowInstallModal }) => {
               <Navbar.Brand>GTY Express</Navbar.Brand>
             </LinkContainer>
 
-            {/* --- NOTRE NOUVEAU BOUTON "INSTALLER L'APPLI" --- */}
-            <Button variant="info" size="sm" className="ms-2 install-app-btn" onClick={handleShowInstallModal}>
-              <FaDownload className="me-1" /> Installer l'appli
+            {/* --- BOUTON INSTALLER L'APPLI (MAINTENANT ÉPURÉ ET ANIMÉ) --- */}
+            <Button variant="outline-info" size="sm" className="install-app-btn" onClick={handleShowInstallModal}>
+              <FaDownload/>
             </Button>
-            {/* --- FIN DE L'AJOUT --- */}
+            
+            {/* --- MENU HAMBURGER POUR MOBILE (VISIBLE UNIQUEMENT SUR MOBILE) --- */}
+            {userInfo && (
+              <NavDropdown title={<FaBars />} id="mobile-menu" className="d-lg-none ms-auto mobile-hamburger-menu">
+                {userInfo.isAdmin && (
+                  <NavDropdown.Item onClick={() => setShowAdminModal(true)}>
+                    <FaBell className="me-2" /> Section Admin
+                    {totalAdminCount > 0 && <Badge pill bg="danger" className="ms-2">{totalAdminCount}</Badge>}
+                  </NavDropdown.Item>
+                )}
+                 <LinkContainer to="/products">
+                    <NavDropdown.Item>Toutes les catégories</NavDropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/promotions">
+                  <NavDropdown.Item className="text-danger">PROMO</NavDropdown.Item>
+                </LinkContainer>
+                <NavDropdown.Item onClick={handleUpdateClick}>
+                  <FaSyncAlt className="me-2" /> Mise à jour
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                 <LinkContainer to="/profile-details"><NavDropdown.Item>Mon Profil</NavDropdown.Item></LinkContainer>
+                 <LinkContainer to="/profile"><NavDropdown.Item>Mes Commandes</NavDropdown.Item></LinkContainer>
+                 <NavDropdown.Divider />
+                 <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
+              </NavDropdown>
+            )}
 
-            <Nav className="me-auto">
+            {/* --- ÉLÉMENTS DU HEADER POUR GRAND ÉCRAN (MASQUÉS SUR MOBILE) --- */}
+            <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
+              {userInfo && (
+                <Button variant={isUpdateAvailable ? "success" : "outline-secondary"} onClick={handleUpdateClick} className="ms-3 d-flex align-items-center" size="sm">
+                  {isUpdateAvailable ? <FaSyncAlt className="me-1" /> : <FaBan className="me-1" />}
+                  Màj
+                </Button>
+              )}
+              <LinkContainer to="/promotions">
+                <Nav.Link className="text-danger fw-bold d-flex align-items-center ms-3">
+                  <FaTag className="me-1" /> PROMO
+                </Nav.Link>
+              </LinkContainer>
             </Nav>
 
-            {userInfo && userInfo.isAdmin && (
-              <Button variant="outline-light" onClick={() => setShowAdminModal(true)} className="position-relative me-3">
-                <FaBell />
-                {totalAdminCount > 0 && (
-                  <Badge pill bg="danger" className="icon-badge" style={{ top: '-8px', right: '-8px' }}>
-                    {totalAdminCount}
-                  </Badge>
-                )}
-              </Button>
-            )}
-            
-            {userInfo && (
-              <Button 
-                variant={isUpdateAvailable ? "success" : "outline-secondary"}
-                onClick={handleUpdateClick}
-                className="me-3 d-flex align-items-center"
-                size="sm"
-              >
-                {isUpdateAvailable ? <FaSyncAlt className="me-1" /> : <FaBan className="me-1" />}
-                Màj
-              </Button>
-            )}
-
-            <LinkContainer to="/promotions">
-              <Nav.Link className="text-danger fw-bold d-flex align-items-center">
-                <FaTag className="me-1" /> PROMO
-              </Nav.Link>
-            </LinkContainer>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-none" /> {/* On le cache mais on le garde pour la logique de react-bootstrap */}
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="ms-auto align-items-center">
+              <Nav className="ms-auto align-items-center d-none d-lg-flex">
+                {userInfo && userInfo.isAdmin && (
+                  <Button variant="outline-light" onClick={() => setShowAdminModal(true)} className="position-relative me-3">
+                    <FaBell />
+                    {totalAdminCount > 0 && (
+                      <Badge pill bg="danger" className="icon-badge" style={{ top: '-8px', right: '-8px' }}>
+                        {totalAdminCount}
+                      </Badge>
+                    )}
+                  </Button>
+                )}
+
                 {userInfo ? (
                   <NavDropdown title={<div className='profile-icon-container'>{userInfo.profilePicture ? <Image src={userInfo.profilePicture} alt={userInfo.name} className="profile-image" /> : '👤'}</div>} id="username" align="end">
                     <LinkContainer to="/profile-details"><NavDropdown.Item>Informations</NavDropdown.Item></LinkContainer>
@@ -267,12 +285,8 @@ const Header = ({ handleShowInstallModal }) => {
                 <Badge pill bg="danger" className="icon-badge">{unreadNotifsCount}</Badge>
               )}
             </div>
-            <Link to={homePath} className="home-icon-link">
-              🏡
-            </Link>
-            <Link to="/supermarket" className="home-icon-link">
-              🛍️
-            </Link>
+            <Link to={homePath} className="home-icon-link">🏡</Link>
+            <Link to="/supermarket" className="home-icon-link">🛍️</Link>
           </div>
         )}
       </header>
@@ -297,10 +311,8 @@ const Header = ({ handleShowInstallModal }) => {
       <UpdateModal
         show={showUpdateModal}
         handleClose={() => setShowUpdateModal(false)}
-        newVersion={latestVersion}
+        newVersion={newVersion}
         deployedAt={deployedAt}
-        onConfirm={refreshApp}
-        onCritique={handleCritique}
       />
     </>
   );

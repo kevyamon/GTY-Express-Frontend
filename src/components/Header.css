@@ -52,3 +52,29 @@
   border-radius: 50%;
   object-fit: cover;
 }
+
+/* --- NOUVEAUX STYLES AJOUTÉS --- */
+
+/* Animation pour le bouton "Installer l'appli" */
+@keyframes swirl-animation {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(360deg) scale(1.1); } /* Rotation rapide au début */
+  30% { transform: rotate(360deg) scale(1); } /* Retour à la normale */
+  100% { transform: rotate(360deg) scale(1); } /* Reste stable */
+}
+
+.install-app-btn {
+  animation: swirl-animation 10s linear infinite;
+  border-radius: 50px !important; /* Pour un look plus épuré */
+}
+
+/* Style pour le menu hamburger sur mobile */
+.mobile-hamburger-menu .dropdown-toggle {
+  color: white !important;
+  font-size: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.mobile-hamburger-menu .dropdown-toggle::after {
+  display: none; /* Cache la petite flèche de bootstrap */
+}
