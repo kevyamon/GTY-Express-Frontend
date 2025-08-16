@@ -10,8 +10,9 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
-// On retire l'import de VersionProvider
-// import { VersionProvider } from './contexts/VersionContext';
+
+// --- NOUVEL IMPORT ---
+import { VersionProvider } from './contexts/VersionProvider';
 
 // Fichiers de style
 import './App.css';
@@ -55,7 +56,6 @@ import TopProductsScreen from './screens/TopProductsScreen.jsx';
 // Composants de route
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
-// COMMENTAIRE : On importe notre nouveau gardien.
 import AuthGuard from './components/AuthGuard.jsx';
 
 // Écrans Admin
@@ -75,8 +75,6 @@ import GlobalMessageScreen from './screens/admin/GlobalMessageScreen.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* COMMENTAIRE : On place AuthGuard ici. Il englobe TOUTES les routes de l'application.
-          Peu importe où l'utilisateur essaie d'aller, AuthGuard vérifiera son statut en premier. */}
       <Route element={<AuthGuard />}>
         {/* --- Routes Publiques --- */}
         <Route index={true} path="/" element={<LandingScreen />} />
@@ -143,10 +141,12 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      {/* On retire le VersionProvider qui entourait PayPalScriptProvider */}
-      <PayPalScriptProvider deferLoading={true}>
-        <RouterProvider router={router} />
-      </PayPalScriptProvider>
+      {/* --- MODIFICATION : On entoure l'application avec notre Provider --- */}
+      <VersionProvider>
+        <PayPalScriptProvider deferLoading={true}>
+          <RouterProvider router={router} />
+        </PayPalScriptProvider>
+      </VersionProvider>
     </Provider>
   </React.StrictMode>
 );
