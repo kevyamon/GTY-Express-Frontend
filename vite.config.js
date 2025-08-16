@@ -16,10 +16,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'script',
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-      },
+      // --- MODIFICATION : BLOC WORKBOX SUPPRIMÉ ---
+      // En retirant les lignes 'skipWaiting' et 'clientsClaim',
+      // on permet au nouveau Service Worker d'attendre l'autorisation
+      // de l'utilisateur avant de s'activer. C'est ce qui va
+      // déclencher l'affichage du modal de mise à jour.
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY',
