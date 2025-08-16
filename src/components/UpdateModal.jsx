@@ -4,37 +4,23 @@ import { toast } from 'react-toastify';
 import { FaRocket, FaRegCommentDots, FaRegClock, FaCodeBranch, FaCheckCircle, FaWrench } from 'react-icons/fa';
 import './UpdateModal.css';
 
-const UpdateModal = ({ show, handleClose, newVersion, deployedAt, onCommentClick }) => {
+// --- LE COMPOSANT EST SIMPLIFIÉ ---
+const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Un instant...';
-    return new Date(dateString).toLocaleString('fr-FR', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
-  // --- CORRECTION APPLIQUÉE ICI ---
   const handleUpdate = () => {
-    // On se contente de fermer la fenêtre et d'informer l'utilisateur.
-    // Le service worker de la PWA, configuré en 'autoUpdate', prendra le relais
-    // pour recharger la page proprement une fois qu'il sera prêt.
+    // On appelle la fonction de confirmation qui vient du parent
+    onConfirmUpdate(); 
+    // On ferme le modal
     handleClose();
-    toast.info("L'application va se mettre à jour en arrière-plan et se rechargera automatiquement.", { autoClose: 5000 });
-  };
-  // --- FIN DE LA CORRECTION ---
-
-  const handleComment = () => {
-    handleClose();
-    onCommentClick();
   };
 
   const handleLater = () => {
     handleClose();
-    toast.info('Vous pourrez mettre à jour quand vous voulez en cliquant sur le bouton "Màj" en haut.');
+    toast.info('Vous pouvez mettre à jour à tout moment en rafraîchissant la page.');
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
+    <Modal show={show} onHide={handleLater} centered backdrop="static" keyboard={false} dialogClassName="update-modal-dialog">
       <Modal.Body className="update-modal-body">
         <div className="rocket-animation-container">
           <div className="rocket-icon"><FaRocket /></div>
@@ -44,37 +30,14 @@ const UpdateModal = ({ show, handleClose, newVersion, deployedAt, onCommentClick
 
         <h2>Mise à Jour Disponible !</h2>
         <p className="lead-text">
-          Une nouvelle version de GTY Express vient d'être déployée pour améliorer votre expérience.
+          Une nouvelle version de GTY Express est prête à être installée pour améliorer votre expérience.
         </p>
 
-        <div className="version-details">
-          <div className="info-item">
-            <span className="label"><FaCodeBranch className="info-icon" /> Nouvelle version</span>
-            <span className="value">{newVersion}</span>
-          </div>
-          <div className="info-item">
-            <span className="label"><FaRegClock className="info-icon" /> Déployée le</span>
-            <span className="value">{formatDate(deployedAt)}</span>
-          </div>
-          <div className="info-item">
-            <span className="label"><FaCheckCircle className="info-icon verified" /> Éditeur</span>
-            <span className="value">GTY Express Team</span>
-          </div>
-          <div className="info-item corrections-info">
-            <span className="label"><FaWrench className="info-icon" /> Correctifs</span>
-            <ul className="corrections-list">
-              <li>Amélioration de la stabilité et des performances.</li>
-            </ul>
-          </div>
-        </div>
+        {/* La section des détails a été retirée car ce modal est maintenant un simple prompt */}
 
-        <div className="buttons-container">
+        <div className="buttons-container" style={{marginTop: '1.5rem'}}>
           <Button className="update-button" onClick={handleUpdate}>
-            Mettre à jour
-          </Button>
-          <Button className="comment-button" onClick={handleComment}>
-            <FaRegCommentDots className="me-2" />
-            Commenter la version
+            Installer et recharger
           </Button>
           <Button className="later-button" onClick={handleLater}>
             Plus tard

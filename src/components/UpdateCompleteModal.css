@@ -1,0 +1,77 @@
+@keyframes gift-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.update-complete-modal-dialog .modal-content {
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(160deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.update-complete-modal-body {
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.gift-animation-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.gift-icon {
+  font-size: 4rem;
+  color: #ffffff;
+  animation: gift-pop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.update-complete-modal-body h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.update-complete-modal-body .lead-text {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.version-info {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.close-button {
+  background-color: white;
+  color: #28a745;
+  font-weight: bold;
+  border-radius: 50px;
+  padding: 0.8rem 2rem;
+  border: none;
+  transition: transform 0.2s ease-out;
+}
+
+.close-button:hover {
+  transform: scale(1.05);
+  background-color: white;
+  color: #20c997;
+}

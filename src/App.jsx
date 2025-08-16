@@ -6,10 +6,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-import { useVersionCheck } from './hooks/useVersionCheck';
-import UpdateModal from './components/UpdateModal';
+// On retire tous les imports liés à l'ancien système de version
 import InstallPwaModal from './components/InstallPwaModal';
-
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
@@ -21,8 +19,9 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
-// --- NOUVEL IMPORT AJOUTÉ ---
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
+// --- NOUVEL IMPORT DU MANAGER ---
+import PWAManager from './components/PWAManager';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -33,27 +32,12 @@ const App = () => {
   
   const isLandingPage = location.pathname === '/';
   
-  const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  // On retire toute la logique de `useVersionCheck` et `UpdateModal`
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
-
-  useEffect(() => {
-    const seenVersion = sessionStorage.getItem('seenUpdateVersion');
-    if (isUpdateAvailable && newVersion !== seenVersion) {
-      setShowUpdateModal(true);
-    }
-  }, [isUpdateAvailable, newVersion]);
-
-  const handleCloseUpdateModal = () => {
-    setShowUpdateModal(false);
-    if (newVersion) {
-      sessionStorage.setItem('seenUpdateVersion', newVersion);
-    }
-  };
 
   const [showLogo, setShowLogo] = useState(true);
   const [logoKey, setLogoKey] = useState(Date.now());
@@ -125,19 +109,12 @@ const App = () => {
         </>
       )}
       
-      {/* --- NOUVEAU COMPOSANT AJOUTÉ ICI --- */}
       {userInfo && <GlobalMessageDisplay />}
-
       {userInfo && <WarningDisplay />}
       <ToastContainer />
-
-      <UpdateModal 
-        show={showUpdateModal} 
-        handleClose={handleCloseUpdateModal} 
-        newVersion={newVersion} 
-        deployedAt={deployedAt}
-        onCommentClick={() => setShowSuggestionModal(true)}
-      />
+      
+      {/* --- LE PWAMANAGER GÈRE MAINTENANT TOUS LES MODALS DE MISE À JOUR --- */}
+      <PWAManager />
 
       <InstallPwaModal 
         show={showInstallModal}

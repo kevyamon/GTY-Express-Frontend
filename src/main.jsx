@@ -10,7 +10,8 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
-import { VersionProvider } from './contexts/VersionContext';
+// On retire l'import de VersionProvider
+// import { VersionProvider } from './contexts/VersionContext';
 
 // Fichiers de style
 import './App.css';
@@ -67,7 +68,6 @@ import PromoBannerListScreen from './screens/admin/PromoBannerListScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import ComplaintListScreen from './screens/admin/ComplaintListScreen.jsx';
 import SuggestionListScreen from './screens/admin/SuggestionListScreen.jsx';
-// --- NOUVEL IMPORT DE L'ÉCRAN ADMIN ---
 import GlobalMessageScreen from './screens/admin/GlobalMessageScreen.jsx';
 
 
@@ -130,7 +130,6 @@ const router = createBrowserRouter(
           <Route path="/admin/promotionlist" element={<PromotionListScreen />} />
           <Route path="/admin/promobannerlist" element={<PromoBannerListScreen />} />
           <Route path="/admin/suggestionlist" element={<SuggestionListScreen />} />
-          {/* --- NOUVELLE ROUTE ADMIN AJOUTÉE --- */}
           <Route path="/admin/global-message" element={<GlobalMessageScreen />} />
         </Route>
       </Route>
@@ -141,11 +140,10 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <VersionProvider>
-        <PayPalScriptProvider deferLoading={true}>
-          <RouterProvider router={router} />
-        </PayPalScriptProvider>
-      </VersionProvider>
+      {/* On retire le VersionProvider qui entourait PayPalScriptProvider */}
+      <PayPalScriptProvider deferLoading={true}>
+        <RouterProvider router={router} />
+      </PayPalScriptProvider>
     </Provider>
   </React.StrictMode>
 );
