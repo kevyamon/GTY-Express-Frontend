@@ -3,7 +3,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from 'react-toastify';
 
 // On augmente l'intervalle pour ne pas surcharger le serveur
-const CHECK_INTERVAL = 5 * 60 * 1000; // Vérification toutes les 5 minutes
+const CHECK_INTERVAL = 1 * 60 * 1000; // Vérification toutes les 1 minutes
 
 export const useVersionCheck = () => {
   // --- NOUVEAUX ÉTATS ---

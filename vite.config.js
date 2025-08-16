@@ -1,21 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-// --- NOUVEAUX IMPORTS ---
 import versionInjector from './vite-plugin-version-injector.js';
 
 export default defineConfig({
-  // La section 'define' est maintenant gérée par notre plugin, on peut la retirer d'ici.
   plugins: [
     react(),
-    // On active notre nouveau plugin
     versionInjector(), 
     VitePWA({
-      registerType: 'prompt',
-      injectRegister: 'script',
+      // --- MODIFICATION 1 : On change la stratégie de mise à jour ---
+      // 'autoUpdate' va vérifier automatiquement à chaque chargement de page.
+      registerType: 'autoUpdate',
+      
       workbox: {
-        skipWaiting: false,
-        clientsClaim: false,
+        // --- MODIFICATION 2 : On dit au Service Worker d'être proactif ---
+        // skipWaiting: true -> Le nouveau Service Worker s'active dès qu'il est prêt.
+        skipWaiting: true,
+        // clientsClaim: true -> Il prend le contrôle de la page immédiatement.
+        clientsClaim: true,
       },
       manifest: {
         name: 'GTY Express',
