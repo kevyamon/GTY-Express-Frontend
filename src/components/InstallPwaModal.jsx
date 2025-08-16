@@ -56,7 +56,7 @@ const InstallPwaModal = ({ show, handleClose }) => {
 
     // --- CORRECTION DU DÉLAI ---
     const initialDelay = 100; 
-    const interval = 2000;   // <-- Changé de 2500 à 2000 (2 secondes)
+    const interval = 1500;   // <-- Changé de 2500 à 1500 (1,5 seconde)
 
     steps.forEach((step, index) => {
       const delay = initialDelay + (index * interval);

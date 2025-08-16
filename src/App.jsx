@@ -8,7 +8,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { useVersionCheck } from './hooks/useVersionCheck';
 import UpdateModal from './components/UpdateModal';
-import InstallPwaModal from './components/InstallPwaModal'; // <-- 1. ON IMPORTE LE NOUVEAU MODAL
+import InstallPwaModal from './components/InstallPwaModal';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -31,21 +31,24 @@ const App = () => {
   
   const { isUpdateAvailable, newVersion, deployedAt } = useVersionCheck();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  // --- AMÉLIORATION 1 : On ajoute un état pour savoir si on a déjà vu le modal ---
+  const [hasSeenUpdateModal, setHasSeenUpdateModal] = useState(false);
 
-  // --- 2. ON AJOUTE LA LOGIQUE POUR LE MODAL D'INSTALLATION ---
   const [showInstallModal, setShowInstallModal] = useState(false);
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
-  // --- FIN DE L'AJOUT ---
 
   useEffect(() => {
-    if (isUpdateAvailable) {
+    // --- AMÉLIORATION 2 : On affiche le modal seulement si une MàJ est dispo ET qu'on ne l'a pas déjà vu ---
+    if (isUpdateAvailable && !hasSeenUpdateModal) {
       setShowUpdateModal(true);
     }
-  }, [isUpdateAvailable]);
+  }, [isUpdateAvailable, hasSeenUpdateModal]);
 
   const handleCloseUpdateModal = () => {
     setShowUpdateModal(false);
+    // --- AMÉLIORATION 3 : On mémorise que l'utilisateur a fermé le modal ---
+    setHasSeenUpdateModal(true);
   };
 
   const [showLogo, setShowLogo] = useState(true);
@@ -97,7 +100,6 @@ const App = () => {
       
       <ScrollToTop />
 
-      {/* 3. ON PASSE LA FONCTION D'OUVERTURE AU HEADER */}
       {!isLandingPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
@@ -123,7 +125,6 @@ const App = () => {
         deployedAt={deployedAt}
       />
 
-      {/* 4. ON AFFICHE NOTRE NOUVEAU MODAL */}
       <InstallPwaModal 
         show={showInstallModal}
         handleClose={handleCloseInstallModal}
