@@ -1,31 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { useDispatch } from 'react-redux';
-// --- MODIFICATION : On importe la nouvelle action 'setUpdateDeclined' ---
-import { setUpdateAvailable, setUpdateInProgress, setUpdateDeclined } from '../slices/pwaSlice';
+import { useDispatch, useSelector } from 'react-redux';
+// --- MODIFICATION : On importe aussi le nouvel état 'isModalOpen' ---
+import { setUpdateAvailable, setUpdateInProgress, setIsModalOpen } from '../slices/pwaSlice';
 import UpdateModal from './UpdateModal';
 import UpdateCompleteModal from './UpdateCompleteModal';
 
 function PWAManager() {
   const dispatch = useDispatch();
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
+  // --- MODIFICATION : On récupère l'état du modal depuis Redux ---
+  const { isModalOpen } = useSelector((state) => state.pwa);
 
   const {
-    needRefresh: [needRefresh, setNeedRefresh],
+    needRefresh: [needRefresh],
+    // on va utiliser la fonction 'updateServiceWorker' pour la vérification automatique
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
-      // --- MODIFICATION : Logique de confirmation de mise à jour ---
-      // On vérifie si un marqueur a été placé dans la session avant le rechargement.
+      // On ajoute un intervalle pour vérifier les mises à jour toutes les heures
+      setInterval(() => {
+        updateServiceWorker(true);
+      }, 1* 60 * 1000); // 1 Minute
+
       if (sessionStorage.getItem('swUpdateCompleted')) {
-        // Si oui, on affiche le modal de succès.
         setShowUpdateComplete(true);
-        // Et on retire le marqueur pour ne pas le réafficher au prochain rechargement.
         sessionStorage.removeItem('swUpdateCompleted');
         dispatch(setUpdateAvailable(false));
         dispatch(setUpdateInProgress(false));
-        dispatch(setUpdateDeclined(false)); // On réinitialise tout.
+        dispatch(setIsModalOpen(false));
       }
     },
     onRegisterError(error) {
@@ -34,26 +38,33 @@ function PWAManager() {
   });
 
   useEffect(() => {
-    dispatch(setUpdateAvailable(needRefresh));
+    // Si une mise à jour est disponible...
+    if (needRefresh) {
+      // ...on met à jour l'état global...
+      dispatch(setUpdateAvailable(true));
+      // ...et on demande l'ouverture du modal.
+      dispatch(setIsModalOpen(true));
+    }
   }, [needRefresh, dispatch]);
 
   const handleUpdate = async () => {
+    dispatch(setIsModalOpen(false)); // On ferme le modal
     dispatch(setUpdateInProgress(true)); 
-    // On place le marqueur dans la session AVANT de recharger la page.
     sessionStorage.setItem('swUpdateCompleted', 'true');
     await updateServiceWorker(true);
   };
 
   const handleCloseUpdate = () => {
-    // Si l'utilisateur ferme le modal, on note qu'il a refusé la mise à jour.
-    dispatch(setUpdateDeclined(true));
-    setNeedRefresh(false);
+    // L'utilisateur a cliqué sur "Plus tard", on ferme juste le modal.
+    // L'état `isUpdateAvailable` reste `true` en arrière-plan.
+    dispatch(setIsModalOpen(false));
+    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   };
 
   return (
     <>
       <UpdateModal
-        show={needRefresh}
+        show={isModalOpen} // L'affichage du modal est maintenant contrôlé par Redux
         handleClose={handleCloseUpdate}
         onConfirmUpdate={handleUpdate}
       />

@@ -27,26 +27,31 @@ const Header = ({ handleShowInstallModal }) => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION 1 : On récupère aussi 'updateDeclined' ---
-  const { isUpdateAvailable, isUpdateInProgress, updateDeclined } = useSelector((state) => state.pwa);
+  // --- MODIFICATION 1 : On récupère le nouvel état 'isModalOpen' qui a remplacé 'updateDeclined' ---
+  const { isUpdateAvailable, isUpdateInProgress, isModalOpen } = useSelector((state) => state.pwa);
 
   const handleUpdateClick = () => {
-    // La logique ici reste la même, elle informe l'utilisateur.
     if (!isUpdateAvailable) {
       toast.success('Vous utilisez déjà la dernière version de GTY Express.');
     } else {
-      toast.info('Une mise à jour est prête à être installée. Confirmez via la fenêtre qui est apparue.');
+      // Si la mise à jour est dispo mais le modal fermé, on le rouvre.
+      dispatch(setIsModalOpen(true));
     }
   };
 
-  // --- MODIFICATION 2 : Logique d'affichage du bouton ---
+  // --- MODIFICATION 2 : Logique d'affichage et de style du bouton ---
   const getUpdateVariant = () => {
-    if (isUpdateAvailable && updateDeclined) return 'danger'; // Màj refusée -> Rouge
-    if (isUpdateAvailable) return 'success'; // Màj disponible -> Vert
-    return 'outline-secondary'; // Pas de Màj -> Gris
+    // Si l'utilisateur a fermé le modal (donc isModalOpen est false mais isUpdateAvailable est true), on affiche en rouge.
+    if (isUpdateAvailable && !isModalOpen) return 'danger';
+    if (isUpdateAvailable) return 'success';
+    return 'outline-secondary';
   };
-
+  
+  // Le bouton s'affiche dès qu'une mise à jour est disponible ou en cours d'installation.
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
+  
+  // Le clignotement s'active si la mise à jour est en cours, OU si elle est dispo mais que le modal a été fermé.
+  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && !isModalOpen);
   // --- FIN DES MODIFICATIONS ---
 
   const [lastSeen, setLastSeen] = useState(() => {
@@ -185,12 +190,12 @@ const Header = ({ handleShowInstallModal }) => {
 
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
-              {/* --- MODIFICATION 3 : Affichage conditionnel du bouton --- */}
+              {/* --- MODIFICATION 3 : Le bouton est maintenant entièrement dynamique --- */}
               {userInfo && showUpdateButton && (
                 <Button 
                     variant={getUpdateVariant()} 
                     onClick={handleUpdateClick} 
-                    className={`ms-3 d-flex align-items-center update-available-blink`} 
+                    className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
                 >
                   <FaSyncAlt className="me-1" />

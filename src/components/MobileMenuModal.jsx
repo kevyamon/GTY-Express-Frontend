@@ -15,24 +15,38 @@ const MobileMenuModal = ({
   handleAdminModal,
 }) => {
 
-  // --- MODIFICATION 1 : Connexion aux états PWA ---
-  // On récupère tous les états nécessaires, y compris 'updateDeclined'.
-  const { isUpdateAvailable, isUpdateInProgress, updateDeclined } = useSelector((state) => state.pwa);
+  // --- MODIFICATION 1 : Connexion aux états PWA complets ---
+  const { isUpdateAvailable, isUpdateInProgress, isModalOpen } = useSelector((state) => state.pwa);
 
   const handleLinkClick = (action) => {
     if (action) action();
     handleClose();
   };
   
-  // --- MODIFICATION 2 : Logique d'affichage ---
-  // Le bouton ne s'affiche que si une mise à jour est disponible ou en cours.
+  // --- MODIFICATION 2 : Logique d'affichage identique au Header ---
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
-  
+  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && !isModalOpen);
+
   const getIconColor = () => {
-      if (isUpdateAvailable && updateDeclined) return '#dc3545'; // Rouge si refusé
+      if (isUpdateAvailable && !isModalOpen) return '#dc3545'; // Rouge si refusé
       if (isUpdateAvailable) return '#198754'; // Vert si disponible
-      return '#6c757d'; // Gris par défaut
+      return '#6c757d';
   }
+  
+  const getBadgeVariant = () => {
+    if (isUpdateInProgress) return 'warning';
+    if (isUpdateAvailable && !isModalOpen) return 'danger';
+    if (isUpdateAvailable) return 'success';
+    return '';
+  }
+
+  const getBadgeText = () => {
+    if (isUpdateInProgress) return 'En cours...';
+    if (isUpdateAvailable && !isModalOpen) return 'Requise';
+    if (isUpdateAvailable) return 'Prête';
+    return '';
+  }
+  // --- FIN DE LA MODIFICATION 2 ---
 
   return (
     <Modal show={show} onHide={handleClose} fullscreen="md-down" dialogClassName="mobile-menu-modal" contentClassName="mobile-menu-content">
@@ -61,19 +75,13 @@ const MobileMenuModal = ({
             <ListGroup.Item 
               action 
               onClick={() => handleLinkClick(handleUpdateClick)} 
-              className={`d-flex justify-content-between align-items-center ${isUpdateInProgress || updateDeclined ? 'update-available-blink' : ''}`}
+              className={`d-flex justify-content-between align-items-center ${shouldBlink ? 'update-available-blink' : ''}`}
             >
               <div>
                 <FaSyncAlt style={{ color: getIconColor() }} />
                 <span className="ms-3">Mise à jour</span>
               </div>
-              {isUpdateInProgress 
-                ? <Badge bg="warning">En cours...</Badge> 
-                : updateDeclined 
-                ? <Badge bg="danger">Requise</Badge> 
-                : isUpdateAvailable 
-                ? <Badge bg="success">Prête</Badge> 
-                : null}
+              <Badge bg={getBadgeVariant()}>{getBadgeText()}</Badge>
             </ListGroup.Item>
           )}
 

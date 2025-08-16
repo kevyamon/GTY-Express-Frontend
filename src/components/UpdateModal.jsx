@@ -4,21 +4,19 @@ import { toast } from 'react-toastify';
 import { FaRocket } from 'react-icons/fa';
 import './UpdateModal.css';
 
-// --- MODIFICATION : Le composant est simplifié ---
-// Il reçoit maintenant directement les fonctions pour confirmer ou fermer.
+// --- MODIFICATION : Le composant est maintenant plus simple ---
+// Il reçoit directement les fonctions 'handleClose' et 'onConfirmUpdate' de son parent (PWAManager).
 const UpdateModal = ({ show, handleClose, onConfirmUpdate }) => {
 
   const handleUpdate = () => {
-    // Appelle la fonction de confirmation qui vient du PWAManager.
+    // Il appelle simplement la fonction pour mettre à jour que le PWAManager lui a fournie.
     onConfirmUpdate(); 
-    // Ferme le modal.
-    handleClose();
   };
 
   const handleLater = () => {
-    // Ferme le modal.
+    // Il appelle la fonction pour fermer que le PWAManager lui a fournie.
     handleClose();
-    // Affiche un message informatif à l'utilisateur comme demandé.
+    // Et il affiche le message informatif comme tu l'as demandé.
     toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   };
 
