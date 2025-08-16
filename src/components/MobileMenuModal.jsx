@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react'; // <-- On importe useContext
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useSelector, useDispatch } from 'react-redux'; // <-- On importe useDispatch
 import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
-import { setIsModalOpen } from '../slices/pwaSlice'; // <-- On importe l'action
+import { VersionContext } from '../contexts/VersionContext'; // <-- On importe notre Contexte
 import './MobileMenuModal.css';
 
 const MobileMenuModal = ({ 
@@ -14,22 +13,19 @@ const MobileMenuModal = ({
   logoutHandler,
   handleAdminModal,
 }) => {
-  const dispatch = useDispatch();
+  // --- MODIFICATION : On se connecte au Contexte ---
+  const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  // --- MODIFICATION : Logique de mise à jour identique au Header ---
-  const { isUpdateAvailable, isUpdateInProgress, isModalOpen } = useSelector((state) => state.pwa);
-
-  const handleUpdateClick = () => {
-    if (isUpdateAvailable) {
-      dispatch(setIsModalOpen(true));
-    }
+  const handleLinkClick = (action) => {
+    if (action) action();
+    handleClose();
   };
-
+  
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
-  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && !isModalOpen);
+  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getIconColor = () => {
-    if (isUpdateAvailable && !isModalOpen) return '#dc3545'; // Rouge si refusé
+    if (updateDeclined) return '#dc3545'; // Rouge si refusé
     if (isUpdateInProgress) return '#ffc107'; // Jaune si en cours
     if (isUpdateAvailable) return '#198754'; // Vert si disponible
     return '#6c757d';
@@ -37,24 +33,19 @@ const MobileMenuModal = ({
   
   const getBadgeVariant = () => {
     if (isUpdateInProgress) return 'warning';
-    if (isUpdateAvailable && !isModalOpen) return 'danger';
+    if (updateDeclined) return 'danger';
     if (isUpdateAvailable) return 'success';
     return '';
   };
 
   const getBadgeText = () => {
     if (isUpdateInProgress) return 'En cours...';
-    if (isUpdateAvailable && !isModalOpen) return 'Requise';
+    if (updateDeclined) return 'Requise';
     if (isUpdateAvailable) return 'Prête';
     return '';
   };
   // --- FIN DE LA MODIFICATION ---
 
-  const handleLinkClick = (action) => {
-    if (action) action();
-    handleClose();
-  };
-  
   return (
     <Modal show={show} onHide={handleClose} fullscreen="md-down" dialogClassName="mobile-menu-modal" contentClassName="mobile-menu-content">
       <Modal.Header closeButton>
@@ -80,7 +71,7 @@ const MobileMenuModal = ({
           {showUpdateButton && (
             <ListGroup.Item 
               action 
-              onClick={() => handleLinkClick(handleUpdateClick)} 
+              onClick={() => handleLinkClick(openUpdateModal)} 
               className={`d-flex justify-content-between align-items-center ${shouldBlink ? 'update-available-blink' : ''}`}
             >
               <div>

@@ -19,7 +19,7 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-// import PWAManager from './components/PWAManager'; // <-- ON RETIRE CET IMPORT
+// --- On retire l'import de PWAManager ---
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -111,7 +111,7 @@ const App = () => {
       {userInfo && <WarningDisplay />}
       <ToastContainer />
       
-      {/* <PWAManager />  <-- ON RETIRE CE COMPOSANT, SA LOGIQUE EST MAINTENANT DANS LE PROVIDER */}
+      {/* --- On retire le composant PWAManager d'ici --- */}
 
       <InstallPwaModal 
         show={showInstallModal}

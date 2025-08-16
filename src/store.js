@@ -4,8 +4,7 @@ import cartSliceReducer from './slices/cartSlice';
 import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
 import loaderReducer from './slices/loaderSlice';
-// --- NOUVEL IMPORT AJOUTÉ ---
-import pwaReducer from './slices/pwaSlice';
+// --- ON RETIRE L'ANCIEN IMPORT pwaReducer ---
 
 const store = configureStore({
   reducer: {
@@ -14,8 +13,7 @@ const store = configureStore({
     auth: authReducer,
     favorites: favoritesReducer,
     loader: loaderReducer,
-    // --- NOUVELLE LIGNE AJOUTÉE ---
-    pwa: pwaReducer,
+    // --- ON RETIRE LA LIGNE pwa: pwaReducer ---
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
