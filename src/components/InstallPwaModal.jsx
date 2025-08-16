@@ -54,12 +54,12 @@ const InstallPwaModal = ({ show, handleClose }) => {
     setShowEndButtons(false);
     const steps = os === 'android' ? androidSteps : iosSteps;
 
-    // --- AMÉLIORATION DE L'AFFICHAGE DES INSTRUCTIONS ---
-    const initialDelay = 100; // Délai très court pour la première instruction
-    const interval = 2500;   // Intervalle de 2.5s entre les instructions suivantes
+    // --- CORRECTION DU DÉLAI ---
+    const initialDelay = 100; 
+    const interval = 2000;   // <-- Changé de 2500 à 2000 (2 secondes)
 
     steps.forEach((step, index) => {
-      const delay = initialDelay + (index * interval); // Calcul du délai
+      const delay = initialDelay + (index * interval);
       setTimeout(() => {
         setVisibleSteps((prev) => [...prev, step]);
         if (index === steps.length - 1) {
@@ -75,12 +75,11 @@ const InstallPwaModal = ({ show, handleClose }) => {
     setShowEndButtons(false);
     const steps = os === 'android' ? androidSteps : iosSteps;
     
-    // --- MÊME AMÉLIORATION POUR LA RÉPÉTITION ---
-    const initialDelay = 100; // Délai initial court
-    const interval = 1500;   // Intervalle de répétition plus rapide
+    const initialDelay = 100;
+    const interval = 1500;
 
      steps.forEach((step, index) => {
-      const delay = initialDelay + (index * interval); // Nouveau calcul
+      const delay = initialDelay + (index * interval);
       setTimeout(() => {
         setVisibleSteps((prev) => [...prev, step]);
         if (index === steps.length - 1) {
