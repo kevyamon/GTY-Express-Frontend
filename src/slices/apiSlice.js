@@ -3,8 +3,12 @@ import { io } from 'socket.io-client';
 import { updateUserStatus, updateUserRole } from './authSlice';
 import { toast } from 'react-toastify';
 
+// --- MODIFICATION : On remplace la variable par l'adresse directe du backend ---
+const BACKEND_URL = 'https://gty-express.onrender.com';
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_BACKEND_URL,
+  // On utilise notre constante ici pour être sûr de toujours viser la bonne adresse.
+  baseUrl: BACKEND_URL,
   prepareHeaders: (headers, { getState }) => {
     const { userInfo } = getState().auth;
     if (userInfo && userInfo.token) {
@@ -16,9 +20,7 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  // --- MODIFICATION ICI ---
   tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
-  // --- FIN DE LA MODIFICATION ---
   endpoints: (builder) => ({
     getVersion: builder.query({
       query: () => '/api/version',
@@ -31,7 +33,8 @@ export const apiSlice = createApi({
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved, dispatch, getState }
       ) {
-        const socket = io(import.meta.env.VITE_BACKEND_URL);
+        // Le socket se connecte aussi directement à l'adresse du backend.
+        const socket = io(BACKEND_URL);
 
         socket.on('connect', () => {
           console.log('Socket.IO connecté !');
@@ -48,13 +51,11 @@ export const apiSlice = createApi({
           console.log('Socket.IO déconnecté.');
         });
         
-        // --- NOUVEL ÉVÉNEMENT AJOUTÉ ---
         socket.on('new_global_message', (data) => {
           console.log('Nouveau message global reçu:', data);
           toast.info("Une nouvelle annonce est disponible !", { autoClose: 5000 });
           dispatch(apiSlice.util.invalidateTags(['GlobalMessage']));
         });
-        // --- FIN DE L'AJOUT ---
 
         socket.on('new_warning', (data) => {
           console.log('Nouvel avertissement reçu:', data);
