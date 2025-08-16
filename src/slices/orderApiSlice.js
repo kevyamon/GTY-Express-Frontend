@@ -15,6 +15,14 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     }),
     
     getOrders: builder.query({ query: () => ({ url: ORDERS_URL }), providesTags: ['Order'] }),
+    
+    // --- NOUVELLE REQUÊTE AJOUTÉE ---
+    getArchivedOrders: builder.query({
+      query: () => ({ url: `${ORDERS_URL}/archived` }),
+      providesTags: ['Order'],
+    }),
+    // --- FIN DE L'AJOUT ---
+
     updateOrderStatus: builder.mutation({ query: ({ orderId, status, isPaid }) => ({ url: `${ORDERS_URL}/${orderId}/status`, method: 'PUT', body: { status, isPaid } }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
     cancelOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }), invalidatesTags: ['Order'] }),
     deleteOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}`, method: 'DELETE' }), invalidatesTags: ['Order'] }),
@@ -27,15 +35,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // --- NOUVELLE MUTATION POUR L'ARCHIVAGE ---
     archiveOrder: builder.mutation({
       query: (orderId) => ({
         url: `${ORDERS_URL}/${orderId}/archive`,
         method: 'PUT',
       }),
-      invalidatesTags: ['Order'], // Pour rafraîchir la liste des commandes
+      invalidatesTags: ['Order'],
     }),
-    // --- FIN DE L'AJOUT ---
   }),
 });
 
@@ -47,9 +53,10 @@ export const {
   useGetMyOrdersQuery,
   useGetMyPurchasesQuery,
   useGetOrdersQuery, 
+  useGetArchivedOrdersQuery, // Nouvel export
   useUpdateOrderStatusMutation, 
   useDeleteOrderMutation, 
   useCancelOrderMutation,
   useValidateCouponMutation,
-  useArchiveOrderMutation, // Nouvel export
+  useArchiveOrderMutation,
 } = orderApiSlice;
