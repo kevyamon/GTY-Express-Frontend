@@ -12,7 +12,7 @@ const UpdateCompleteModal = ({ show, handleClose }) => {
       if (newVersion) {
         setAppVersion(newVersion);
       }
-      // --- CORRECTION : On nettoie le drapeau de mise à jour en cours ---
+      // --- AMÉLIORATION : On nettoie le drapeau de mise à jour en cours ---
       sessionStorage.removeItem('pwaUpdateInProgress');
     }
   }, [show]);

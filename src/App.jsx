@@ -35,18 +35,11 @@ const App = () => {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
-  // --- NOUVEL ÉTAT POUR GÉRER LE CHARGEMENT DE LA MISE À JOUR ---
-  const [isAppUpdating, setIsAppUpdating] = useState(
-    sessionStorage.getItem('pwaUpdateInProgress') === 'true'
-  );
 
   useEffect(() => {
     if (sessionStorage.getItem('updateCompleted')) {
       setShowUpdateComplete(true);
       sessionStorage.removeItem('updateCompleted');
-      // On s'assure de retirer aussi le drapeau de "mise à jour en cours"
-      sessionStorage.removeItem('pwaUpdateInProgress');
-      setIsAppUpdating(false);
     }
   }, []);
 
@@ -97,9 +90,7 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      {/* --- Le loader global sera maintenant visible si l'app est en mise à jour --- */}
       <GlobalLoader />
-      {isAppUpdating && <div className="global-loader-overlay show"><div className="pulsing-dot"></div></div>}
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
       
@@ -114,6 +105,7 @@ const App = () => {
       {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} handleShowSuggestionModal={handleShowSuggestionModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
+        {/* --- MODIFICATION ICI : On passe le conteneur en mode "fluid" pour qu'il prenne toute la largeur --- */}
         <Container fluid>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
