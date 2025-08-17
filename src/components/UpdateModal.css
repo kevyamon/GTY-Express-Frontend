@@ -1,3 +1,13 @@
+/* --- AMÉLIORATION : Animation de lueur pour la note d'information --- */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+  }
+}
+
 /* Un dégradé "cool" pour le fond du modal */
 .update-modal-dialog {
   max-width: 450px; /* On limite la largeur maximale */
@@ -62,17 +72,19 @@
   margin-right: auto;
 }
 
-/* --- NOUVEAU STYLE POUR LE BLOC D'ATTENTION --- */
+/* --- STYLE MODIFIÉ POUR LE BLOC D'ATTENTION --- */
 .update-notice {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 107, 107, 0.15); /* Fond rouge très léger */
   padding: 0.75rem;
   border-radius: 10px;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem; /* Police légèrement agrandie */
+  color: #ff6b6b; /* Rouge visible et attractif */
+  font-weight: 500;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  animation: pulse-glow 2.5s infinite ease-in-out; /* Application de l'animation */
 }
-/* --- FIN DU NOUVEAU STYLE --- */
+/* --- FIN DE LA MODIFICATION --- */
 
 
 /* Section des détails avec emojis */

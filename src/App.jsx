@@ -34,14 +34,19 @@ const App = () => {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   
+  // --- AMÉLIORATION : Logique de l'affichage du modal de succès ---
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
 
   useEffect(() => {
+    // On vérifie si notre "drapeau" existe dans le stockage de session.
     if (sessionStorage.getItem('updateCompleted')) {
+      // Si oui, on affiche le modal de succès.
       setShowUpdateComplete(true);
+      // Et on retire immédiatement le drapeau pour ne pas le réafficher lors d'un futur rechargement manuel.
       sessionStorage.removeItem('updateCompleted');
     }
-  }, []);
+  }, []); // Ce code ne s'exécute qu'une seule fois  au chargement de l'application.
+  // --- FIN DE L'AMÉLIORATION ---
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
@@ -129,21 +134,7 @@ const App = () => {
         show={showInstallModal}
         handleClose={handleCloseInstallModal}
       />
-      
-      {/* --- MODIFICATION ICI --- */}
-      {userInfo && (
-        <MobileMenuModal
-          show={showMobileMenu}
-          handleClose={() => setShowMobileMenu(false)}
-          userInfo={userInfo}
-          totalAdminCount={totalAdminCount}
-          logoutHandler={logoutHandler}
-          handleAdminModal={() => setShowAdminModal(true)}
-          handleSuggestionModal={() => setShowSuggestionModal(true)}
-        />
-      )}
-      {/* --- FIN DE LA MODIFICATION --- */}
-      
+
       <SuggestionModal 
         show={showSuggestionModal}
         handleClose={() => setShowSuggestionModal(false)}
