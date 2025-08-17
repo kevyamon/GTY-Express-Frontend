@@ -1,3 +1,13 @@
+/* --- NOUVEL AJOUT : Reset CSS Global --- */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* S'assure que le corps de la page prend toute la hauteur */
+}
+/* --- FIN DE L'AJOUT --- */
+
+
 #root {
   display: flex;
   flex-direction: column;
