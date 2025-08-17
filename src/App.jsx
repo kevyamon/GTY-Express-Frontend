@@ -21,7 +21,7 @@ import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
-import bgImage from './assets/background.jpg'; // On importe la bonne image de fond
+// CORRECTION : On n'importe plus l'image ici
 
 const App = () => {
   const location = useLocation();
@@ -47,24 +47,21 @@ const App = () => {
   const handleCloseInstallModal = () => setShowInstallModal(false);
   const handleShowSuggestionModal = () => setShowSuggestionModal(true);
 
-  // CORRECTION : Simplification de la logique de l'animation du logo
   const [showLogo, setShowLogo] = useState(true);
-  const isInitialLoad = useRef(true); // Pour savoir si c'est le 1er chargement
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    // Ce code ne s'exécute qu'une seule fois au montage de l'application
     if (isInitialLoad.current) {
       const timer = setTimeout(() => {
         setShowLogo(false);
         isInitialLoad.current = false;
-      }, 1500); // L'animation dure 1.5s
+      }, 1500);
       return () => clearTimeout(timer);
     }
-  }, []); // Le tableau de dépendances est vide pour ne s'exécuter qu'une fois
+  }, []);
   
   const handleWelcomeEnd = () => {
     dispatch(clearWelcome());
-    // On ne relance plus l'animation du logo après le message de bienvenue
     setShowLogo(false);
   };
 
@@ -72,27 +69,19 @@ const App = () => {
     setShowLogo(false);
   };
 
-  const baseAppStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-  };
-
-  const appStyle = !isLandingPage ? {
-    ...baseAppStyle,
-    backgroundImage: `url(${bgImage})`,
-    backgroundSize: 'cover',
-    backgroundAttachment: 'fixed',
-    backgroundPosition: 'center',
-  } : baseAppStyle;
+  // CORRECTION : On utilise des classes CSS plutôt que des styles en ligne pour le fond
+  const appClasses = ['app-container']; // Classe de base
+  if (!isLandingPage) {
+    appClasses.push('app-background'); // On ajoute la classe pour l'image de fond
+  }
 
   return (
-    <div style={appStyle}>
+    // CORRECTION : On utilise className au lieu de style pour le fond
+    <div className={appClasses.join(' ')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <GlobalLoader />
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
       
-      {/* On affiche l'animation du logo seulement si `showLogo` est vrai */}
       <LogoTransition 
         show={showLogo} 
         onTransitionEnd={handleLogoEnd} 
