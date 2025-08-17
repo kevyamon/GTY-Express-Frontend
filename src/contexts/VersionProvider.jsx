@@ -10,47 +10,48 @@ export const VersionProvider = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // On stocke la fonction de mise à jour de la PWA fournie par le plugin
+  const [updateFunction, setUpdateFunction] = useState(null);
 
   useEffect(() => {
-    // --- MODIFICATION : On vérifie le drapeau avant d'ouvrir le modal ---
-    if (isUpdateAvailable && !updateDeclined && !isUpdating && !sessionStorage.getItem('pwaUpdateInProgress')) {
+    // Le plugin PWA émet un événement personnalisé quand une mise à jour est prête.
+    // On l'écoute ici pour récupérer la fonction qui déclenche la mise à jour.
+    const handleUpdateReady = (event) => {
+      setUpdateFunction(() => event.detail.update);
+    };
+    window.addEventListener('pwa-update-available', handleUpdateReady);
+    return () => window.removeEventListener('pwa-update-available', handleUpdateReady);
+  }, []);
+
+  useEffect(() => {
+    if (isUpdateAvailable && !updateDeclined && !isUpdating) {
       setIsModalOpen(true);
     }
   }, [isUpdateAvailable, updateDeclined, isUpdating]);
 
   const confirmUpdate = useCallback(() => {
-    if (!('serviceWorker' in navigator)) {
-      toast.error("Les mises à jour automatiques ne sont pas supportées par votre navigateur.");
-      return;
-    }
-
-    // --- AMÉLIORATION 1 : On pose notre drapeau et on affiche le spinner ---
-    sessionStorage.setItem('pwaUpdateInProgress', 'true');
-    setIsUpdating(true);
-    // On ne ferme PAS le modal ici pour que l'utilisateur voie le chargement.
-    stopPolling();
-
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (!reg || !reg.waiting) {
-        sessionStorage.setItem('updateCompleted', 'true');
-        if (newVersionInfo?.version) {
-          sessionStorage.setItem('newAppVersion', newVersionInfo.version);
-        }
-        window.location.reload(true);
-        return;
+    // --- NOUVELLE LOGIQUE ROBUSTE ---
+    // Si la fonction de mise à jour du plugin est disponible, on l'utilise.
+    if (updateFunction) {
+      setIsUpdating(true); // Affiche le chargement
+      setIsModalOpen(false); // Ferme le modal de proposition
+      
+      // On pose un drapeau pour afficher le modal de succès après le rechargement
+      sessionStorage.setItem('updateCompleted', 'true');
+      if (newVersionInfo?.version) {
+        sessionStorage.setItem('newAppVersion', newVersionInfo.version);
       }
       
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        sessionStorage.setItem('updateCompleted', 'true');
-        if (newVersionInfo?.version) {
-          sessionStorage.setItem('newAppVersion', newVersionInfo.version);
-        }
-        window.location.reload();
-      }, { once: true });
-
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    });
-  }, [stopPolling, newVersionInfo]);
+      // On appelle la fonction magique du plugin qui gère tout pour nous !
+      updateFunction();
+      
+    } else {
+      // Sécurité : si la fonction n'est pas prête, on utilise l'ancienne méthode de rechargement.
+      toast.info("Préparation de la mise à jour, la page va se recharger...");
+      window.location.reload(true);
+    }
+  }, [updateFunction, newVersionInfo]);
 
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
