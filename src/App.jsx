@@ -45,8 +45,6 @@ const App = () => {
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
-
-  // --- AMÉLIORATION : On définit la fonction pour ouvrir la modale ---
   const handleShowSuggestionModal = () => setShowSuggestionModal(true);
 
   const [showLogo, setShowLogo] = useState(true);
@@ -76,13 +74,21 @@ const App = () => {
     setShowLogo(false);
   };
 
+  // --- MODIFICATION : On ajoute les propriétés flexbox ici ---
+  const baseAppStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  };
+
   const appStyle = !isLandingPage ? {
+    ...baseAppStyle,
     backgroundImage: `url(${bgImage})`,
     backgroundSize: 'cover',
     backgroundAttachment: 'fixed',
     backgroundPosition: 'center',
-    minHeight: '100vh',
-  } : { minHeight: '100vh' };
+  } : baseAppStyle;
+  // --- FIN DE LA MODIFICATION ---
 
   return (
     <div style={appStyle}>
@@ -98,7 +104,6 @@ const App = () => {
       
       <ScrollToTop />
 
-      {/* --- AMÉLIORATION : On passe la nouvelle fonction en prop --- */}
       {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} handleShowSuggestionModal={handleShowSuggestionModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>

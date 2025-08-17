@@ -1,19 +1,16 @@
-/* --- NOUVEL AJOUT : Reset CSS Global --- */
 html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%; /* S'assure que le corps de la page prend toute la hauteur */
+  height: 100%;
 }
-/* --- FIN DE L'AJOUT --- */
-
 
 #root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  /* On s'assure que le conteneur racine de React prend aussi toute la hauteur */
+  height: 100%;
 }
 
 main {
+  /* Cette règle reste essentielle : elle dit au contenu de prendre toute la place disponible */
   flex: 1;
 }
