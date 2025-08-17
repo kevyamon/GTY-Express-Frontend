@@ -1,10 +1,22 @@
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-import './StaticPage.css'; // NOUVEL IMPORT
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import './StaticPage.css';
 
 const TermsScreen = () => {
+  const navigate = useNavigate();
+
+  const goBackHandler = () => {
+    navigate(-1); // Cette fonction navigue vers la page précédente dans l'historique
+  };
+
   return (
-    <div className="static-page-container"> {/* NOUVELLE CLASSE CSS */}
+    <div className="static-page-container">
+      {/* --- BOUTON AJOUTÉ ICI --- */}
+      <Button className='btn btn-light mb-4' onClick={goBackHandler}>
+        Retour
+      </Button>
+      {/* --- FIN DE L'AJOUT --- */}
       <Container>
         <Row className="justify-content-md-center">
           <Col md={10}>
