@@ -95,7 +95,7 @@
   width: 100px;
   margin-bottom: 1rem;
   animation: logo-float 4s ease-in-out infinite;
-  border-radius: 50%;
+  border-radius: 40%;
 }
 
 @keyframes logo-float {
