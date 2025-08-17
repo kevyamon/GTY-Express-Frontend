@@ -63,3 +63,16 @@
   box-shadow: none;
   border-color: #ced4da;
 }
+
+/* --- NOUVEL AJOUT : Style pour le badge de rôle --- */
+.role-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(10%, -10%); /* Décale légèrement pour un meilleur look */
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.3em 0.6em;
+  border: 2px solid white;
+  z-index: 2; /* S'assure qu'il est au-dessus de l'icône de caméra */
+}

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner } from 'react-bootstrap';
+import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner, Badge } from 'react-bootstrap'; // Badge ajouté
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-// --- MODIFICATION : On importe les icônes ---
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera } from 'react-icons/fa';
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-// --- MODIFICATION : On importe le nouveau fichier CSS ---
 import './ProfileDetailsScreen.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+// --- NOUVEAU : On récupère l'email du super admin depuis les variables d'environnement ---
+const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL;
 
 const ProfileDetailsScreen = () => {
   const [name, setName] = useState('');
@@ -35,6 +36,17 @@ const ProfileDetailsScreen = () => {
       setProfilePicture(userInfo.profilePicture || '');
     }
   }, [userInfo]);
+
+  // --- NOUVELLE LOGIQUE : Déterminer le rôle de l'utilisateur ---
+  const getUserRole = () => {
+    if (!userInfo) return null;
+    if (userInfo.email === SUPER_ADMIN_EMAIL) return 'Super Admin';
+    if (userInfo.isAdmin) return 'Admin';
+    return 'Client';
+  };
+  const userRole = getUserRole();
+  // --- FIN DE L'AJOUT ---
+
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -86,15 +98,12 @@ const ProfileDetailsScreen = () => {
   };
 
   return (
-    // --- MODIFICATION : On utilise une Row pour centrer la carte ---
     <Row className="justify-content-md-center">
       <Col md={8} lg={6}>
-        {/* On enveloppe tout dans une Card pour un look plus propre */}
         <Card className="profile-details-card">
           <Card.Body>
             <h2 className="text-center mb-4">Informations Personnelles</h2>
             <Form onSubmit={submitHandler}>
-              {/* Zone pour la photo de profil, plus stylisée */}
               <Form.Group controlId='profilePicture' className='my-3 text-center'>
                 <div className="profile-picture-container">
                   <Image 
@@ -103,6 +112,9 @@ const ProfileDetailsScreen = () => {
                     roundedCircle 
                     className="profile-picture-img"
                   />
+                  {/* --- NOUVEL AJOUT : Le badge de rôle --- */}
+                  {userRole && <Badge bg="danger" className="role-badge">{userRole}</Badge>}
+                  {/* --- FIN DE L'AJOUT --- */}
                   <label htmlFor="image-upload" className="profile-picture-upload-label">
                     <FaCamera />
                   </label>
@@ -116,7 +128,6 @@ const ProfileDetailsScreen = () => {
                 </div>
               </Form.Group>
 
-              {/* Champ Nom avec icône */}
               <Form.Group className='my-3' controlId='name'>
                 <Form.Label>Nom</Form.Label>
                 <InputGroup>
@@ -125,7 +136,6 @@ const ProfileDetailsScreen = () => {
                 </InputGroup>
               </Form.Group>
 
-              {/* Champ Email avec icône */}
               <Form.Group className='my-3' controlId='email'>
                 <Form.Label>Email</Form.Label>
                 <InputGroup>
@@ -134,7 +144,6 @@ const ProfileDetailsScreen = () => {
                 </InputGroup>
               </Form.Group>
 
-              {/* Champ Téléphone avec icône */}
               <Form.Group className='my-3' controlId='phone'>
                 <Form.Label>Numéro de téléphone</Form.Label>
                 <InputGroup>
@@ -145,7 +154,6 @@ const ProfileDetailsScreen = () => {
 
               <hr className="my-4" />
 
-              {/* Champ Mot de passe avec icône */}
               <Form.Group className='my-3' controlId='password'>
                 <Form.Label>Nouveau Mot de passe</Form.Label>
                 <InputGroup>
@@ -162,7 +170,6 @@ const ProfileDetailsScreen = () => {
                 </InputGroup>
               </Form.Group>
 
-              {/* Champ Confirmation avec icône */}
               <Form.Group className='my-3' controlId='confirmPassword'>
                 <Form.Label>Confirmer le nouveau Mot de passe</Form.Label>
                 <InputGroup>
