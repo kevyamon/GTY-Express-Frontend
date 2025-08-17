@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'; // <-- On importe useContext
+import React, { useContext } from 'react';
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
-import { VersionContext } from '../contexts/VersionContext'; // <-- On importe notre Contexte
+import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt, FaPlusCircle } from 'react-icons/fa';
+import { VersionContext } from '../contexts/VersionContext';
 import './MobileMenuModal.css';
 
 const MobileMenuModal = ({ 
@@ -12,8 +12,8 @@ const MobileMenuModal = ({
   totalAdminCount, 
   logoutHandler,
   handleAdminModal,
+  handleSuggestionModal, // <-- On récupère la nouvelle prop
 }) => {
-  // --- MODIFICATION : On se connecte au Contexte ---
   const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
   const handleLinkClick = (action) => {
@@ -25,9 +25,9 @@ const MobileMenuModal = ({
   const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getIconColor = () => {
-    if (updateDeclined) return '#dc3545'; // Rouge si refusé
-    if (isUpdateInProgress) return '#ffc107'; // Jaune si en cours
-    if (isUpdateAvailable) return '#198754'; // Vert si disponible
+    if (updateDeclined) return '#dc3545';
+    if (isUpdateInProgress) return '#ffc107';
+    if (isUpdateAvailable) return '#198754';
     return '#6c757d';
   };
   
@@ -44,7 +44,6 @@ const MobileMenuModal = ({
     if (isUpdateAvailable) return 'Prête';
     return '';
   };
-  // --- FIN DE LA MODIFICATION ---
 
   return (
     <Modal show={show} onHide={handleClose} fullscreen="md-down" dialogClassName="mobile-menu-modal" contentClassName="mobile-menu-content">
@@ -95,6 +94,14 @@ const MobileMenuModal = ({
           <LinkContainer to="/profile/suggestions" onClick={() => handleLinkClick()}>
             <ListGroup.Item action><FaLightbulb /> Mes Suggestions</ListGroup.Item>
           </LinkContainer>
+          
+          {/* --- LIGNE AJOUTÉE ICI --- */}
+          {!userInfo.isAdmin && (
+            <ListGroup.Item action onClick={() => handleLinkClick(handleSuggestionModal)}>
+              <FaPlusCircle /> Faire une suggestion
+            </ListGroup.Item>
+          )}
+          {/* --- FIN DE L'AJOUT --- */}
 
           <ListGroup.Item action onClick={() => handleLinkClick(logoutHandler)} className="logout-link">
             <FaSignOutAlt /> Déconnexion
