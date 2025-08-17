@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react'; // --- MODIFICATION : On importe useLayoutEffect
 import { useLocation } from 'react-router-dom';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  // --- MODIFICATION : On utilise useLayoutEffect pour une exécution prioritaire ---
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 

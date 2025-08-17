@@ -1,22 +1,29 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // --- NOUVEL IMPORT ---
 import './StaticPage.css';
 
 const TermsScreen = () => {
   const navigate = useNavigate();
 
+  // --- NOUVEL AJOUT : On récupère l'état de connexion de l'utilisateur ---
+  const { userInfo } = useSelector((state) => state.auth);
+
+  // --- MODIFICATION : La logique du bouton "Retour" est maintenant conditionnelle ---
   const goBackHandler = () => {
-    navigate(-1); // Cette fonction navigue vers la page précédente dans l'historique
+    if (userInfo) {
+      navigate(-1); // Si l'utilisateur est connecté, on retourne en arrière
+    } else {
+      navigate('/register'); // Sinon, on le dirige vers la page d'inscription
+    }
   };
 
   return (
     <div className="static-page-container">
-      {/* --- BOUTON AJOUTÉ ICI --- */}
       <Button className='btn btn-light mb-4' onClick={goBackHandler}>
         Retour
       </Button>
-      {/* --- FIN DE L'AJOUT --- */}
       <Container>
         <Row className="justify-content-md-center">
           <Col md={10}>
