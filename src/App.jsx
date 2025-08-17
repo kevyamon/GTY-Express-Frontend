@@ -45,7 +45,7 @@ const App = () => {
       // Et on retire immédiatement le drapeau pour ne pas le réafficher lors d'un futur rechargement manuel.
       sessionStorage.removeItem('updateCompleted');
     }
-  }, []); // Ce code ne s'exécute qu'une seule fois au chargement de l'application.
+  }, []); // Ce code ne s'exécute qu'une seule fois  au chargement de l'application.
   // --- FIN DE L'AMÉLIORATION ---
 
   const handleShowInstallModal = () => setShowInstallModal(true);
