@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Form, Button, Row, Col, InputGroup } from 'react-bootstrap'; // InputGroup ajouté
+import { Form, Button, Row, Col, InputGroup, Card } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Icônes ajoutées
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+import './AuthForm.css'; // On importe le style commun
 
 const LoginScreen = () => {
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  
-  // NOUVEL ÉTAT pour gérer la visibilité du mot de passe
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
@@ -31,47 +30,49 @@ const LoginScreen = () => {
   };
 
   return (
-    <div>
-      <h1>Se connecter</h1>
-      <Form onSubmit={submitHandler}>
-        <Form.Group className='my-2' controlId='loginIdentifier'>
-          <Form.Label>Email ou Numéro de téléphone</Form.Label>
-          <Form.Control
-            type='text'
-            placeholder='Entrez votre email ou numéro'
-            value={loginIdentifier}
-            onChange={(e) => setLoginIdentifier(e.target.value)}
-            required
-          ></Form.Control>
-        </Form.Group>
+    <div className='auth-container'>
+      <Card className='auth-card'>
+        <Card.Body>
+          <h1>Se connecter</h1>
+          <Form onSubmit={submitHandler}>
+            <Form.Group className='my-2' controlId='loginIdentifier'>
+              <Form.Label>Email ou Numéro de téléphone</Form.Label>
+              <Form.Control
+                type='text'
+                placeholder='Entrez votre email ou numéro'
+                value={loginIdentifier}
+                onChange={(e) => setLoginIdentifier(e.target.value)}
+                required
+              ></Form.Control>
+            </Form.Group>
 
-        {/* --- BLOC MOT DE PASSE MODIFIÉ --- */}
-        <Form.Group className='my-2' controlId='password'>
-          <Form.Label>Mot de passe</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type={showPassword ? 'text' : 'password'} // Type dynamique
-              placeholder='Entrez votre mot de passe'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            ></Form.Control>
-            <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            <Form.Group className='my-2' controlId='password'>
+              <Form.Label>Mot de passe</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='Entrez votre mot de passe'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                ></Form.Control>
+                <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </Button>
+              </InputGroup>
+            </Form.Group>
+
+            <Button type='submit' variant='primary' disabled={isLoading} className='mt-3'>
+              {isLoading ? 'Connexion...' : 'Se Connecter'}
             </Button>
-          </InputGroup>
-        </Form.Group>
-        {/* --- FIN DE LA MODIFICATION --- */}
-
-        <Button type='submit' variant='primary' disabled={isLoading}>
-          Connexion
-        </Button>
-      </Form>
-      <Row className='py-3'>
-        <Col>
-          Nouveau client? <Link to='/register'>S'inscrire</Link>
-        </Col>
-      </Row>
+          </Form>
+          <Row className='py-3'>
+            <Col className='auth-switch-link'>
+              Nouveau client? <Link to='/register'>S'inscrire</Link>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
     </div>
   );
 };

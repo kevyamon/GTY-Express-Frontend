@@ -17,7 +17,7 @@
   max-width: 450px;
   width: 100%;
   padding: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: #ffebf0; /* --- MODIFICATION : Fond rose clair --- */
   backdrop-filter: blur(10px);
   border-radius: 20px;
   border: none;
@@ -58,7 +58,7 @@
   padding: 0.75rem;
   font-weight: bold;
   font-size: 1.1rem;
-  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  background: linear-gradient(90deg, #1DB954, #198754); /* --- MODIFICATION : Dégradé de vert --- */
   border: none;
   transition: all 0.3s ease;
 }
@@ -78,4 +78,14 @@
 .auth-switch-link {
   text-align: center;
   margin-top: 1.5rem;
+}
+
+/* --- AJOUT : Style pour les liens --- */
+.auth-card a {
+  color: #b8860b; /* --- MODIFICATION : Couleur jaune/or foncé --- */
+  font-weight: bold;
+}
+
+.auth-card a:hover {
+  color: #daa520; /* --- MODIFICATION : Jaune plus clair au survol --- */
 }
