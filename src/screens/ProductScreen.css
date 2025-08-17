@@ -1,6 +1,73 @@
+/* src/screens/ProductScreen.css */
+
+/* Animation de "respiration" pour le prix */
+@keyframes breathe-animation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Classe principale pour le conteneur de la page */
+.product-screen-container {
+  padding-bottom: 2rem; /* Ajoute de l'espace en bas */
+}
+
+/* Style de la galerie d'images */
+.product-image-gallery {
+  background-color: #f8f9fa;
+  border-radius: 16px; /* Bords plus arrondis */
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  border: 1px solid #e9ecef;
+}
+
+.product-image-gallery .carousel-item img,
+.product-image-gallery > img {
+  max-height: 400px;
+  width: auto !important;
+  max-width: 100%;
+  object-fit: contain;
+  margin: auto;
+}
+
+/* Nouvelle carte pour les détails du produit */
+.product-details-card {
+  background-color: #fff;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.product-brand {
+  display: inline-block;
+  background-color: #e7f1ff;
+  color: #0d6efd;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Le style principal pour le prix */
+.product-price-main {
+  color: #00c9b7; /* Turquoise */
+  font-size: 2.5rem;
+  font-weight: 700;
+  animation: breathe-animation 2.5s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+/* Style de la description */
 .description-box {
   line-height: 1.6;
   white-space: pre-wrap;
+  color: #6c757d;
 }
 
 .toggle-description-btn {
@@ -17,47 +84,69 @@
   text-decoration: underline;
 }
 
-.product-image-gallery {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 1rem;
+/* Nouvelle carte pour la section d'ajout au panier */
+.add-to-cart-card {
+  background-color: #fff;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+}
+
+.add-to-cart-card .list-group-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  min-height: 400px;
 }
 
-.product-image-gallery .carousel-item img,
-.product-image-gallery > img {
-  max-height: 400px;
-  width: auto !important;
-  max-width: 100%;
-  object-fit: contain;
-  margin: auto;
+/* Style pour le prix dans la carte d'ajout */
+.summary-price-value {
+  color: #00c9b7; /* Turquoise */
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
-/* --- NOUVEAUX STYLES POUR MOBILE --- */
+/* Nouveau style pour les boutons */
+.btn-custom-primary {
+  border-radius: 50px !important;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  color: white;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-custom-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.btn-custom-primary:disabled {
+  background: #6c757d;
+  opacity: 0.7;
+}
+
+.btn-light {
+    border-radius: 50px !important;
+}
+
+/* Styles responsives */
 @media (max-width: 767px) {
     .product-image-gallery {
-        min-height: 300px; /* Hauteur réduite pour l'image */
+        min-height: 300px;
         padding: 0.5rem;
-        margin-bottom: 1rem; /* Espace sous l'image */
+        margin-bottom: 1.5rem;
     }
     .product-image-gallery .carousel-item img,
     .product-image-gallery > img {
         max-height: 300px;
     }
-
-    .product-details-col h3 {
-        font-size: 1.2rem; /* Titre plus petit */
+    .product-details-card h3 {
+        font-size: 1.5rem;
     }
-
-    .product-details-col .list-group-item {
-        padding-left: 0;
-        padding-right: 0;
-        border: none; /* Retire les lignes de séparation */
-    }
-    .product-details-col .card {
-        border-radius: 8px;
+    .product-price-main {
+      font-size: 2rem;
     }
 }

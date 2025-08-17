@@ -1,0 +1,74 @@
+/* src/screens/NotificationsScreen.css */
+
+.notifications-container {
+  max-width: 800px;
+  margin: 1rem auto;
+}
+
+.notification-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
+.notification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.notification-card.unread {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+}
+
+.notification-icon-container {
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: white;
+}
+
+/* On peut même s'amuser à changer la couleur de l'icône selon le message */
+.icon-order { background-color: #198754; } /* Vert */
+.icon-claim { background-color: #ffc107; } /* Jaune */
+.icon-admin { background-color: #0d6efd; } /* Bleu */
+.icon-default { background-color: #6c757d; } /* Gris */
+
+
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-message {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.notification-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.notification-delete-btn {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.notification-delete-btn:hover {
+  color: #dc3545;
+}

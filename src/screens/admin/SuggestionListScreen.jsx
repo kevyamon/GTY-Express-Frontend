@@ -1,9 +1,11 @@
 import React from 'react';
-import { Table, Button, Spinner, Badge } from 'react-bootstrap';
+import { Button, Spinner, Badge, Card, Image, Row, Col } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Message from '../../components/Message';
 import { useGetSuggestionsQuery, useArchiveSuggestionMutation } from '../../slices/suggestionApiSlice';
+import { FaArchive, FaInbox, FaLightbulb } from 'react-icons/fa';
+import './SuggestionListScreen.css'; // On importe le nouveau CSS
 
 const SuggestionListScreen = () => {
   const { data: suggestions, isLoading, error } = useGetSuggestionsQuery();
@@ -29,50 +31,56 @@ const SuggestionListScreen = () => {
   }
 
   return (
-    <div className="container mt-4">
-      <h1 className="mb-4">Boîte à Suggestions</h1>
+    <div className="suggestions-admin-container">
+      <h1 className="mb-4">
+        <FaLightbulb className="me-3" />
+        Boîte à Suggestions
+      </h1>
       
       {suggestions.length === 0 ? (
         <Message>Aucune suggestion n'a été envoyée pour le moment.</Message>
       ) : (
-        <Table striped bordered hover responsive className='table-sm'>
-          <thead>
-            <tr>
-              <th>DATE</th>
-              <th>UTILISATEUR</th>
-              <th>SUGGESTION</th>
-              <th>STATUT (POUR VOUS)</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {suggestions.map((suggestion) => {
-              const isArchivedByCurrentUser = suggestion.archivedBy.includes(userInfo._id);
-              return (
-                <tr key={suggestion._id} style={{ opacity: isArchivedByCurrentUser ? 0.6 : 1 }}>
-                  <td>{new Date(suggestion.createdAt).toLocaleString('fr-FR')}</td>
-                  <td>{suggestion.user?.name || 'Utilisateur inconnu'}</td>
-                  <td style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>{suggestion.text}</td>
-                  <td>
-                    <Badge bg={isArchivedByCurrentUser ? 'secondary' : 'success'}>
-                      {isArchivedByCurrentUser ? 'Archivé' : 'Nouveau'}
-                    </Badge>
-                  </td>
-                  <td>
-                    <Button
-                      variant={isArchivedByCurrentUser ? 'info' : 'secondary'}
-                      size="sm"
-                      onClick={() => handleArchiveToggle(suggestion)}
-                      disabled={isArchiving}
-                    >
-                      {isArchivedByCurrentUser ? 'Désarchiver' : 'Archiver'}
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+        <Row>
+          {suggestions.map((suggestion) => {
+            const isArchivedByCurrentUser = suggestion.archivedBy.includes(userInfo._id);
+            return (
+              <Col lg={12} key={suggestion._id} className="mb-3">
+                <Card className={`suggestion-admin-card ${isArchivedByCurrentUser ? 'archived' : ''}`}>
+                    <Card.Header className="suggestion-card-header">
+                        <div className="user-info">
+                            <Image 
+                                src={suggestion.user?.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
+                                alt={suggestion.user?.name} 
+                                className="user-avatar" 
+                            />
+                            <div>
+                                <div className="user-name">{suggestion.user?.name || 'Utilisateur inconnu'}</div>
+                                <div className="suggestion-date">{new Date(suggestion.createdAt).toLocaleString('fr-FR')}</div>
+                            </div>
+                        </div>
+                        <Badge bg={isArchivedByCurrentUser ? 'secondary' : 'success'}>
+                            {isArchivedByCurrentUser ? 'Traité' : 'Nouveau'}
+                        </Badge>
+                    </Card.Header>
+                    <Card.Body className="suggestion-card-body">
+                        <p className="suggestion-text-content">{suggestion.text}</p>
+                    </Card.Body>
+                    <Card.Footer className="suggestion-card-footer">
+                        <Button
+                            variant={isArchivedByCurrentUser ? 'outline-secondary' : 'secondary'}
+                            size="sm"
+                            onClick={() => handleArchiveToggle(suggestion)}
+                            disabled={isArchiving}
+                        >
+                            {isArchivedByCurrentUser ? <FaInbox className="me-2" /> : <FaArchive className="me-2" />}
+                            {isArchivedByCurrentUser ? 'Désarchiver' : 'Archiver'}
+                        </Button>
+                    </Card.Footer>
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
       )}
     </div>
   );

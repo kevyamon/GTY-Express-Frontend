@@ -1,8 +1,10 @@
 import { useGetNotificationsQuery, useDeleteNotificationMutation, useDeleteAllNotificationsMutation } from '../slices/notificationApiSlice';
-import { ListGroup, Spinner, Button, Row, Col } from 'react-bootstrap';
+import { Spinner, Button, Row, Col } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import Message from '../components/Message';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaShoppingCart, FaExclamationCircle, FaUserShield, FaBell } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import './NotificationsScreen.css'; // On importe notre nouveau fichier CSS
 
 const NotificationsScreen = () => {
   const { data: notifications, isLoading, error } = useGetNotificationsQuery();
@@ -27,16 +29,32 @@ const NotificationsScreen = () => {
         }
     }
   };
+  
+  // Fonction pour choisir une icône et une couleur en fonction du message
+  const getNotificationIcon = (message) => {
+    const lowerCaseMessage = message.toLowerCase();
+    if (lowerCaseMessage.includes('commande')) {
+      return { icon: <FaShoppingCart />, className: 'icon-order' };
+    }
+    if (lowerCaseMessage.includes('réclamation')) {
+      return { icon: <FaExclamationCircle />, className: 'icon-claim' };
+    }
+    if (lowerCaseMessage.includes('administrateur')) {
+        return { icon: <FaUserShield />, className: 'icon-admin' };
+    }
+    return { icon: <FaBell />, className: 'icon-default' };
+  };
 
   return (
-    <div className="container mt-4">
-      <Row className="align-items-center mb-3">
+    <div className="notifications-container">
+      <Row className="align-items-center mb-4">
         <Col>
             <h2 className="mb-0">📨 Mes Notifications</h2>
         </Col>
         <Col xs="auto">
             {notifications && notifications.length > 0 && (
-                <Button variant="outline-danger" size="sm" onClick={handleDeleteAll} disabled={loadingDeleteAll}>
+                <Button variant="danger" size="sm" onClick={handleDeleteAll} disabled={loadingDeleteAll}>
+                    <FaTrash className="me-2" />
                     Tout supprimer
                 </Button>
             )}
@@ -44,42 +62,42 @@ const NotificationsScreen = () => {
       </Row>
       
       {isLoading ? (
-        <Spinner animation="border" />
+        <div className="text-center"><Spinner animation="border" /></div>
       ) : error ? (
         <Message variant="danger">{error?.data?.message || error.error}</Message>
       ) : (
-        <ListGroup className="shadow-sm">
-          {notifications.length === 0 ? <Message>Aucune nouvelle notification</Message> 
-          : notifications.map((notif) => (
-            <ListGroup.Item
-              key={notif._id}
-              as="a"
-              href={notif.link}
-              action
-              variant={!notif.isRead ? 'light' : ''}
-              className="d-flex justify-content-between align-items-start"
-            >
-              <div>
-                <div className="fw-bold">{notif.message}</div>
-                <small className="text-muted">
-                  {new Date(notif.createdAt).toLocaleString('fr-FR')}
-                </small>
-              </div>
-              <Button
-                variant="outline-danger"
-                size="sm"
-                className="ms-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDelete(notif._id);
-                }}
-              >
-                <FaTrash />
-              </Button>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        <div>
+          {notifications.length === 0 ? <Message>Vous n'avez aucune notification pour le moment.</Message> 
+          : notifications.map((notif) => {
+            const { icon, className } = getNotificationIcon(notif.message);
+            return (
+                <Link to={notif.link || '#'} className="text-decoration-none" key={notif._id}>
+                    <div className={`notification-card ${!notif.isRead ? 'unread' : ''}`}>
+                        <div className={`notification-icon-container ${className}`}>
+                            {icon}
+                        </div>
+                        <div className="notification-content">
+                            <p className="notification-message mb-0">{notif.message}</p>
+                            <small className="notification-date">
+                                {new Date(notif.createdAt).toLocaleString('fr-FR')}
+                            </small>
+                        </div>
+                        <Button
+                            variant="link"
+                            className="notification-delete-btn"
+                            onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(notif._id);
+                            }}
+                        >
+                            <FaTrash />
+                        </Button>
+                    </div>
+                </Link>
+            )
+          })}
+        </div>
       )}
     </div>
   );

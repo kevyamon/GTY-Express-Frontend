@@ -1,0 +1,75 @@
+/* src/screens/admin/SuggestionListScreen.css */
+
+.suggestions-admin-container {
+  max-width: 1000px;
+  margin: 1rem auto;
+}
+
+.suggestion-admin-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+  overflow: hidden; /* Pour que le header s'arrondisse bien */
+}
+
+.suggestion-admin-card.archived {
+  opacity: 0.6;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+.suggestion-admin-card.archived:hover {
+    opacity: 1;
+}
+
+
+.suggestion-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.suggestion-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.suggestion-card-body {
+  padding: 1.25rem;
+}
+
+.suggestion-text-content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  white-space: pre-wrap; /* Respecte les sauts de ligne */
+  color: #212529;
+}
+
+.suggestion-card-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  text-align: right;
+}
