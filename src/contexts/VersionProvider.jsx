@@ -5,42 +5,49 @@ import UpdateModal from '../components/UpdateModal';
 import { toast } from 'react-toastify';
 
 export const VersionProvider = ({ children }) => {
-  // 1. On utilise notre nouveau hook simple
   const { isUpdateAvailable, newVersionInfo } = useVersionCheck();
 
-  // 2. On gère l'état du modal et du refus de mise à jour
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
+  // --- NOUVEL AJOUT : État pour gérer le chargement ---
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // S'ouvre automatiquement si une MàJ est trouvée et qu'elle n'a pas été refusée
   useEffect(() => {
     if (isUpdateAvailable && !updateDeclined) {
       setIsModalOpen(true);
     }
   }, [isUpdateAvailable, updateDeclined]);
 
-  // 3. Fonction pour confirmer la mise à jour : on recharge simplement la page
   const confirmUpdate = useCallback(() => {
-    // sessionStorage permet de se souvenir de l'action même après rechargement
-    sessionStorage.setItem('updateCompleted', 'true'); 
-    window.location.reload(true); // Le "true" force le rechargement depuis le serveur
-  }, []);
+    if (!newVersionInfo) return; // Sécurité pour éviter les erreurs
+    
+    // --- NOUVELLE LOGIQUE ---
+    // 1. On stocke les infos de la nouvelle version pour les récupérer après le rechargement
+    sessionStorage.setItem('updateCompleted', 'true');
+    sessionStorage.setItem('newAppVersion', newVersionInfo.version); // On stocke la version
+    
+    // 2. On active l'indicateur de chargement
+    setIsUpdating(true);
 
-  // 4. Fonction pour refuser temporairement
+    // 3. On recharge la page (le loader sera visible un court instant)
+    setTimeout(() => {
+        window.location.reload(true);
+    }, 500); // Petite pause pour que l'animation soit visible
+
+  }, [newVersionInfo]);
+
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
     setUpdateDeclined(true);
     toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
   }, []);
 
-  // 5. Permet de rouvrir le modal depuis le bouton du header
   const openUpdateModal = useCallback(() => {
     if (isUpdateAvailable) {
       setIsModalOpen(true);
     }
   }, [isUpdateAvailable]);
 
-  // On fournit toutes les valeurs nécessaires au reste de l'application
   const value = {
     isUpdateAvailable,
     isModalOpen,
@@ -49,6 +56,7 @@ export const VersionProvider = ({ children }) => {
     confirmUpdate,
     declineUpdate,
     openUpdateModal,
+    isUpdating, // On expose le nouvel état
   };
 
   return (
@@ -58,6 +66,7 @@ export const VersionProvider = ({ children }) => {
         handleClose={declineUpdate}
         onConfirmUpdate={confirmUpdate}
         newVersionInfo={newVersionInfo}
+        isUpdating={isUpdating} // On passe l'état au modal
       />
       {children}
     </VersionContext.Provider>

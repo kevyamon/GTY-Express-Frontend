@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // <-- Ajout de useState et useEffect
 import { Modal, Button } from 'react-bootstrap';
 import { FaCheckCircle, FaGift } from 'react-icons/fa';
 import './UpdateCompleteModal.css';
 
 const UpdateCompleteModal = ({ show, handleClose }) => {
-  // On récupère la version depuis les variables d'environnement injectées par Vite
-  const appVersion = import.meta.env.VITE_APP_VERSION || 'inconnue';
+  // --- NOUVELLE LOGIQUE POUR LIRE LA BONNE VERSION ---
+  const [appVersion, setAppVersion] = useState('inconnue');
+
+  useEffect(() => {
+    // Ce code s'exécute uniquement quand le modal est sur le point de s'afficher.
+    if (show) {
+      // On lit la version que notre VersionProvider a sauvegardée.
+      const newVersion = sessionStorage.getItem('newAppVersion');
+      if (newVersion) {
+        setAppVersion(newVersion);
+      }
+    }
+  }, [show]); // Se déclenche à chaque changement de la prop "show"
+  // --- FIN DE LA NOUVELLE LOGIQUE ---
 
   return (
     <Modal
@@ -27,6 +39,7 @@ const UpdateCompleteModal = ({ show, handleClose }) => {
         </p>
 
         <div className="version-info">
+          {/* Affiche maintenant la version lue depuis le sessionStorage */}
           Vous utilisez maintenant la version <strong>{appVersion}</strong>
         </div>
 

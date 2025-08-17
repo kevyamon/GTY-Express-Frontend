@@ -1,12 +1,11 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Spinner } from 'react-bootstrap'; // <-- Spinner ajouté
 import { FaRocket, FaInfoCircle, FaCalendarAlt, FaCodeBranch } from 'react-icons/fa';
 import './UpdateModal.css';
 
-// --- MODIFICATION IMPORTANTE : On ajoute "newVersionInfo" dans les props ---
-const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo }) => {
+// --- MODIFICATION : On reçoit "isUpdating" dans les props ---
+const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpdating }) => {
 
-  // On utilise les informations de la nouvelle version si elles existent, sinon on met des valeurs par défaut
   const displayVersion = newVersionInfo?.version || 'Chargement...';
   const commitDateISO = newVersionInfo?.commitDate || new Date().toISOString();
 
@@ -32,7 +31,6 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo }) => 
         <div className="version-details">
           <div className="info-item">
             <span className="label"><FaInfoCircle className="info-icon" /> Nouvelle Version</span>
-            {/* --- MODIFICATION : On affiche la nouvelle version --- */}
             <span className="value">{displayVersion}</span>
           </div>
           <div className="info-item">
@@ -41,16 +39,24 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo }) => 
           </div>
           <div className="info-item">
             <span className="label"><FaCalendarAlt className="info-icon" /> Date</span>
-            {/* --- MODIFICATION : On affiche la date de la nouvelle version --- */}
             <span className="value">{formattedDate}</span>
           </div>
         </div>
 
         <div className="buttons-container">
-          <Button className="update-button" onClick={onConfirmUpdate}>
-            Mettre à jour maintenant
+          {/* --- MODIFICATION : Le bouton affiche un spinner si isUpdating est true --- */}
+          <Button className="update-button" onClick={onConfirmUpdate} disabled={isUpdating}>
+            {isUpdating ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="ms-2">Installation...</span>
+              </>
+            ) : (
+              'Mettre à jour maintenant'
+            )}
           </Button>
-          <Button className="later-button" onClick={handleClose}>
+          {/* Le bouton "Plus tard" est désactivé pendant la mise à jour */}
+          <Button className="later-button" onClick={handleClose} disabled={isUpdating}>
             Plus tard
           </Button>
         </div>
