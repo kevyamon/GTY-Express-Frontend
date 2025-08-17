@@ -21,7 +21,7 @@ import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
-import bgImage from '../background.jpg';
+import bgImage from './assets/background.jpg'; // On importe la bonne image de fond
 
 const App = () => {
   const location = useLocation();
@@ -47,27 +47,25 @@ const App = () => {
   const handleCloseInstallModal = () => setShowInstallModal(false);
   const handleShowSuggestionModal = () => setShowSuggestionModal(true);
 
+  // CORRECTION : Simplification de la logique de l'animation du logo
   const [showLogo, setShowLogo] = useState(true);
-  const [logoKey, setLogoKey] = useState(Date.now());
-  const isInitialLoad = useRef(true);
+  const isInitialLoad = useRef(true); // Pour savoir si c'est le 1er chargement
 
   useEffect(() => {
+    // Ce code ne s'exécute qu'une seule fois au montage de l'application
     if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
+      const timer = setTimeout(() => {
+        setShowLogo(false);
+        isInitialLoad.current = false;
+      }, 1500); // L'animation dure 1.5s
+      return () => clearTimeout(timer);
     }
-    setLogoKey(Date.now());
-    setShowLogo(true);
-    const timer = setTimeout(() => {
-      setShowLogo(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, []); // Le tableau de dépendances est vide pour ne s'exécuter qu'une fois
   
   const handleWelcomeEnd = () => {
     dispatch(clearWelcome());
-    setLogoKey(Date.now());
-    setShowLogo(true);
+    // On ne relance plus l'animation du logo après le message de bienvenue
+    setShowLogo(false);
   };
 
   const handleLogoEnd = () => {
@@ -94,8 +92,8 @@ const App = () => {
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
       
+      {/* On affiche l'animation du logo seulement si `showLogo` est vrai */}
       <LogoTransition 
-        key={logoKey} 
         show={showLogo} 
         onTransitionEnd={handleLogoEnd} 
       />
@@ -105,7 +103,6 @@ const App = () => {
       {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} handleShowSuggestionModal={handleShowSuggestionModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
-        {/* --- MODIFICATION ICI : On passe le conteneur en mode "fluid" pour qu'il prenne toute la largeur --- */}
         <Container fluid>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
