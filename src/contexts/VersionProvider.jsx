@@ -5,41 +5,48 @@ import UpdateModal from '../components/UpdateModal';
 import { toast } from 'react-toastify';
 
 export const VersionProvider = ({ children }) => {
-  const { isUpdateAvailable, newVersionInfo } = useVersionCheck();
+  // --- MODIFICATION : On récupère la fonction pour arrêter la vérification ---
+  const { isUpdateAvailable, newVersionInfo, stopPolling } = useVersionCheck();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
-  // --- NOUVEL AJOUT : État pour gérer le chargement ---
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    if (isUpdateAvailable && !updateDeclined) {
+    if (isUpdateAvailable && !updateDeclined && !isUpdating) {
       setIsModalOpen(true);
     }
-  }, [isUpdateAvailable, updateDeclined]);
+  }, [isUpdateAvailable, updateDeclined, isUpdating]);
 
   const confirmUpdate = useCallback(() => {
-    if (!newVersionInfo) return; // Sécurité pour éviter les erreurs
+    if (!newVersionInfo || !newVersionInfo.version) {
+      toast.error("Les informations de la nouvelle version sont indisponibles. Réessayez.");
+      return;
+    }
     
-    // --- NOUVELLE LOGIQUE ---
-    // 1. On stocke les infos de la nouvelle version pour les récupérer après le rechargement
+    // --- AMÉLIORATIONS CLÉS ---
+    // 1. On arrête immédiatement de vérifier les mises à jour pour éviter la boucle.
+    stopPolling();
+    
+    // 2. On stocke les infos de la nouvelle version de manière fiable.
     sessionStorage.setItem('updateCompleted', 'true');
-    sessionStorage.setItem('newAppVersion', newVersionInfo.version); // On stocke la version
+    sessionStorage.setItem('newAppVersion', newVersionInfo.version);
     
-    // 2. On active l'indicateur de chargement
+    // 3. On active l'indicateur de chargement.
     setIsUpdating(true);
+    setIsModalOpen(false); // On ferme le modal de proposition
 
-    // 3. On recharge la page (le loader sera visible un court instant)
+    // 4. On recharge la page pour appliquer la mise à jour.
     setTimeout(() => {
         window.location.reload(true);
-    }, 500); // Petite pause pour que l'animation soit visible
+    }, 500);
 
-  }, [newVersionInfo]);
+  }, [newVersionInfo, stopPolling]);
 
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
     setUpdateDeclined(true);
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
+    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton dans le menu.');
   }, []);
 
   const openUpdateModal = useCallback(() => {
@@ -56,7 +63,7 @@ export const VersionProvider = ({ children }) => {
     confirmUpdate,
     declineUpdate,
     openUpdateModal,
-    isUpdating, // On expose le nouvel état
+    isUpdating,
   };
 
   return (
@@ -66,7 +73,7 @@ export const VersionProvider = ({ children }) => {
         handleClose={declineUpdate}
         onConfirmUpdate={confirmUpdate}
         newVersionInfo={newVersionInfo}
-        isUpdating={isUpdating} // On passe l'état au modal
+        isUpdating={isUpdating}
       />
       {children}
     </VersionContext.Provider>
