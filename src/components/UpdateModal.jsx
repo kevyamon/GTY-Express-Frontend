@@ -1,9 +1,8 @@
 import React from 'react';
-import { Modal, Button, Spinner } from 'react-bootstrap'; // <-- Spinner ajouté
+import { Modal, Button, Spinner } from 'react-bootstrap';
 import { FaRocket, FaInfoCircle, FaCalendarAlt, FaCodeBranch } from 'react-icons/fa';
 import './UpdateModal.css';
 
-// --- MODIFICATION : On reçoit "isUpdating" dans les props ---
 const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpdating }) => {
 
   const displayVersion = newVersionInfo?.version || 'Chargement...';
@@ -28,6 +27,12 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpd
           Une nouvelle version de GTY Express est prête. Mettez à jour pour profiter des dernières améliorations.
         </p>
         
+        {/* --- BLOC D'ATTENTION AJOUTÉ ICI --- */}
+        <div className="update-notice">
+          <strong>Note pour l'application installée :</strong> Il peut être nécessaire de cliquer plusieurs fois sur "Mettre à jour" le temps que le système finalise l'installation en arrière-plan.
+        </div>
+        {/* --- FIN DE L'AJOUT --- */}
+
         <div className="version-details">
           <div className="info-item">
             <span className="label"><FaInfoCircle className="info-icon" /> Nouvelle Version</span>
@@ -44,7 +49,6 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpd
         </div>
 
         <div className="buttons-container">
-          {/* --- MODIFICATION : Le bouton affiche un spinner si isUpdating est true --- */}
           <Button className="update-button" onClick={onConfirmUpdate} disabled={isUpdating}>
             {isUpdating ? (
               <>
@@ -55,7 +59,6 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpd
               'Mettre à jour maintenant'
             )}
           </Button>
-          {/* Le bouton "Plus tard" est désactivé pendant la mise à jour */}
           <Button className="later-button" onClick={handleClose} disabled={isUpdating}>
             Plus tard
           </Button>

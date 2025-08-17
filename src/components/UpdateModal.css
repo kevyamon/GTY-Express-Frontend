@@ -62,6 +62,19 @@
   margin-right: auto;
 }
 
+/* --- NOUVEAU STYLE POUR LE BLOC D'ATTENTION --- */
+.update-notice {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+/* --- FIN DU NOUVEAU STYLE --- */
+
+
 /* Section des détails avec emojis */
 .version-details {
   margin-bottom: 1.5rem; /* Marge réduite */
@@ -134,8 +147,6 @@
 .buttons-container .later-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* --- NOUVEL AJOUT À LA FIN DU FICHIER --- */
 
 .update-button .ms-2 {
   vertical-align: middle; /* Aligne le texte avec le centre du spinner */
