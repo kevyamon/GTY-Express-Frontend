@@ -56,7 +56,7 @@ export const VersionProvider = ({ children }) => {
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
     setUpdateDeclined(true);
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton dans le menu.');
+    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton dans le menu. ou le bouton du haut si vous utilisez un Ordinateur.');
   }, []);
 
   const openUpdateModal = useCallback(() => {
