@@ -74,7 +74,6 @@ const App = () => {
     setShowLogo(false);
   };
 
-  // --- MODIFICATION : On ajoute les propriétés flexbox ici ---
   const baseAppStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -88,7 +87,6 @@ const App = () => {
     backgroundAttachment: 'fixed',
     backgroundPosition: 'center',
   } : baseAppStyle;
-  // --- FIN DE LA MODIFICATION ---
 
   return (
     <div style={appStyle}>
@@ -107,7 +105,8 @@ const App = () => {
       {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} handleShowSuggestionModal={handleShowSuggestionModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
-        <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
+        {/* --- MODIFICATION ICI : On passe le conteneur en mode "fluid" pour qu'il prenne toute la largeur --- */}
+        <Container fluid>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
                 <Outlet />
