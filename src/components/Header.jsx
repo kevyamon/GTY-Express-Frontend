@@ -16,7 +16,7 @@ import { apiSlice } from '../slices/apiSlice';
 import { VersionContext } from '../contexts/VersionContext';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
-import SuggestionModal from './SuggestionModal';
+// --- AMÉLIORATION : On n'a plus besoin d'importer SuggestionModal ici ---
 import MobileMenuModal from './MobileMenuModal';
 import './Header.css';
 
@@ -25,23 +25,19 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
-  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  // --- AMÉLIORATION : On retire l'état local qui créait le conflit ---
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // --- MODIFICATION : Logique du bouton de mise à jour simplifiée ---
   const { isUpdateAvailable, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  // Le bouton s'affiche uniquement si une mise à jour est disponible.
   const showUpdateButton = isUpdateAvailable;
-  // Le bouton clignote si une mise à jour a été refusée, pour rappeler à l'utilisateur.
   const shouldBlink = updateDeclined;
 
   const getUpdateVariant = () => {
-    if (updateDeclined) return 'danger'; // Rouge si refusé
-    if (isUpdateAvailable) return 'success'; // Vert si disponible
+    if (updateDeclined) return 'danger';
+    if (isUpdateAvailable) return 'success';
     return 'outline-secondary';
   };
-  // --- FIN DE LA MODIFICATION ---
 
   const [lastSeen, setLastSeen] = useState(() => {
     try {
@@ -224,7 +220,8 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
                         <LinkContainer to="/profile/suggestions">
                           <NavDropdown.Item>Mes Suggestions</NavDropdown.Item>
                         </LinkContainer>
-                        <NavDropdown.Item onClick={() => setShowSuggestionModal(true)}>
+                        {/* --- AMÉLIORATION : On appelle directement la prop reçue de App.jsx --- */}
+                        <NavDropdown.Item onClick={handleShowSuggestionModal}>
                           Faire une suggestion
                         </NavDropdown.Item>
                       </>
@@ -287,10 +284,7 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
         />
       )}
 
-      <SuggestionModal 
-        show={showSuggestionModal} 
-        handleClose={() => setShowSuggestionModal(false)} 
-      />
+      {/* --- AMÉLIORATION : On retire la modale d'ici, elle est gérée par App.jsx --- */}
 
       {userInfo && userInfo.isAdmin && (
         <AdminMenuModal 
