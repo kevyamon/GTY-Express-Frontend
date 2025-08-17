@@ -20,7 +20,7 @@ import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
 import './Header.css';
 
-const Header = ({ handleShowInstallModal }) => {
+const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
@@ -283,6 +283,7 @@ const Header = ({ handleShowInstallModal }) => {
           totalAdminCount={totalAdminCount}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
+          handleSuggestionModal={handleShowSuggestionModal}
         />
       )}
 
