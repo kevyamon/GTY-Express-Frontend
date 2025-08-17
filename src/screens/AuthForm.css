@@ -1,0 +1,81 @@
+/*
+ * src/screens/AuthForm.css
+ * Styles pour les formulaires de connexion et d'inscription
+ */
+
+/* Conteneur principal pour centrer le formulaire sur la page */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  min-height: 70vh;
+}
+
+/* La "carte" qui contient le formulaire */
+.auth-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.auth-card h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Style pour les champs de saisie */
+.auth-card .form-control,
+.auth-card .PhoneInputInput {
+  border-radius: 50px !important; /* Bords très arrondis */
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #ced4da;
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-card .form-control:focus,
+.auth-card .PhoneInputInput:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Style pour les groupes d'input (icône + champ) */
+.auth-card .input-group .btn {
+  border-radius: 50px !important;
+}
+
+/* Style pour le bouton principal */
+.auth-card .btn-primary {
+  width: 100%;
+  border-radius: 50px;
+  padding: 0.75rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #0d6efd, #0a58ca);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.auth-card .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.auth-card .btn-primary:disabled {
+  background: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Style pour le texte en bas (ex: "Nouveau client ?") */
+.auth-switch-link {
+  text-align: center;
+  margin-top: 1.5rem;
+}
