@@ -11,8 +11,8 @@ import { Provider } from 'react-redux';
 import store from './store.js';
 import App from './App.jsx';
 
-// --- NOUVEL IMPORT ---
-import { VersionProvider } from './contexts/VersionProvider';
+// --- CORRECTION DE L'IMPORT ---
+import { VersionProvider } from './contexts/VersionContext';
 
 // Fichiers de style
 import './App.css';

@@ -1,4 +1,5 @@
-/* --- AMÉLIORATION : Animation de lueur pour la note d'information --- */
+/* src/components/UpdateModal.css */
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
@@ -8,9 +9,8 @@
   }
 }
 
-/* Un dégradé "cool" pour le fond du modal */
 .update-modal-dialog {
-  max-width: 450px; /* On limite la largeur maximale */
+  max-width: 450px;
 }
 
 .update-modal-dialog .modal-content {
@@ -22,15 +22,14 @@
 }
 
 .update-modal-body {
-  padding: 2rem 1.5rem !important; /* Padding réduit */
+  padding: 2rem 1.5rem !important;
   text-align: center;
 }
 
-/* Animation des fusées améliorée */
 .rocket-animation-container {
   position: relative;
-  height: 60px; /* Hauteur réduite */
-  margin-bottom: 1rem; /* Marge réduite */
+  height: 60px;
+  margin-bottom: 1rem;
   overflow: hidden;
 }
 
@@ -39,8 +38,8 @@
   left: 50%;
   bottom: 0;
   transform: translateX(-50%) translateY(40px) rotate(-35deg);
-  font-size: 2rem; /* Fusée un peu plus petite */
-  color: #3dceff; /* Bleu cyan pour un effet néon */
+  font-size: 2rem;
+  color: #3dceff;
   opacity: 0;
   animation: rocket-takeoff 3s ease-in-out infinite;
   text-shadow: 0 0 15px rgba(61, 206, 255, 0.7);
@@ -57,41 +56,37 @@
 }
 
 .update-modal-body h2 {
-  font-size: 1.5rem; /* Titre plus petit */
+  font-size: 1.5rem;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .update-modal-body .lead-text {
-  font-size: 0.95rem; /* Texte plus petit */
+  font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 1.5rem; /* Marge réduite */
+  margin-bottom: 1.5rem;
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* --- STYLE MODIFIÉ POUR LE BLOC D'ATTENTION --- */
 .update-notice {
-  background-color: rgba(255, 107, 107, 0.15); /* Fond rouge très léger */
+  background-color: rgba(255, 107, 107, 0.15);
   padding: 0.75rem;
   border-radius: 10px;
-  font-size: 0.9rem; /* Police légèrement agrandie */
-  color: #ff6b6b; /* Rouge visible et attractif */
+  font-size: 0.9rem;
+  color: #ff6b6b;
   font-weight: 500;
   margin-bottom: 1.5rem;
   border: 1px solid rgba(255, 107, 107, 0.5);
-  animation: pulse-glow 2.5s infinite ease-in-out; /* Application de l'animation */
+  animation: pulse-glow 2.5s infinite ease-in-out;
 }
-/* --- FIN DE LA MODIFICATION --- */
 
-
-/* Section des détails avec emojis */
 .version-details {
-  margin-bottom: 1.5rem; /* Marge réduite */
+  margin-bottom: 1.5rem;
   text-align: left;
-  padding: 0.75rem 1rem; /* Padding réduit */
+  padding: 0.75rem 1rem;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
 }
@@ -100,7 +95,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0; /* Padding réduit */
+  padding: 0.6rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .info-item:last-child {
@@ -112,7 +107,7 @@
   color: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
-  font-size: 0.9rem; /* Texte plus petit */
+  font-size: 0.9rem;
 }
 
 .info-item .info-icon {
@@ -124,19 +119,18 @@
 .info-item .value {
   color: #ffffff;
   font-weight: 600;
-  font-size: 0.9rem; /* Texte plus petit */
+  font-size: 0.9rem;
 }
 
-/* Style des boutons */
 .buttons-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* Espacement réduit */
+  gap: 0.5rem;
 }
 
 .buttons-container .btn {
   width: 100%;
-  padding: 0.6rem 1.2rem; /* Boutons moins hauts */
+  padding: 0.6rem 1.2rem;
   font-weight: bold;
   border-radius: 50px;
   border: none;
@@ -161,5 +155,5 @@
 }
 
 .update-button .ms-2 {
-  vertical-align: middle; /* Aligne le texte avec le centre du spinner */
+  vertical-align: middle;
 }

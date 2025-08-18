@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'; // CORRECTION ICI : useState a été ajouté
+import { useState, useContext } from 'react';
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,6 +19,7 @@ import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import { VersionContext } from './contexts/VersionContext';
+import UpdateModal from './components/UpdateModal'; // On importe le nouveau modal
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
 import bgImage from '../background.jpg';
@@ -28,8 +29,16 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // On se connecte au contexte pour gérer le modal de succès
-  const { showUpdateCompleteModal, setShowUpdateCompleteModal } = useContext(VersionContext);
+  // On récupère TOUT ce dont on a besoin depuis le contexte
+  const {
+    isModalOpen,
+    isUpdateInProgress,
+    newVersionInfo,
+    showUpdateCompleteModal,
+    setShowUpdateCompleteModal,
+    confirmUpdate,
+    declineUpdate,
+  } = useContext(VersionContext);
   
   const isLandingPage = location.pathname === '/';
   const isBannedPage = location.pathname === '/banned';
@@ -93,6 +102,15 @@ const App = () => {
       <SuggestionModal 
         show={showSuggestionModal}
         handleClose={() => setShowSuggestionModal(false)}
+      />
+
+      {/* On affiche le modal de mise à jour en utilisant les données du contexte */}
+      <UpdateModal
+        show={isModalOpen}
+        handleClose={declineUpdate}
+        onConfirmUpdate={confirmUpdate}
+        isUpdating={isUpdateInProgress}
+        newVersionInfo={newVersionInfo}
       />
 
       <UpdateCompleteModal

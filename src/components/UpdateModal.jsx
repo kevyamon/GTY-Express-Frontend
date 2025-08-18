@@ -1,3 +1,5 @@
+// src/components/UpdateModal.jsx
+
 import React from 'react';
 import { Modal, Button, Spinner } from 'react-bootstrap';
 import { FaRocket, FaInfoCircle, FaCalendarAlt, FaCodeBranch } from 'react-icons/fa';
@@ -27,11 +29,9 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpd
           Une nouvelle version de GTY Express est prête. Mettez à jour pour profiter des dernières améliorations.
         </p>
         
-        {/* --- BLOC D'ATTENTION AJOUTÉ ICI --- */}
         <div className="update-notice">
           <strong>Note pour l'application installée :</strong> Il peut être nécessaire de cliquer plusieurs fois sur "Mettre à jour" le temps que le système finalise l'installation en arrière-plan.
         </div>
-        {/* --- FIN DE L'AJOUT --- */}
 
         <div className="version-details">
           <div className="info-item">
