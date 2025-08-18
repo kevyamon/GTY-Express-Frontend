@@ -1,11 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useDispatch } from 'react-redux'; // <-- 1. AJOUT : Pour communiquer avec le loader
 import { VersionContext } from './VersionContext';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import UpdateModal from '../components/UpdateModal';
 import { toast } from 'react-toastify';
+import { showLoader, hideLoader } from '../slices/loaderSlice'; // <-- 2. AJOUT : On importe les actions du loader
 
 export const VersionProvider = ({ children }) => {
   const { isUpdateAvailable, newVersionInfo } = useVersionCheck();
+  const dispatch = useDispatch(); // <-- 3. AJOUT : On initialise le dispatcher
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
@@ -23,7 +26,6 @@ export const VersionProvider = ({ children }) => {
 
   useEffect(() => {
     if (isUpdateAvailable && !updateDeclined && !isUpdating) {
-      // Si une mise à jour est en cours (détecté via sessionStorage), on ne remontre pas le modal
       if (!sessionStorage.getItem('pwaUpdateInProgress')) {
         setIsModalOpen(true);
       }
@@ -31,7 +33,11 @@ export const VersionProvider = ({ children }) => {
   }, [isUpdateAvailable, updateDeclined, isUpdating]);
 
   const confirmUpdate = useCallback(() => {
-    // On indique qu'une mise à jour est en cours
+    // --- MODIFICATIONS PRINCIPALES ICI ---
+    setIsModalOpen(false); // 4. On ferme DÉFINITIVEMENT le modal de proposition
+    dispatch(showLoader()); // 5. On affiche le loader global
+    // --- FIN DES MODIFICATIONS ---
+
     setIsUpdating(true); 
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
 
@@ -45,7 +51,7 @@ export const VersionProvider = ({ children }) => {
       toast.info("Préparation de la mise à jour, la page va se recharger...");
       window.location.reload(true);
     }
-  }, [updateFunction, newVersionInfo]);
+  }, [updateFunction, newVersionInfo, dispatch]); // <-- 6. AJOUT : dispatch dans les dépendances
 
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);

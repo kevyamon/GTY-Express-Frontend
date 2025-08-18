@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux'; // <-- 1. AJOUT
 import { FaCheckCircle, FaGift } from 'react-icons/fa';
+import { hideLoader } from '../slices/loaderSlice'; // <-- 2. AJOUT
 import './UpdateCompleteModal.css';
 
 const UpdateCompleteModal = ({ show, handleClose }) => {
   const [appVersion, setAppVersion] = useState('inconnue');
+  const dispatch = useDispatch(); // <-- 3. AJOUT
 
   useEffect(() => {
     if (show) {
+      // --- AMÉLIORATION : On nettoie tout ici ---
+      dispatch(hideLoader()); // 4. On s'assure que le loader est bien caché
+      sessionStorage.removeItem('pwaUpdateInProgress'); // On nettoie l'indicateur de mise à jour
+
       const newVersion = sessionStorage.getItem('newAppVersion');
       if (newVersion) {
         setAppVersion(newVersion);
       }
-      // --- AMÉLIORATION : On nettoie le drapeau de mise à jour en cours ---
-      sessionStorage.removeItem('pwaUpdateInProgress');
     }
-  }, [show]);
+  }, [show, dispatch]); // <-- 5. AJOUT de dispatch
 
   return (
     <Modal
