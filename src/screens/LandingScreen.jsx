@@ -1,83 +1,89 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Form, Button, Row, Col, InputGroup, Card } from 'react-bootstrap'; // Card a été ajouté
-import { useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useLoginMutation } from '../slices/usersApiSlice';
-import { setCredentials } from '../slices/authSlice';
-import './AuthForm.css'; // --- NOUVEL IMPORT ---
+import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-const LoginScreen = () => {
-  const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+import logo from '../assets/logo.png';
+import landingBackground from '../assets/landingbackground.png';
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+// On charge les images de manière asynchrone pour ne pas bloquer le chargement initial
+const imageModules = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}');
 
-  const [login, { isLoading }] = useLoginMutation();
+import './LandingScreen.css';
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await login({ loginIdentifier, password }).unwrap();
-      dispatch(setCredentials({ ...res }));
-      navigate('/products');
-    } catch (err) {
-      toast.error(err?.data?.message || err.error || err.message);
-    }
+const LandingScreen = () => {
+  // On utilise un état pour stocker les images une fois chargées
+  const [productImages, setProductImages] = useState([]);
+
+  useEffect(() => {
+    // On charge les images après l'affichage du composant
+    const loadImages = async () => {
+      const imagePromises = Object.values(imageModules).map(importImage => importImage());
+      const loadedImages = await Promise.all(imagePromises);
+      setProductImages(loadedImages.map(module => module.default));
+    };
+    loadImages();
+  }, []);
+
+  // On groupe les images par lots pour créer plusieurs lignes de défilement
+  const chunkedImages = [];
+  for (let i = 0; i < productImages.length; i += 5) {
+    chunkedImages.push(productImages.slice(i, i + 5));
+  }
+
+  const imageStyle = {
+    borderRadius: '40%',
+  };
+
+  const pageStyle = {
+    backgroundImage: `url(${landingBackground})`,
   };
 
   return (
-    // --- MODIFICATION : On utilise les nouvelles classes CSS pour centrer et styliser ---
-    <div className='auth-container'>
-      <Card className='auth-card'>
-        <Card.Body>
-          <h1>Se connecter</h1>
-          <Form onSubmit={submitHandler}>
-            <Form.Group className='my-3' controlId='loginIdentifier'>
-              <Form.Label>Email ou Numéro de téléphone</Form.Label>
-              <Form.Control
-                type='text'
-                placeholder='Entrez votre email ou numéro'
-                value={loginIdentifier}
-                onChange={(e) => setLoginIdentifier(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className='my-3' controlId='password'>
-              <Form.Label>Mot de passe</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder='Entrez votre mot de passe'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+    <div className='landing-v2' style={pageStyle}>
+      {productImages.length > 0 && (
+        <div className='scrolling-background'>
+          {chunkedImages.map((row, rowIndex) => (
+            <div
+              key={rowIndex}
+              className={`product-scroller ${rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right'}`}
+            >
+              {/* On duplique la ligne d'images pour un défilement infini fluide */}
+              {[...row, ...row].map((image, imgIndex) => (
+                <img
+                  key={imgIndex}
+                  src={image}
+                  alt={`product-showcase-${imgIndex}`}
+                  className="product-image"
+                  style={imageStyle}
                 />
-                <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </Button>
-              </InputGroup>
-            </Form.Group>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
 
-            <Button type='submit' variant='primary' disabled={isLoading} className='mt-3'>
-              {isLoading ? 'Connexion...' : 'Se Connecter'}
+      <div className='landing-v2-content'>
+        <img src={logo} alt="GTY Express Logo" className="landing-logo animated-logo" />
+        <h1 className='landing-main-title'>Bienvenue sur GTY Express</h1>
+        <h2 className='landing-slogan'>Là où le produit, c'est ton envie.</h2>
+        <p className='landing-subtitle'>
+          Explore des milliers d'articles et profite d'une livraison express en Côte d'Ivoire.
+        </p>
+        <div className='landing-buttons-v2'>
+          <Link to='/register'>
+            <Button className='btn-signup'>
+              Créer un compte
             </Button>
-          </Form>
-
-          <Row className='py-3'>
-            <Col className='auth-switch-link'>
-              Nouveau client? <Link to='/register'>S'inscrire</Link>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+          </Link>
+          <Link to='/login'>
+            <Button className='btn-login'>
+              Se Connecter
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
-    // --- FIN DE LA MODIFICATION ---
   );
 };
 
-export default LoginScreen;
+export default LandingScreen;
