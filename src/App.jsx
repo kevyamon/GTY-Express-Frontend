@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react'; // <-- Ajout de useContext
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,84 +19,81 @@ import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-import UpdateCompleteModal from './components/UpdateCompleteModal';
+import { VersionContext } from './contexts/VersionContext'; // <-- NOUVEL IMPORT
+import UpdateCompleteModal from './components/UpdateCompleteModal'; // <-- NOUVEL IMPORT
 import './App.css';
+import bgImage from '../background.jpg';
 
 const App = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
+
+  // ✅ CORRECTION : On se connecte au contexte pour gérer le modal de succès
+  const { showUpdateCompleteModal, setShowUpdateCompleteModal } = useContext(VersionContext);
   
   const isLandingPage = location.pathname === '/';
   const isBannedPage = location.pathname === '/banned';
   
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
-  
-  const [showUpdateComplete, setShowUpdateComplete] = useState(false);
-
-  useEffect(() => {
-    // --- MODIFICATION : On vérifie juste le signal ici ---
-    if (sessionStorage.getItem('updateCompleted')) {
-      setShowUpdateComplete(true);
-    }
-  }, []);
-
-  // --- NOUVELLE FONCTION pour nettoyer après la fermeture du modal de succès ---
-  const handleCloseUpdateCompleteModal = () => {
-    setShowUpdateComplete(false);
-    sessionStorage.removeItem('updateCompleted');
-    sessionStorage.removeItem('newAppVersion');
-  };
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
-  const handleShowSuggestionModal = () => setShowSuggestionModal(true);
 
   const [showLogo, setShowLogo] = useState(true);
+  const [logoKey, setLogoKey] = useState(Date.now());
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
     if (isInitialLoad.current) {
-      const timer = setTimeout(() => {
-        setShowLogo(false);
-        isInitialLoad.current = false;
-      }, 1500);
-      return () => clearTimeout(timer);
+      isInitialLoad.current = false;
+      return;
     }
-  }, []);
+    setLogoKey(Date.now());
+    setShowLogo(true);
+    const timer = setTimeout(() => {
+      setShowLogo(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
   
   const handleWelcomeEnd = () => {
     dispatch(clearWelcome());
-    setShowLogo(false);
+    setLogoKey(Date.now());
+    setShowLogo(true);
   };
 
   const handleLogoEnd = () => {
     setShowLogo(false);
   };
 
-  const appClasses = ['app-container'];
-  if (!isLandingPage) {
-    appClasses.push('app-background');
-  }
+  const appStyle = !isLandingPage ? {
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: 'cover',
+    backgroundAttachment: 'fixed',
+    backgroundPosition: 'center',
+    minHeight: '100vh',
+  } : { minHeight: '100vh' };
 
   return (
-    <div className={appClasses.join(' ')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={appStyle}>
       <GlobalLoader />
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
       
       <LogoTransition 
+        key={logoKey} 
         show={showLogo} 
         onTransitionEnd={handleLogoEnd} 
       />
       
       <ScrollToTop />
 
-      {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} handleShowSuggestionModal={handleShowSuggestionModal} />}
+      {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
-        <Container fluid>
+        <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
                 <Outlet />
@@ -117,12 +114,7 @@ const App = () => {
       {userInfo && <GlobalMessageDisplay />}
       {userInfo && <WarningDisplay />}
       <ToastContainer />
-
-      <UpdateCompleteModal 
-        show={showUpdateComplete}
-        handleClose={handleCloseUpdateCompleteModal} // <-- On utilise la nouvelle fonction
-      />
-
+      
       <InstallPwaModal 
         show={showInstallModal}
         handleClose={handleCloseInstallModal}
@@ -131,6 +123,12 @@ const App = () => {
       <SuggestionModal 
         show={showSuggestionModal}
         handleClose={() => setShowSuggestionModal(false)}
+      />
+
+      {/* ✅ CORRECTION : On affiche le modal de succès ici */}
+      <UpdateCompleteModal
+        show={showUpdateCompleteModal}
+        handleClose={() => setShowUpdateCompleteModal(false)}
       />
     </div>
   );

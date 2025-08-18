@@ -16,27 +16,32 @@ import { apiSlice } from '../slices/apiSlice';
 import { VersionContext } from '../contexts/VersionContext';
 import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
-// --- AMÉLIORATION : On n'a plus besoin d'importer SuggestionModal ici ---
+import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
 import './Header.css';
 
-const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
+const Header = ({ handleShowInstallModal }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [showAdminModal, setShowAdminModal] = useState(false);
-  // --- AMÉLIORATION : On retire l'état local qui créait le conflit ---
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const { isUpdateAvailable, updateDeclined, openUpdateModal } = useContext(VersionContext);
+  const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  const showUpdateButton = isUpdateAvailable;
-  const shouldBlink = updateDeclined;
+  // ✅ CORRECTION : La logique pour le bouton est correcte, mais on la rend plus robuste.
+  // La mise à jour est terminée quand aucune de ces conditions n'est vraie.
+  const isUpdateFinished = !isUpdateAvailable && !isUpdateInProgress;
+
+  const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
+  const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getUpdateVariant = () => {
-    if (updateDeclined) return 'danger';
-    if (isUpdateAvailable) return 'success';
-    return 'outline-secondary';
+    if (isUpdateInProgress) return 'warning'; // Jaune pendant l'installation
+    if (updateDeclined) return 'danger'; // Rouge si refusé
+    if (isUpdateAvailable) return 'success'; // Vert si disponible
+    return 'outline-secondary'; // Gris (état final)
   };
 
   const [lastSeen, setLastSeen] = useState(() => {
@@ -177,15 +182,17 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               
-              {userInfo && showUpdateButton && (
+              {/* ✅ CORRECTION : Le bouton est maintenant ici, visible sur tous les écrans */}
+              {userInfo && (showUpdateButton || isUpdateFinished) && (
                 <Button 
                     variant={getUpdateVariant()} 
                     onClick={openUpdateModal}
                     className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
+                    disabled={isUpdateFinished} // On le grise si la MàJ est finie
                 >
                   <FaSyncAlt className="me-1" />
-                  Màj disponible
+                  {isUpdateInProgress ? 'Installation...' : (isUpdateFinished ? 'À jour' : 'Màj Dispo')}
                 </Button>
               )}
 
@@ -220,8 +227,7 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
                         <LinkContainer to="/profile/suggestions">
                           <NavDropdown.Item>Mes Suggestions</NavDropdown.Item>
                         </LinkContainer>
-                        {/* --- AMÉLIORATION : On appelle directement la prop reçue de App.jsx --- */}
-                        <NavDropdown.Item onClick={handleShowSuggestionModal}>
+                        <NavDropdown.Item onClick={() => setShowSuggestionModal(true)}>
                           Faire une suggestion
                         </NavDropdown.Item>
                       </>
@@ -280,11 +286,13 @@ const Header = ({ handleShowInstallModal, handleShowSuggestionModal }) => {
           totalAdminCount={totalAdminCount}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
-          handleSuggestionModal={handleShowSuggestionModal}
         />
       )}
 
-      {/* --- AMÉLIORATION : On retire la modale d'ici, elle est gérée par App.jsx --- */}
+      <SuggestionModal 
+        show={showSuggestionModal} 
+        handleClose={() => setShowSuggestionModal(false)} 
+      />
 
       {userInfo && userInfo.isAdmin && (
         <AdminMenuModal 

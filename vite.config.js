@@ -1,20 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+// --- NOUVEL IMPORT ---
 import versionInjector from './vite-plugin-version-injector.js';
 
 export default defineConfig({
+  // La section 'define' est maintenant gérée par notre plugin, on peut la retirer d'ici.
   plugins: [
     react(),
+    // ✅ CORRECTION : On active notre nouveau plugin ici
+    versionInjector(), 
     VitePWA({
-      // --- MODIFICATION : On réintroduit la configuration Workbox ---
-      // Cela force le nouveau Service Worker à s'activer dès que possible
-      // après que l'utilisateur clique sur "Mettre à jour".
+      registerType: 'prompt',
+      injectRegister: 'script',
       workbox: {
+        // ✅ CORRECTION : Ces options rendent la mise à jour plus rapide et fluide
         skipWaiting: true,
         clientsClaim: true,
       },
-      // --- FIN DE LA MODIFICATION ---
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY',
@@ -31,7 +34,6 @@ export default defineConfig({
         ],
       },
     }),
-    versionInjector(), 
   ],
   server: {
     proxy: {
@@ -40,6 +42,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    allowedHosts: ['.replit.dev', 'localhost'],
+    allowedHosts: ['.replit.dev'],
   },
 });

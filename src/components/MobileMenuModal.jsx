@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Modal, ListGroup, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt, FaPlusCircle } from 'react-icons/fa';
+import { FaTachometerAlt, FaBoxOpen, FaClipboardList, FaBullhorn, FaSyncAlt, FaUser, FaLightbulb, FaSignOutAlt } from 'react-icons/fa';
 import { VersionContext } from '../contexts/VersionContext';
 import './MobileMenuModal.css';
 
@@ -12,22 +12,22 @@ const MobileMenuModal = ({
   totalAdminCount, 
   logoutHandler,
   handleAdminModal,
-  handleSuggestionModal, // <-- On récupère la nouvelle prop
 }) => {
+  // --- MODIFICATION : On récupère tous les états nécessaires depuis le contexte ---
   const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  const handleLinkClick = (action) => {
-    if (action) action();
-    handleClose();
-  };
+  // On détermine si la mise à jour est terminée pour griser le bouton
+  const isUpdateFinished = !isUpdateAvailable && !isUpdateInProgress;
   
-  const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
+  // Le bouton ne doit être visible que s'il y a une action possible ou si la MàJ est terminée
+  const showUpdateButton = isUpdateAvailable || isUpdateInProgress || isUpdateFinished;
   const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getIconColor = () => {
-    if (updateDeclined) return '#dc3545';
-    if (isUpdateInProgress) return '#ffc107';
-    if (isUpdateAvailable) return '#198754';
+    if (isUpdateFinished) return '#6c757d'; // Gris si terminé
+    if (updateDeclined) return '#dc3545'; // Rouge si refusé
+    if (isUpdateInProgress) return '#ffc107'; // Jaune si en cours
+    if (isUpdateAvailable) return '#198754'; // Vert si disponible
     return '#6c757d';
   };
   
@@ -35,6 +35,7 @@ const MobileMenuModal = ({
     if (isUpdateInProgress) return 'warning';
     if (updateDeclined) return 'danger';
     if (isUpdateAvailable) return 'success';
+    if (isUpdateFinished) return 'secondary';
     return '';
   };
 
@@ -42,9 +43,16 @@ const MobileMenuModal = ({
     if (isUpdateInProgress) return 'En cours...';
     if (updateDeclined) return 'Requise';
     if (isUpdateAvailable) return 'Prête';
+    if (isUpdateFinished) return 'À jour';
     return '';
   };
+  // --- FIN DE LA MODIFICATION ---
 
+  const handleLinkClick = (action) => {
+    if (action) action();
+    handleClose();
+  };
+  
   return (
     <Modal show={show} onHide={handleClose} fullscreen="md-down" dialogClassName="mobile-menu-modal" contentClassName="mobile-menu-content">
       <Modal.Header closeButton>
@@ -67,11 +75,14 @@ const MobileMenuModal = ({
             <ListGroup.Item action className="promo-link"><FaBullhorn /> PROMO</ListGroup.Item>
           </LinkContainer>
 
+          {/* ✅ CORRECTION : Le bouton est maintenant entièrement piloté par la nouvelle logique */}
           {showUpdateButton && (
             <ListGroup.Item 
               action 
-              onClick={() => handleLinkClick(openUpdateModal)} 
+              onClick={() => { if (!isUpdateFinished) handleLinkClick(openUpdateModal); }}
               className={`d-flex justify-content-between align-items-center ${shouldBlink ? 'update-available-blink' : ''}`}
+              disabled={isUpdateFinished}
+              style={{ cursor: isUpdateFinished ? 'not-allowed' : 'pointer' }}
             >
               <div>
                 <FaSyncAlt style={{ color: getIconColor() }} />
@@ -94,14 +105,6 @@ const MobileMenuModal = ({
           <LinkContainer to="/profile/suggestions" onClick={() => handleLinkClick()}>
             <ListGroup.Item action><FaLightbulb /> Mes Suggestions</ListGroup.Item>
           </LinkContainer>
-          
-          {/* --- LIGNE AJOUTÉE ICI --- */}
-          {!userInfo.isAdmin && (
-            <ListGroup.Item action onClick={() => handleLinkClick(handleSuggestionModal)}>
-              <FaPlusCircle /> Faire une suggestion
-            </ListGroup.Item>
-          )}
-          {/* --- FIN DE L'AJOUT --- */}
 
           <ListGroup.Item action onClick={() => handleLinkClick(logoutHandler)} className="logout-link">
             <FaSignOutAlt /> Déconnexion
