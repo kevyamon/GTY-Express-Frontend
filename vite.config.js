@@ -7,13 +7,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // --- MODIFICATION : On retire la configuration workbox conflictuelle ---
-      // Laisser VitePWA gérer la stratégie par défaut ('prompt') est plus propre.
-      // On retire les lignes :
-      // workbox: {
-      //   skipWaiting: true,
-      //   clientsClaim: true,
-      // },
+      // --- MODIFICATION : On réintroduit la configuration Workbox ---
+      // Cela force le nouveau Service Worker à s'activer dès que possible
+      // après que l'utilisateur clique sur "Mettre à jour".
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
+      // --- FIN DE LA MODIFICATION ---
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY',
@@ -39,6 +40,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    allowedHosts: ['.replit.dev', 'localhost'], // Ajout de localhost
+    allowedHosts: ['.replit.dev', 'localhost'],
   },
 });

@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useDispatch } from 'react-redux'; // <-- 1. AJOUT : Pour communiquer avec le loader
+import { useDispatch } from 'react-redux';
 import { VersionContext } from './VersionContext';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import UpdateModal from '../components/UpdateModal';
 import { toast } from 'react-toastify';
-import { showLoader, hideLoader } from '../slices/loaderSlice'; // <-- 2. AJOUT : On importe les actions du loader
+import { showLoader, hideLoader } from '../slices/loaderSlice';
 
 export const VersionProvider = ({ children }) => {
-  const { isUpdateAvailable, newVersionInfo } = useVersionCheck();
-  const dispatch = useDispatch(); // <-- 3. AJOUT : On initialise le dispatcher
+  const { isUpdateAvailable, newVersionInfo, setIsUpdateAvailable } = useVersionCheck(); // <-- 1. On récupère la fonction pour changer l'état
+  const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateDeclined, setUpdateDeclined] = useState(false);
@@ -33,10 +33,14 @@ export const VersionProvider = ({ children }) => {
   }, [isUpdateAvailable, updateDeclined, isUpdating]);
 
   const confirmUpdate = useCallback(() => {
-    // --- MODIFICATIONS PRINCIPALES ICI ---
-    setIsModalOpen(false); // 4. On ferme DÉFINITIVEMENT le modal de proposition
-    dispatch(showLoader()); // 5. On affiche le loader global
-    // --- FIN DES MODIFICATIONS ---
+    setIsModalOpen(false);
+    dispatch(showLoader());
+    
+    // --- 2. MODIFICATION CLÉ ---
+    // On force l'état à "pas de mise à jour" immédiatement.
+    // Cela va griser le bouton dans le header et empêcher la modale de réapparaître.
+    setIsUpdateAvailable(false);
+    // --- FIN DE LA MODIFICATION ---
 
     setIsUpdating(true); 
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
@@ -51,7 +55,7 @@ export const VersionProvider = ({ children }) => {
       toast.info("Préparation de la mise à jour, la page va se recharger...");
       window.location.reload(true);
     }
-  }, [updateFunction, newVersionInfo, dispatch]); // <-- 6. AJOUT : dispatch dans les dépendances
+  }, [updateFunction, newVersionInfo, dispatch, setIsUpdateAvailable]); // <-- 3. On ajoute la fonction aux dépendances
 
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);

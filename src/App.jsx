@@ -21,7 +21,6 @@ import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
-// CORRECTION : On n'importe plus l'image ici
 
 const App = () => {
   const location = useLocation();
@@ -37,11 +36,18 @@ const App = () => {
   const [showUpdateComplete, setShowUpdateComplete] = useState(false);
 
   useEffect(() => {
+    // --- MODIFICATION : On vérifie juste le signal ici ---
     if (sessionStorage.getItem('updateCompleted')) {
       setShowUpdateComplete(true);
-      sessionStorage.removeItem('updateCompleted');
     }
   }, []);
+
+  // --- NOUVELLE FONCTION pour nettoyer après la fermeture du modal de succès ---
+  const handleCloseUpdateCompleteModal = () => {
+    setShowUpdateComplete(false);
+    sessionStorage.removeItem('updateCompleted');
+    sessionStorage.removeItem('newAppVersion');
+  };
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
@@ -69,14 +75,12 @@ const App = () => {
     setShowLogo(false);
   };
 
-  // CORRECTION : On utilise des classes CSS plutôt que des styles en ligne pour le fond
-  const appClasses = ['app-container']; // Classe de base
+  const appClasses = ['app-container'];
   if (!isLandingPage) {
-    appClasses.push('app-background'); // On ajoute la classe pour l'image de fond
+    appClasses.push('app-background');
   }
 
   return (
-    // CORRECTION : On utilise className au lieu de style pour le fond
     <div className={appClasses.join(' ')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <GlobalLoader />
       
@@ -116,7 +120,7 @@ const App = () => {
 
       <UpdateCompleteModal 
         show={showUpdateComplete}
-        handleClose={() => setShowUpdateComplete(false)}
+        handleClose={handleCloseUpdateCompleteModal} // <-- On utilise la nouvelle fonction
       />
 
       <InstallPwaModal 
