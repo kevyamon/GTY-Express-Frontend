@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from 'react'; // <-- Ajout de useContext
+import { useContext } from 'react';
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,15 +12,14 @@ import Footer from './components/Footer';
 import ChatTrigger from './components/ChatTrigger';
 import WarningDisplay from './components/WarningDisplay';
 import WelcomeTransition from './components/WelcomeTransition';
-import LogoTransition from './components/LogoTransition';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import GlobalLoader from './components/GlobalLoader';
 import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
-import { VersionContext } from './contexts/VersionContext'; // <-- NOUVEL IMPORT
-import UpdateCompleteModal from './components/UpdateCompleteModal'; // <-- NOUVEL IMPORT
+import { VersionContext } from './contexts/VersionContext';
+import UpdateCompleteModal from './components/UpdateCompleteModal';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -29,7 +28,7 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // ✅ CORRECTION : On se connecte au contexte pour gérer le modal de succès
+  // On se connecte au contexte pour gérer le modal de succès
   const { showUpdateCompleteModal, setShowUpdateCompleteModal } = useContext(VersionContext);
   
   const isLandingPage = location.pathname === '/';
@@ -40,32 +39,9 @@ const App = () => {
 
   const handleShowInstallModal = () => setShowInstallModal(true);
   const handleCloseInstallModal = () => setShowInstallModal(false);
-
-  const [showLogo, setShowLogo] = useState(true);
-  const [logoKey, setLogoKey] = useState(Date.now());
-  const isInitialLoad = useRef(true);
-
-  useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-    setLogoKey(Date.now());
-    setShowLogo(true);
-    const timer = setTimeout(() => {
-      setShowLogo(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
   
   const handleWelcomeEnd = () => {
     dispatch(clearWelcome());
-    setLogoKey(Date.now());
-    setShowLogo(true);
-  };
-
-  const handleLogoEnd = () => {
-    setShowLogo(false);
   };
 
   const appStyle = !isLandingPage ? {
@@ -81,12 +57,6 @@ const App = () => {
       <GlobalLoader />
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
-      
-      <LogoTransition 
-        key={logoKey} 
-        show={showLogo} 
-        onTransitionEnd={handleLogoEnd} 
-      />
       
       <ScrollToTop />
 
@@ -125,7 +95,6 @@ const App = () => {
         handleClose={() => setShowSuggestionModal(false)}
       />
 
-      {/* ✅ CORRECTION : On affiche le modal de succès ici */}
       <UpdateCompleteModal
         show={showUpdateCompleteModal}
         handleClose={() => setShowUpdateCompleteModal(false)}

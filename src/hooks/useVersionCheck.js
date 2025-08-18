@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from 'react-toastify';
 
-const CHECK_INTERVAL = 60000; // Vérification toutes les 60 secondes
+const CHECK_INTERVAL = 60 * 1000; // Vérification toutes les 60 secondes
 
 export const useVersionCheck = () => {
   // États internes pour gérer le processus de mise à jour
@@ -20,7 +20,7 @@ export const useVersionCheck = () => {
   } = useRegisterSW({
     onRegisteredSW(swUrl, r) {
       console.log(`Service Worker enregistré: ${swUrl}`);
-      // ✅ CORRECTION : Si on détecte qu'une mise à jour vient de se terminer (après rechargement)
+      // Si on détecte qu'une mise à jour vient de se terminer (après rechargement)
       if (sessionStorage.getItem('swUpdateCompleted')) {
         setShowUpdateCompleteModal(true); // On déclenche le modal de succès !
         sessionStorage.removeItem('swUpdateCompleted'); // On nettoie le drapeau
@@ -29,6 +29,15 @@ export const useVersionCheck = () => {
         setIsUpdateInProgress(false);
         setIsModalOpen(false);
         setUpdateDeclined(false);
+      } else {
+        // Lance une vérification au démarrage, puis toutes les X secondes
+        if (r?.installing) {
+            console.log('Un nouveau Service Worker est en cours d\'installation.');
+        }
+        setInterval(() => {
+          console.log("Vérification d'une nouvelle version...");
+          r.update();
+        }, CHECK_INTERVAL);
       }
     },
     onRegisterError(error) {
@@ -36,22 +45,12 @@ export const useVersionCheck = () => {
     },
   });
 
-  // Lance la vérification périodique
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isUpdateAvailable && !isUpdateInProgress) {
-        updateServiceWorker(true);
-      }
-    }, CHECK_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [updateServiceWorker, isUpdateAvailable, isUpdateInProgress]);
-
   // Réagit quand le Service Worker signale qu'une mise à jour est prête
   useEffect(() => {
     if (needRefresh) {
+      console.log("Mise à jour disponible !");
       setIsUpdateAvailable(true);
-      // ✅ CORRECTION : On affiche le modal dès que la MàJ est prête, sans timer complexe
+      // On affiche le modal dès que la MàJ est prête, sans timer complexe
       setIsModalOpen(true);
     }
   }, [needRefresh]);
@@ -60,8 +59,10 @@ export const useVersionCheck = () => {
   const confirmUpdate = useCallback(async () => {
     setIsModalOpen(false);
     setIsUpdateInProgress(true);
-    // ✅ CORRECTION : On pose le drapeau AVANT de lancer la mise à jour
+    // On pose le drapeau AVANT de lancer la mise à jour
     sessionStorage.setItem('swUpdateCompleted', 'true');
+    // Attend 1 seconde pour que l'utilisateur voie l'état "Installation..."
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await updateServiceWorker(true);
   }, [updateServiceWorker]);
 
@@ -69,7 +70,7 @@ export const useVersionCheck = () => {
   const declineUpdate = useCallback(() => {
     setIsModalOpen(false);
     setUpdateDeclined(true);
-    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton "Màj".');
+    toast.info('Vous pouvez mettre à jour à tout moment depuis le bouton dans le menu.');
   }, []);
 
   // Fonction pour rouvrir le modal

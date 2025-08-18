@@ -141,7 +141,7 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      {/* --- MODIFICATION : On entoure l'application avec notre Provider --- */}
+      {/* On entoure l'application avec notre Provider */}
       <VersionProvider>
         <PayPalScriptProvider deferLoading={true}>
           <RouterProvider router={router} />
