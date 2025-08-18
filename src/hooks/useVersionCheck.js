@@ -27,6 +27,7 @@ export const useVersionCheck = () => {
         return;
       }
 
+      // On ajoute un timestamp pour éviter la mise en cache du fichier par le navigateur
       const response = await fetch(`/version.json?t=${new Date().getTime()}`);
       if (!response.ok) return;
       

@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       // --- MODIFICATION : On retire la configuration workbox conflictuelle ---
       // Laisser VitePWA gérer la stratégie par défaut ('prompt') est plus propre.
-      // On retire :
+      // On retire les lignes :
       // workbox: {
       //   skipWaiting: true,
       //   clientsClaim: true,
@@ -39,6 +39,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-    allowedHosts: ['.replit.dev'],
+    allowedHosts: ['.replit.dev', 'localhost'], // Ajout de localhost
   },
 });
