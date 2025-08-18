@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Button, Row, Col, Form, InputGroup, Badge, Collapse } from 'react-bootstrap';
+import { Button, Row, Col, Form, InputGroup, Badge, Collapse, ListGroup, Image } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { FaSearch, FaChevronDown, FaChevronUp, FaArchive, FaInbox } from 'react-icons/fa';
 import Message from '../../components/Message';
 import { 
   useGetOrdersQuery, 
-  useGetArchivedOrdersQuery, // --- NOUVEL IMPORT ---
+  useGetArchivedOrdersQuery,
   useUpdateOrderStatusMutation, 
   useDeleteOrderMutation,
   useArchiveOrderMutation
@@ -13,7 +13,6 @@ import {
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
-  // --- GESTION DE L'AFFICHAGE DES ARCHIVES ---
   const [showArchived, setShowArchived] = useState(false);
 
   const { data: activeOrders, isLoading: isLoadingActive } = useGetOrdersQuery(undefined, { skip: showArchived });
@@ -21,7 +20,6 @@ const OrderListScreen = () => {
   
   const orders = showArchived ? archivedOrders : activeOrders;
   const isLoading = showArchived ? isLoadingArchived : isLoadingActive;
-  // --- FIN DE LA GESTION ---
 
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
@@ -95,8 +93,6 @@ const OrderListScreen = () => {
   };
 
   if (isLoading) { return <p>Chargement...</p>; }
-  // L'erreur n'est plus pertinente ici car on gère les deux états
-  // if (error && !orders) { return <Message variant='danger'>{error?.data?.message || error.message}</Message>; }
 
   return (
     <>
@@ -113,7 +109,6 @@ const OrderListScreen = () => {
           </InputGroup>
         </Col>
         <Col md="auto" className="text-end">
-          {/* --- BOUTON POUR CHANGER DE VUE --- */}
           <Button variant="info" onClick={() => setShowArchived(!showArchived)}>
             {showArchived ? <FaInbox className="me-2"/> : <FaArchive className="me-2" />}
             {showArchived ? 'Voir les commandes actives' : 'Voir les archives'}
@@ -152,10 +147,30 @@ const OrderListScreen = () => {
                   {(order.totalPrice || 0).toFixed(2)} FCFA
                 </div>
               </div>
+
+              {/* --- DÉBUT DE L'AJOUT --- */}
+              <div className="details-cell items-cell">
+                <h6 className="mb-3">Articles Commandés :</h6>
+                <ListGroup variant="flush" className="order-items-list">
+                  {order.orderItems.map((item) => (
+                    <ListGroup.Item key={item._id} className="order-item-admin">
+                      <Image src={item.image} alt={item.name} className="order-item-image-admin" />
+                      <div className="order-item-details-admin">
+                        <div>{item.name}</div>
+                        <small>{item.qty} x {item.price.toFixed(2)} FCFA</small>
+                      </div>
+                      <div className="order-item-total-admin">
+                        <strong>{(item.qty * item.price).toFixed(2)} FCFA</strong>
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+              {/* --- FIN DE L'AJOUT --- */}
+
               <div className="details-cell">
                 <h5>Actions :</h5>
                 <div className="actions-container">
-                    {/* --- AFFICHAGE CONDITIONNEL DES ACTIONS --- */}
                     {!showArchived ? (
                         <>
                             <Button variant="primary" size="sm" onClick={() => handleStatusChange(order._id, 'Confirmée')} disabled={order.status !== 'En attente'}>Confirmer</Button>

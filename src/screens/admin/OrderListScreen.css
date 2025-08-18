@@ -45,11 +45,57 @@
   font-weight: bold;
 }
 
-/* --- Style pour le panneau d'actions dépliant --- */
 .details-cell {
   padding: 1.5rem;
   background-color: #f8f9fa;
 }
+
+/* --- AJOUT : Style pour la section des articles --- */
+.items-cell {
+  background-color: #ffffff; /* Fond blanc pour la liste */
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.order-items-list {
+  padding: 0;
+}
+
+.order-item-admin {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+.order-items-list .list-group-item:last-child {
+  border-bottom: none !important;
+}
+
+.order-item-image-admin {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-item-details-admin {
+  flex-grow: 1;
+}
+
+.order-item-details-admin div {
+  font-weight: 600;
+}
+
+.order-item-details-admin small {
+  color: #6c757d;
+}
+
+.order-item-total-admin {
+  font-weight: bold;
+}
+/* --- FIN DE L'AJOUT --- */
+
 
 .actions-container {
   display: flex;
