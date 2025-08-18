@@ -4,7 +4,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import versionInjector from './version-injector-plugin.js';
+import versionInjector from './vite-plugin-version-injector.js';
 
 export default defineConfig({
   plugins: [
