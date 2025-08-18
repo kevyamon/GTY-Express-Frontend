@@ -1,61 +1,38 @@
-import { execSync } from 'child_process';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import path from 'path';
-import packageJson from './package.json';
+// vite-plugin-version-injector.js 
 
-// Fonction robuste pour récupérer les informations Git
-function getGitInfo(command) {
-  try {
-    // Exécute la commande Git et nettoie le résultat
-    return execSync(command).toString().trim();
-  } catch (e) {
-    console.error(`Erreur lors de l'exécution de la commande git : ${command}`, e);
-    // Retourne 'N/A' si la commande échoue (ex: pas dans un dépôt git)
-    return 'N/A';
-  }
-}
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+
+// On lit le fichier package.json de manière robuste pour obtenir la version
+const pkg = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf-8'));
 
 export default function versionInjector() {
-  // Récupère les informations une seule fois au démarrage
-  const version = packageJson.version;
-  const commitHash = getGitInfo('git rev-parse --short HEAD');
-  const commitDate = getGitInfo('git log -1 --format=%cI'); // Date au format ISO 8601
+  const manualVersion = pkg.version;
+  const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+  const fullVersion = `${manualVersion}-${gitCommitHash}`; // La version complète pour la détection
 
   return {
-    name: 'vite-plugin-version-injector',
-
-    // Ce hook s'exécute au tout début du processus de build
-    buildStart() {
-      // Prépare les informations qui seront écrites dans le fichier JSON
-      const versionInfo = {
-        version,
-        commitHash,
-        commitDate,
-      };
-
-      // S'assure que le dossier 'public' existe avant d'y écrire
-      const publicDir = path.resolve(process.cwd(), 'public');
-      if (!existsSync(publicDir)) {
-        mkdirSync(publicDir);
-      }
-      
-      // Écrit les informations dans public/version.json
-      // Ce fichier sera interrogé par l'application pour détecter les mises à jour
-      writeFileSync(
-        path.join(publicDir, 'version.json'),
-        JSON.stringify(versionInfo, null, 2)
-      );
-
-      console.log(`✅ Fichier version.json généré : v${version} (${commitHash})`);
-    },
-
-    // Ce hook modifie le fichier index.html à la volée
+    name: 'version-injector',
+    
     transformIndexHtml(html) {
-      // Crée la balise meta qui stockera la version actuelle de l'application
-      const metaTag = `<meta name="app-version" content="${commitHash}">`;
-      
-      // Insère la balise juste avant la fin de la balise </head>
+      // On injecte toujours la version COMPLÈTE dans l'HTML pour une identification unique
+      const metaTag = `<meta name="app-version" content="${fullVersion}">`;
       return html.replace('</head>', `  ${metaTag}\n</head>`);
     },
+    
+    closeBundle() {
+      const distPath = path.resolve(process.cwd(), 'dist');
+      if (!fs.existsSync(distPath)) fs.mkdirSync(distPath);
+      
+      // ✅ Le fichier meta.json contient maintenant les deux versions
+      const meta = { 
+        fullVersion: fullVersion,          // Pour la logique de détection
+        displayVersion: manualVersion      // Pour l'affichage utilisateur
+      };
+      fs.writeFileSync(path.join(distPath, 'meta.json'), JSON.stringify(meta));
+      
+      console.log(`\nVersion complète injectée : ${fullVersion}`);
+    }
   };
 }
