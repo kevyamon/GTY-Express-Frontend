@@ -1,9 +1,9 @@
 // src/context/VersionContext.jsx
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 // On crée le Context
-const VersionContext = createContext();
+export const VersionContext = createContext();
 
 // On crée un "hook" personnalisé pour l'utiliser facilement
 export const useVersion = () => useContext(VersionContext);
