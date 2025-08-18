@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useState, useContext } from 'react'; // CORRECTION ICI : useState a été ajouté
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
