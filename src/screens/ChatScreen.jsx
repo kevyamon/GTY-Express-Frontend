@@ -3,8 +3,8 @@ import { Container, Row, Col, ListGroup, Image, Badge, Spinner, Button, Modal } 
 import { useSelector } from 'react-redux';
 import { FaArchive, FaInbox } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { 
-  useGetConversationsQuery, 
+import {
+  useGetConversationsQuery,
   useGetArchivedConversationsQuery,
   useSendMessageMutation,
   useArchiveConversationMutation,
