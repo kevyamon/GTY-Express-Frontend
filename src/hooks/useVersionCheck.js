@@ -59,13 +59,15 @@ export function useVersionCheck() {
   // L'utilisateur clique sur "Mettre à jour maintenant"
   const confirmUpdate = () => {
     setIsUpdateInProgress(true);
-    dispatch(showLoader()); // Affiche l'animation de chargement
+    // --- MODIFICATION APPLIQUÉE ICI ---
+    // On passe maintenant un objet avec le message à afficher au loader.
+    dispatch(showLoader({ message: "Veuillez patienter, cela peut prendre jusqu'à 3 minutes" }));
     
     // On stocke la nouvelle version pour l'afficher après le rechargement
     sessionStorage.setItem('newAppVersion', newVersionInfo?.version || 'inconnue');
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
 
-    // On attend un peu pour que l'animation soit visible, puis on recharge
+    // On attend 90 secondes avant de recharger la page
     setTimeout(() => {
       window.location.reload();
     }, 90000);
