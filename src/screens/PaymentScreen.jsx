@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify'; // Ajout de l'import pour les notifications
-import { FaPaypal, FaMoneyBillWave, FaMobileAlt } from 'react-icons/fa'; // Ajout des icônes
+import { toast } from 'react-toastify';
+import { FaPaypal, FaMoneyBillWave, FaMobileAlt } from 'react-icons/fa';
 import { savePaymentMethod } from '../slices/cartSlice';
 import CheckoutSteps from '../components/CheckoutSteps';
 import './PaymentScreen.css';
@@ -28,7 +28,6 @@ const PaymentScreen = () => {
     navigate('/placeorder');
   };
 
-  // --- NOUVELLE FONCTION POUR LE BOUTON MOBILE MONEY ---
   const mobileMoneyHandler = () => {
     toast.info("Mobile Money n'est pas encore disponible, mais le sera bientôt !");
   };
@@ -41,8 +40,8 @@ const PaymentScreen = () => {
         <Form.Group>
           <Form.Label as='legend' className='mb-3'>Sélectionnez une méthode</Form.Label>
           <Col>
-            {/* --- OPTION PAYPAL AMÉLIORÉE --- */}
-            <Form.Check 
+            {/* --- CORRECTION : Remplacement de Form.Check par un input standard --- */}
+            <input 
               type='radio' 
               id='PayPal' 
               name='paymentMethod' 
@@ -59,8 +58,8 @@ const PaymentScreen = () => {
               </div>
             </label>
 
-            {/* --- OPTION CASH AMÉLIORÉE --- */}
-            <Form.Check 
+            {/* --- CORRECTION : Remplacement de Form.Check par un input standard --- */}
+            <input 
               type='radio' 
               id='Cash' 
               name='paymentMethod' 
@@ -77,7 +76,6 @@ const PaymentScreen = () => {
               </div>
             </label>
 
-            {/* --- NOUVEAU BOUTON MOBILE MONEY --- */}
             <div className='payment-method-label disabled' onClick={mobileMoneyHandler}>
               <FaMobileAlt className="payment-icon mobile-money" />
               <div>
