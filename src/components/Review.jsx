@@ -10,9 +10,10 @@ import {
   useUpdateReviewMutation,
   useDeleteReviewMutation,
 } from '../slices/productsApiSlice';
-import './Review.css'; // Nous créerons ce fichier juste après
+import './Review.css';
 
-const Review = ({ review, productId, refetch, depth = 0 }) => {
+// --- CORRECTION : Le prop "depth" n'est plus nécessaire ---
+const Review = ({ review, productId, refetch }) => {
   const { userInfo } = useSelector((state) => state.auth);
 
   const [likeReview] = useLikeReviewMutation();
@@ -22,7 +23,8 @@ const Review = ({ review, productId, refetch, depth = 0 }) => {
 
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [showReplies, setShowReplies] = useState(depth < 1); // Ouvre les réponses du 1er niveau par défaut
+  // --- CORRECTION : Les réponses sont maintenant cachées par défaut ---
+  const [showReplies, setShowReplies] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [editText, setEditText] = useState(review.comment);
   const [likes, setLikes] = useState(review.likes.length);
@@ -145,7 +147,7 @@ const Review = ({ review, productId, refetch, depth = 0 }) => {
           <Collapse in={showReplies}>
             <div className="replies-container">
               {review.replies.map(reply => (
-                <Review key={reply._id} review={reply} productId={productId} refetch={refetch} depth={depth + 1} />
+                <Review key={reply._id} review={reply} productId={productId} refetch={refetch} />
               ))}
             </div>
           </Collapse>
