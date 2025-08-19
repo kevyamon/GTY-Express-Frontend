@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, ListGroup, Image, Badge, Spinner, Button, Modal } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { FaArchive, FaInbox } from 'react-icons/fa';
@@ -8,7 +8,7 @@ import {
   useGetArchivedConversationsQuery,
   useSendMessageMutation,
   useArchiveConversationMutation,
-  useMarkAsReadMutation,
+  useMarkAsReadMutation, // On importe le hook manquant
 } from '../slices/messageApiSlice';
 import MessageContainer from '../components/MessageContainer';
 import Message from '../components/Message';
@@ -17,7 +17,6 @@ import './ChatScreen.css';
 const ChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
-  // --- AMÉLIORATION : Gestion de la vue active/archivée ---
   const [showArchived, setShowArchived] = useState(false);
 
   const { data: activeConversations, isLoading: isLoadingActive } = useGetConversationsQuery(undefined, { skip: showArchived });
@@ -25,27 +24,30 @@ const ChatScreen = () => {
   
   const conversations = showArchived ? archivedConversations : activeConversations;
   const isLoading = showArchived ? isLoadingArchived : isLoadingActive;
-  // --- FIN DE L'AMÉLIORATION ---
 
   const [sendMessage] = useSendMessageMutation();
   const [archiveConversation, { isLoading: isArchiving }] = useArchiveConversationMutation();
-  const [markAsRead] = useMarkAsReadMutation();
+  const [markAsRead] = useMarkAsReadMutation(); // On utilise le hook
 
   const [showModal, setShowModal] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState(null);
 
+  // --- CORRECTION DE LA LOGIQUE "MARQUER COMME LU" ---
   const handleOpenConversation = async (convo) => {
-    // --- CORRECTION : Marquer comme lu uniquement au clic ---
+    // Si la conversation est marquée comme non lue, on appelle l'API
     if (convo && convo.isUnread) {
         try {
             await markAsRead(convo._id).unwrap();
         } catch (error) {
+            // Pas besoin de spammer l'utilisateur avec une erreur ici
             console.error("Erreur pour marquer comme lu", error);
         }
     }
+    // Ensuite, on ouvre la conversation
     setSelectedConversation(convo);
     setShowModal(true);
   };
+  // --- FIN DE LA CORRECTION ---
 
   const handleSendMessage = async (messageData) => {
     try {
@@ -67,7 +69,7 @@ const ChatScreen = () => {
   };
 
   const handleArchive = async (e, convoId) => {
-    e.stopPropagation(); // Empêche l'ouverture du chat
+    e.stopPropagation();
     try {
       await archiveConversation(convoId).unwrap();
       toast.info(`Conversation ${showArchived ? 'désarchivée' : 'archivée'}`);
