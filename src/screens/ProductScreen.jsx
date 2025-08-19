@@ -22,6 +22,8 @@ const ProductScreen = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  // --- NOUVEL AJOUT : État pour gérer les avis étendus ---
+  const [expandedReviews, setExpandedReviews] = useState({});
 
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
   const { userInfo } = useSelector((state) => state.auth);
@@ -56,6 +58,15 @@ const ProductScreen = () => {
   };
 
   const toggleDescription = () => setIsDescriptionExpanded(!isDescriptionExpanded);
+  
+  // --- NOUVEL AJOUT : Fonction pour basculer l'affichage d'un avis ---
+  const toggleReviewExpansion = (reviewId) => {
+    setExpandedReviews(prev => ({
+      ...prev,
+      [reviewId]: !prev[reviewId]
+    }));
+  };
+
   const getImageUrl = (url) => url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url;
   
   const submitReviewHandler = async (e) => {
@@ -72,6 +83,7 @@ const ProductScreen = () => {
   };
 
   const TRUNCATE_LENGTH = 250;
+  const REVIEW_TRUNCATE_LENGTH = 150;
 
   return (
     <div className="product-screen-container">
@@ -151,20 +163,37 @@ const ProductScreen = () => {
 
           <Row className="reviews mt-4">
             <Col>
-              <Card className="add-to-cart-card"> {/* Réutilisation du style de carte */}
+              <Card className="add-to-cart-card">
                 <Card.Body>
                   <h2>Avis des clients</h2>
                   {product.reviews.length === 0 && <Message>Aucun avis pour le moment.</Message>}
                   <ListGroup variant='flush'>
-                    {product.reviews.map(review => (
-                      <ListGroup.Item key={review._id}>
-                        <strong>{review.name}</strong>
-                        <Rating value={review.rating} />
-                        <p>{new Date(review.createdAt).toLocaleDateString('fr-FR')}</p>
-                        <p>{review.comment}</p>
-                      </ListGroup.Item>
-                    ))}
-                    <ListGroup.Item>
+                    {/* --- DÉBUT DE LA MODIFICATION DE L'AFFICHAGE DES AVIS --- */}
+                    {product.reviews.map(review => {
+                      const isExpanded = expandedReviews[review._id];
+                      const isLongReview = review.comment.length > REVIEW_TRUNCATE_LENGTH;
+                      return (
+                        <ListGroup.Item key={review._id} className="review-item">
+                          <div className="review-header">
+                            <div className="review-user-info">
+                              <strong>{review.name}</strong>
+                              <span className="review-date">{new Date(review.createdAt).toLocaleDateString('fr-FR')}</span>
+                            </div>
+                            <Rating value={review.rating} />
+                          </div>
+                          <p className="review-comment">
+                            {isLongReview && !isExpanded ? `${review.comment.substring(0, REVIEW_TRUNCATE_LENGTH)}...` : review.comment}
+                          </p>
+                          {isLongReview && (
+                            <Button variant="link" className="toggle-review-btn" onClick={() => toggleReviewExpansion(review._id)}>
+                              {isExpanded ? 'Réduire' : 'Lire la suite'}
+                            </Button>
+                          )}
+                        </ListGroup.Item>
+                      );
+                    })}
+                    {/* --- FIN DE LA MODIFICATION --- */}
+                    <ListGroup.Item className="review-form-card">
                       <h2>Écrire un avis</h2>
                       {loadingReview && <p>Envoi de l'avis...</p>}
                       {userInfo ? (

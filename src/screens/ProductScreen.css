@@ -132,6 +132,76 @@
     border-radius: 50px !important;
 }
 
+/* --- DÉBUT DES AJOUTS POUR LA SECTION AVIS --- */
+
+.reviews h2 {
+  margin-bottom: 1rem;
+}
+
+.review-item {
+  padding: 1.5rem 0 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.review-item:last-child {
+  border-bottom: none !important;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap; 
+  gap: 0.5rem;
+}
+
+.review-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-user-info strong {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.review-item .rating {
+  flex-shrink: 0;
+}
+
+.review-comment {
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+}
+
+.toggle-review-btn {
+  padding: 0;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.review-form-card {
+  margin-top: 2rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 1.5rem !important;
+  border-radius: 12px;
+}
+
+/* --- FIN DES AJOUTS --- */
+
+
 /* Styles responsives */
 @media (max-width: 767px) {
     .product-image-gallery {
