@@ -55,30 +55,33 @@ export function useVersionCheck() {
     return () => clearInterval(interval);
   }, [performCheck]);
 
-  // --- Fonction utilitaire : recharger sans cache ---
-  const reloadWithoutCache = () => {
-    // On ajoute un paramètre unique (timestamp) à l’URL
-    // Ainsi, le navigateur est obligé de recharger depuis le serveur
-    const { pathname, search, hash } = window.location;
-    const newUrl = `${pathname}?nocache=${Date.now()}${search}${hash}`;
-    window.location.replace(newUrl);
-  };
-
-  // --- L'utilisateur confirme la mise à jour ---
-  const confirmUpdate = () => {
+  // --- L'utilisateur confirme la mise à jour (LOGIQUE CORRIGÉE) ---
+  const confirmUpdate = async () => {
     setIsUpdateInProgress(true);
-
-    // On affiche le loader avec un message explicite
     dispatch(showLoader({ message: "Veuillez patienter, cela peut prendre jusqu'à 3 minutes" }));
     
-    // On stocke la nouvelle version pour l’afficher après rechargement
+    // On stocke les infos pour après le rechargement
     sessionStorage.setItem('newAppVersion', newVersionInfo?.version || 'inconnue');
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
 
-    // On attend 5 secondes avant de recharger la page
+    try {
+      // On cherche et on désactive l'ancien Service Worker pour forcer le rechargement depuis le réseau
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+    } catch (error) {
+      console.error("Échec de la désinscription du service worker:", error);
+      // On continue même si la désinscription échoue, le rechargement simple essaiera
+    }
+
+    // On attend un court instant pour s'assurer que tout est propre, puis on recharge.
+    // Le nouveau Service Worker sera alors correctement enregistré.
     setTimeout(() => {
-      reloadWithoutCache(); // <--- On recharge sans utiliser le cache
-    }, 5000);
+      window.location.reload();
+    }, 1000); // 1 seconde est suffisante
   };
 
   // --- L'utilisateur refuse la mise à jour ---
