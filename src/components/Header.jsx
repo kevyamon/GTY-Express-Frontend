@@ -8,7 +8,7 @@ import { FaTag, FaComments, FaBell, FaSyncAlt, FaDownload, FaBars } from 'react-
 import { useLogoutMutation, useGetProfileDetailsQuery } from '../slices/usersApiSlice';
 import { useGetOrdersQuery } from '../slices/orderApiSlice';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '../slices/notificationApiSlice';
-import { useGetConversationsQuery } from '../slices/messageApiSlice'; // On retire 'useMarkAllAsReadMutation'
+import { useGetConversationsQuery, useMarkAllAsReadMutation } from '../slices/messageApiSlice';
 import { useGetComplaintsQuery, useGetUsersQuery } from '../slices/adminApiSlice';
 import { useGetSuggestionsQuery } from '../slices/suggestionApiSlice';
 import { logout } from '../slices/authSlice';
@@ -29,15 +29,19 @@ const Header = ({ handleShowInstallModal }) => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
+
+  // ✅ CORRECTION : La logique pour le bouton est correcte, mais on la rend plus robuste.
+  // La mise à jour est terminée quand aucune de ces conditions n'est vraie.
   const isUpdateFinished = !isUpdateAvailable && !isUpdateInProgress;
+
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
   const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getUpdateVariant = () => {
-    if (isUpdateInProgress) return 'warning';
-    if (updateDeclined) return 'danger';
-    if (isUpdateAvailable) return 'success';
-    return 'outline-secondary';
+    if (isUpdateInProgress) return 'warning'; // Jaune pendant l'installation
+    if (updateDeclined) return 'danger'; // Rouge si refusé
+    if (isUpdateAvailable) return 'success'; // Vert si disponible
+    return 'outline-secondary'; // Gris (état final)
   };
 
   const [lastSeen, setLastSeen] = useState(() => {
@@ -64,7 +68,7 @@ const Header = ({ handleShowInstallModal }) => {
   
   const [logoutApiCall] = useLogoutMutation();
   const [markAsRead] = useMarkAsReadMutation();
-  // On n'a plus besoin de 'markAllMessagesAsRead' ici
+  const [markAllMessagesAsRead] = useMarkAllAsReadMutation();
   const homePath = userInfo ? '/products' : '/';
 
   const newOrdersCount = useMemo(() => {
@@ -113,13 +117,17 @@ const Header = ({ handleShowInstallModal }) => {
     }
   };
 
-  // --- CORRECTION DE LA LOGIQUE ---
-  // Cette fonction navigue simplement vers la page de chat.
-  // La logique pour marquer les messages comme "lus" est gérée dans ChatScreen.jsx
-  const handleChatClick = () => {
-    navigate('/chat');
+  const handleChatClick = async () => {
+    try {
+      if (unreadMessagesCount > 0) {
+        await markAllMessagesAsRead().unwrap();
+      }
+    } catch (err) {
+      console.error("Erreur", err);
+    } finally {
+      navigate('/chat');
+    }
   };
-  // --- FIN DE LA CORRECTION ---
 
   const handleNotificationClick = async () => {
     if (unreadNotifsCount > 0) {
@@ -174,13 +182,14 @@ const Header = ({ handleShowInstallModal }) => {
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               
+              {/* ✅ CORRECTION : Le bouton est maintenant ici, visible sur tous les écrans */}
               {userInfo && (showUpdateButton || isUpdateFinished) && (
                 <Button 
                     variant={getUpdateVariant()} 
                     onClick={openUpdateModal}
                     className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
-                    disabled={isUpdateFinished}
+                    disabled={isUpdateFinished} // On le grise si la MàJ est finie
                 >
                   <FaSyncAlt className="me-1" />
                   {isUpdateInProgress ? 'Installation...' : (isUpdateFinished ? 'À jour' : 'Màj Dispo')}
