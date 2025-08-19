@@ -9,13 +9,13 @@
 
 /* Classe principale pour le conteneur de la page */
 .product-screen-container {
-  padding-bottom: 2rem; /* Ajoute de l'espace en bas */
+  padding-bottom: 2rem;
 }
 
 /* Style de la galerie d'images */
 .product-image-gallery {
   background-color: #f8f9fa;
-  border-radius: 16px; /* Bords plus arrondis */
+  border-radius: 16px;
   padding: 1rem;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@
   margin: auto;
 }
 
-/* Nouvelle carte pour les détails du produit */
+/* Carte pour les détails du produit */
 .product-details-card {
   background-color: #fff;
   border-radius: 16px;
@@ -54,16 +54,14 @@
   margin-bottom: 1rem;
 }
 
-/* Le style principal pour le prix */
 .product-price-main {
-  color: #00c9b7; /* Turquoise */
+  color: #00c9b7;
   font-size: 2.5rem;
   font-weight: 700;
   animation: breathe-animation 2.5s ease-in-out infinite;
   margin-bottom: 1rem;
 }
 
-/* Style de la description */
 .description-box {
   line-height: 1.6;
   white-space: pre-wrap;
@@ -84,7 +82,6 @@
   text-decoration: underline;
 }
 
-/* Nouvelle carte pour la section d'ajout au panier */
 .add-to-cart-card {
   background-color: #fff;
   border-radius: 16px;
@@ -98,14 +95,12 @@
   align-items: center;
 }
 
-/* Style pour le prix dans la carte d'ajout */
 .summary-price-value {
-  color: #00c9b7; /* Turquoise */
+  color: #00c9b7;
   font-weight: 700;
   font-size: 1.5rem;
 }
 
-/* Nouveau style pour les boutons */
 .btn-custom-primary {
   border-radius: 50px !important;
   font-weight: bold;
@@ -132,63 +127,19 @@
     border-radius: 50px !important;
 }
 
-/* --- DÉBUT DES AJOUTS POUR LA SECTION AVIS --- */
+/* --- DÉBUT DES NOUVEAUX STYLES POUR LA SECTION AVIS --- */
 
 .reviews h2 {
   margin-bottom: 1rem;
 }
 
-.review-item {
-  padding: 1.5rem 0 !important;
-  border-bottom: 1px solid #f0f0f0 !important;
-}
-
-.review-item:last-child {
-  border-bottom: none !important;
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap; 
-  gap: 0.5rem;
-}
-
-.review-user-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.review-user-info strong {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.review-date {
-  font-size: 0.8rem;
-  color: #6c757d;
-}
-
-.review-item .rating {
-  flex-shrink: 0;
-}
-
-.review-comment {
-  color: #333;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  margin-bottom: 0;
-  margin-top: 0.5rem;
-}
-
-.toggle-review-btn {
-  padding: 0;
-  text-align: left;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-decoration: none;
+/* Le conteneur scrollable */
+.reviews-container {
+  max-height: 500px; /* Hauteur maximale avant que le scroll n'apparaisse */
+  overflow-y: auto;  /* Active le scroll vertical si nécessaire */
+  padding-right: 1rem; /* Espace pour la barre de scroll */
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
 }
 
 .review-form-card {
@@ -199,8 +150,10 @@
   border-radius: 12px;
 }
 
-/* --- FIN DES AJOUTS --- */
+/* On nettoie les anciens styles qui ne sont plus utilisés */
+/* Ces classes n'existent plus dans ProductScreen.css, le style est maintenant dans Review.css */
 
+/* --- FIN DES NOUVEAUX STYLES --- */
 
 /* Styles responsives */
 @media (max-width: 767px) {

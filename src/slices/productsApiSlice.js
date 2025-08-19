@@ -37,6 +37,31 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
     }),
     
+    // --- DÉBUT DES AJOUTS POUR LA GESTION AVANCÉE DES AVIS ---
+    updateReview: builder.mutation({
+      query: ({ productId, reviewId, comment }) => ({
+        url: `${PRODUCTS_URL}/${productId}/reviews/${reviewId}`,
+        method: 'PUT',
+        body: { comment },
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
+    }),
+    deleteReview: builder.mutation({
+      query: ({ productId, reviewId }) => ({
+        url: `${PRODUCTS_URL}/${productId}/reviews/${reviewId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
+    }),
+    likeReview: builder.mutation({
+      query: ({ productId, reviewId }) => ({
+        url: `${PRODUCTS_URL}/${productId}/reviews/${reviewId}/like`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }],
+    }),
+    // --- FIN DES AJOUTS ---
+
     getTopProducts: builder.query({
       // --- MODIFIÉ : On peut maintenant passer une limite ---
       query: ({ limit } = {}) => ({
@@ -65,6 +90,11 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useCreateReviewMutation,
+  // --- NOUVEAUX EXPORTS ---
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
+  useLikeReviewMutation,
+  // --- FIN DES NOUVEAUX EXPORTS ---
   useGetTopProductsQuery,
   useGetPopularProductsQuery,
 } = productsApiSlice;
