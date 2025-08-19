@@ -157,3 +157,50 @@
 .update-button .ms-2 {
   vertical-align: middle;
 }
+
+/* --- DÉBUT DE L'AJOUT POUR LE MOBILE --- */
+@media (max-width: 576px) {
+  .update-modal-dialog {
+    /* On utilise les marges pour réduire la largeur et centrer */
+    margin: 1rem;
+  }
+
+  .update-modal-body {
+    /* On réduit le padding pour gagner de la place */
+    padding: 1.5rem 1rem !important;
+  }
+
+  .update-modal-body h2 {
+    font-size: 1.3rem; /* Titre plus petit */
+  }
+
+  .update-modal-body .lead-text,
+  .update-notice {
+    font-size: 0.85rem; /* Textes plus petits */
+    margin-bottom: 1rem;
+  }
+
+  .rocket-animation-container {
+    height: 40px; /* On réduit la hauteur de l'animation */
+    margin-bottom: 0.5rem;
+  }
+
+  .rocket-icon {
+    font-size: 1.5rem;
+  }
+
+  .version-details {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .info-item {
+    padding: 0.4rem 0;
+  }
+
+  .info-item .label,
+  .info-item .value {
+    font-size: 0.8rem;
+  }
+}
+/* --- FIN DE L'AJOUT POUR LE MOBILE --- */
