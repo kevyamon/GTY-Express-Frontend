@@ -1,52 +1,18 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, ListGroup, Image, Badge, Spinner, Button, Modal } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify'; // Ajout de toast
-import { 
-  useGetConversationsQuery, 
-  useSendMessageMutation,
-  // --- DÉBUT DES AJOUTS ---
-  useGetArchivedConversationsQuery,
-  useArchiveConversationMutation
-  // --- FIN DES AJOUTS ---
-} from '../slices/messageApiSlice';
+import { useGetConversationsQuery, useSendMessageMutation } from '../slices/messageApiSlice';
 import MessageContainer from '../components/MessageContainer';
 import Message from '../components/Message';
-import ChatSidebar from '../components/ChatSidebar'; // On importe le composant
 import './ChatScreen.css';
 
 const ChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);
-  
-  // --- DÉBUT DES MODIFICATIONS ---
-  const [showModal, setShowModal] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  const [isShowingArchived, setIsShowingArchived] = useState(false);
-
-  // On utilise un hook conditionnellement basé sur l'état
-  const { data: activeConversations, isLoading: isLoadingActive } = useGetConversationsQuery(undefined, { skip: isShowingArchived });
-  const { data: archivedConversations, isLoading: isLoadingArchived } = useGetArchivedConversationsQuery(undefined, { skip: !isShowingArchived });
-
-  const [archiveConversation] = useArchiveConversationMutation();
+  const { data: conversations, isLoading } = useGetConversationsQuery();
   const [sendMessage] = useSendMessageMutation();
 
-  const conversations = isShowingArchived ? archivedConversations : activeConversations;
-  const isLoading = isShowingArchived ? isLoadingArchived : isLoadingActive;
-
-  const handleArchiveToggle = async (conversationId) => {
-    try {
-      await archiveConversation(conversationId).unwrap();
-      toast.info(`Conversation ${isShowingArchived ? 'désarchivée' : 'archivée'}.`);
-      // Si la conversation archivée était celle sélectionnée, on la déselectionne
-      if (selectedConversation && selectedConversation._id === conversationId) {
-        setSelectedConversation(null);
-        setShowModal(false);
-      }
-    } catch (err) {
-      toast.error("Une erreur s'est produite.");
-    }
-  };
-  // --- FIN DES MODIFICATIONS ---
+  const [showModal, setShowModal] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
   const handleOpenConversation = (convo) => {
     setSelectedConversation(convo);
@@ -70,7 +36,8 @@ const ChatScreen = () => {
         console.error('Failed to send message:', error);
     }
   };
-  
+
+  // --- NOUVELLE FONCTION POUR AFFICHER LE BADGE DE RÔLE ---
   const getRoleBadge = (user) => {
     if (!user) return null;
     if (user.isAdmin) {
@@ -87,37 +54,56 @@ const ChatScreen = () => {
     <Container className="my-4">
       <h1 className="mb-4">Messagerie</h1>
 
-      {/* --- DÉBUT DES MODIFICATIONS --- */}
-      {/* On remplace la ListGroup par le nouveau composant ChatSidebar */}
-      <Row>
-        <Col md={4}>
-          <ChatSidebar
-            conversations={conversations}
-            onSelectConversation={handleOpenConversation}
-            selectedConversationId={selectedConversation?._id}
-            onArchiveToggle={handleArchiveToggle}
-            onShowArchived={() => setIsShowingArchived(!isShowingArchived)}
-            isShowingArchived={isShowingArchived}
-          />
-           {/* Logique pour le client qui n'a aucune conversation active */}
-          {!userInfo.isAdmin && (!conversations || conversations.length === 0) && !isShowingArchived && (
-            <div className="text-center mt-3">
-                <Message variant="info">Vous n'avez pas encore de conversation.</Message>
-                <Button className="mt-3" onClick={() => handleOpenConversation(null)}>
-                    Démarrer une conversation
-                </Button>
-            </div>
-          )}
-        </Col>
-        <Col md={8}>
-          {/* Cette partie ne change pas, elle est maintenant dans le modal */}
-        </Col>
-      </Row>
-      {/* --- FIN DES MODIFICATIONS --- */}
+      {!userInfo.isAdmin && (!conversations || conversations.length === 0) && (
+        <div className="text-center">
+            <Message variant="info">Vous n'avez pas encore de conversation.</Message>
+            <Button className="mt-3" onClick={() => handleOpenConversation(null)}>
+                Démarrer une conversation avec le service client
+            </Button>
+        </div>
+      )}
+
+      {(userInfo.isAdmin || (conversations && conversations.length > 0)) && (
+        <ListGroup variant="flush">
+          {conversations.map(convo => {
+              const otherParticipant = convo.participants.find(p => p._id !== userInfo._id);
+              if (!otherParticipant) return null;
+              return (
+                  <ListGroup.Item 
+                      key={convo._id} 
+                      onClick={() => handleOpenConversation(convo)} 
+                      action
+                      className={`conversation-list-item ${convo.isUnread ? 'unread' : ''}`}
+                  >
+                      <Row className="align-items-center">
+                          <Col xs="auto">
+                              <Image src={otherParticipant.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} roundedCircle width={50} height={50} />
+                          </Col>
+                          <Col>
+                              <div className="fw-bold d-flex align-items-center">
+                                  {otherParticipant.name}
+                                  {getRoleBadge(otherParticipant)}
+                              </div>
+                              <small className={convo.isUnread ? 'fw-bold' : 'text-muted'}>
+                                  {convo.lastMessage?.text.substring(0, 40)}...
+                              </small>
+                          </Col>
+                          {convo.isUnread && (
+                              <Col xs="auto">
+                                  <Badge bg="primary" pill>!</Badge>
+                              </Col>
+                          )}
+                      </Row>
+                  </ListGroup.Item>
+              )
+          })}
+        </ListGroup>
+      )}
 
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
+            {/* --- EN-TÊTE AMÉLIORÉ AVEC PHOTO ET RÔLE --- */}
             <div className="d-flex align-items-center">
                 <Image 
                     src={selectedConversation?.participants.find(p => p._id !== userInfo._id)?.profilePicture || 'https://i.imgur.com/Suf6O8w.png'} 
@@ -147,6 +133,7 @@ const ChatScreen = () => {
             ) : null}
         </Modal.Body>
       </Modal>
+
     </Container>
   );
 };

@@ -16,9 +16,10 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery,
-  // --- MODIFICATION ICI : On ajoute 'ArchivedConversation' ---
-  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'ArchivedConversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
+  tagTypes: ['Product', 'Order', 'User', 'Notification', 'Promotion', 'PromoBanner', 'Conversation', 'Message', 'Complaint', 'Warning', 'Suggestion', 'Version', 'GlobalMessage'],
   endpoints: (builder) => ({
+    // --- ON RETIRE L'ENDPOINT getVersion ICI ---
+
     socket: builder.query({
       queryFn: () => ({ data: 'connected' }),
       async onCacheEntryAdded(
@@ -78,17 +79,9 @@ export const apiSlice = createApi({
         });
 
         socket.on('newMessage', (newMessage) => {
-            // --- MODIFICATION : On invalide aussi la liste des archives ---
-            dispatch(apiSlice.util.invalidateTags(['Conversation', 'ArchivedConversation']));
+            dispatch(apiSlice.util.invalidateTags(['Conversation']));
             dispatch(apiSlice.util.invalidateTags([{ type: 'Message', id: newMessage.conversationId }]));
         });
-
-        // --- DÉBUT DE L'AJOUT ---
-        socket.on('conversation_archived', () => {
-          // On invalide les tags des deux listes pour les rafraîchir
-          dispatch(apiSlice.util.invalidateTags(['Conversation', 'ArchivedConversation']));
-        });
-        // --- FIN DE L'AJOUT ---
 
         socket.on('conversationRead', (data) => {
             dispatch(apiSlice.util.invalidateTags(['Conversation']));
@@ -139,4 +132,5 @@ export const apiSlice = createApi({
   }),
 });
 
+// --- ON RETIRE L'EXPORT DE useGetVersionQuery ---
 export const { useSocketQuery } = apiSlice;
