@@ -1,11 +1,45 @@
-/* Styles pour la liste des conversations */
+/* --- NOUVEAU : Conteneur pour la liste --- */
+.conversation-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Espacement entre les conversations */
+}
+
+/* --- MODIFIÉ : Style de chaque conversation --- */
 .conversation-list-item {
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
+  border: 1px solid #e9ecef;
+  border-radius: 12px; /* Bords arrondis */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  padding: 1rem !important; /* Ajoute un padding interne */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+
+.conversation-list-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
 .conversation-list-item.unread {
-    border-left: 4px solid #0d6efd; /* Bordure bleue pour les non-lus */
+  border-left: 4px solid #0d6efd;
+  background-color: #f8f9fa;
 }
+
+/* --- NOUVEAU : Style du bouton d'archivage (admin) --- */
+.archive-btn {
+  visibility: hidden; /* Caché par défaut */
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+  border-radius: 50%;
+  margin-left: 10px;
+}
+
+.conversation-list-item:hover .archive-btn {
+  visibility: visible;
+  opacity: 1;
+}
+/* --- FIN DES NOUVEAUX STYLES --- */
+
 
 /* Styles pour la vue d'une conversation */
 .conversation-view-header {

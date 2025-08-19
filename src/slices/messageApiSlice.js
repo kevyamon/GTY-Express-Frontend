@@ -7,6 +7,12 @@ export const messageApiSlice = apiSlice.injectEndpoints({
       query: () => ({ url: MESSAGES_URL }),
       providesTags: ['Conversation'],
     }),
+    // --- NOUVELLE REQUÊTE POUR LES ARCHIVES (ADMIN) ---
+    getArchivedConversations: builder.query({
+      query: () => ({ url: `${MESSAGES_URL}/archived` }),
+      providesTags: ['Conversation'],
+    }),
+    // --- FIN DE L'AJOUT ---
     getMessages: builder.query({
       query: (conversationId) => ({ url: `${MESSAGES_URL}/${conversationId}` }),
       providesTags: (result, error, id) => [{ type: 'Message', id }],
@@ -24,6 +30,8 @@ export const messageApiSlice = apiSlice.injectEndpoints({
         url: `${MESSAGES_URL}/read/${conversationId}`,
         method: 'POST',
       }),
+      // --- AJOUT : Invalider le tag pour rafraîchir la liste ---
+      invalidatesTags: ['Conversation'],
     }),
     markAllAsRead: builder.mutation({
       query: () => ({
@@ -52,11 +60,21 @@ export const messageApiSlice = apiSlice.injectEndpoints({
             body: { text },
         }),
     }),
+    // --- NOUVELLE MUTATION POUR ARCHIVER/DÉSARCHIVER ---
+    archiveConversation: builder.mutation({
+        query: (conversationId) => ({
+            url: `${MESSAGES_URL}/${conversationId}/archive`,
+            method: 'PUT',
+        }),
+        invalidatesTags: ['Conversation'],
+    }),
+    // --- FIN DE L'AJOUT ---
   }),
 });
 
 export const {
   useGetConversationsQuery,
+  useGetArchivedConversationsQuery, // Nouvel export
   useGetMessagesQuery,
   useSendMessageMutation,
   useMarkAsReadMutation,
@@ -64,4 +82,5 @@ export const {
   useMarkMessagesAsSeenMutation,
   useDeleteMessageMutation,
   useUpdateMessageMutation,
+  useArchiveConversationMutation, // Nouvel export
 } = messageApiSlice;
