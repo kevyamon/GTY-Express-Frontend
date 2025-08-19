@@ -75,10 +75,10 @@ export function useVersionCheck() {
     sessionStorage.setItem('newAppVersion', newVersionInfo?.version || 'inconnue');
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
 
-    // On attend 20 secondes avant de recharger la page
+    // On attend 5 secondes avant de recharger la page
     setTimeout(() => {
       reloadWithoutCache(); // <--- On recharge sans utiliser le cache
-    }, 20000);
+    }, 5000);
   };
 
   // --- L'utilisateur refuse la mise à jour ---

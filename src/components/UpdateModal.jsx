@@ -30,7 +30,8 @@ const UpdateModal = ({ show, handleClose, onConfirmUpdate, newVersionInfo, isUpd
         </p>
         
         <div className="update-notice">
-          <strong>Note pour l'application installée :</strong> L'installation de la mise à jour peut prendre jusqu'à 3 minutes. SVP, Veuillez patienter et ne pas quitter la page pendant le chargement.😁
+          <strong>Note pour l'application installée :</strong> L'installation de la mise à jour peut prendre jusqu'à 3 minutes.Cette fenêtre peut réapparaitre une deuxième fois. 
+          SVP, Veuillez patienter et ne pas quitter la page pendant le processus.😁
         </div>
 
         <div className="version-details">
