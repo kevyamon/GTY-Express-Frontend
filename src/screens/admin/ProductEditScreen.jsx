@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Form, Button, Row, Col, Image, ListGroup, Spinner } from 'react-bootstrap';
 import Message from '../../components/Message';
+import Loader from '../../components/Loader'; // --- NOUVEL IMPORT ---
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useGetProductDetailsQuery, useUpdateProductMutation } from '../../slices/productsApiSlice';
@@ -10,7 +11,6 @@ import { useGetPromotionsQuery } from '../../slices/promotionApiSlice';
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-// LISTE DES CATÉGORIES
 const categories = [
   'Électronique',
   'Vêtements et Accessoires',
@@ -27,7 +27,7 @@ const ProductEditScreen = () => {
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
   const [brand, setBrand] = useState('');
-  const [category, setCategory] = useState('Autres'); // NOUVEL ETAT
+  const [category, setCategory] = useState('Autres');
   const [images, setImages] = useState([]);
   const [countInStock, setCountInStock] = useState('');
   const [description, setDescription] = useState('');
@@ -102,8 +102,9 @@ const ProductEditScreen = () => {
     <>
       <Link to='/admin/productlist' className='btn btn-light my-3'>Retour</Link>
       <h1>Modifier le Produit</h1>
-      {loadingUpdate && <p>Mise à jour...</p>}
-      {isLoading ? (<p>Chargement...</p>) 
+      {loadingUpdate && <Loader />}
+      {/* --- MODIFICATION ICI --- */}
+      {isLoading ? (<Loader />) 
       : error ? (<Message variant='danger'>{error?.data?.message || error.message}</Message>) 
       : (
         <Form onSubmit={submitHandler}>
@@ -137,7 +138,7 @@ const ProductEditScreen = () => {
               ))}
             </ListGroup>
             <Form.Control label='Ajouter une image' onChange={uploadFileHandler} type='file' />
-            {loadingUpload && <p>Téléversement...</p>}
+            {loadingUpload && <Loader />}
           </Form.Group>
           <Form.Group controlId='description' className='my-2'><Form.Label>Description</Form.Label><Form.Control as='textarea' rows={3} placeholder='Entrez la description' value={description} onChange={(e) => setDescription(e.target.value)} /></Form.Group>
           <Form.Group controlId='isSupermarket' className='my-3'><Form.Check type='checkbox' label='Produit de type Supermarché' checked={isSupermarket} onChange={(e) => setIsSupermarket(e.target.checked)} /></Form.Group>

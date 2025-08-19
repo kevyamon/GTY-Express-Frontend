@@ -4,8 +4,9 @@ import { Button, Row, Col, Form, InputGroup, Image, Badge } from 'react-bootstra
 import { toast } from 'react-toastify';
 import { FaPlus, FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
 import Message from '../../components/Message';
+import Loader from '../../components/Loader'; // --- NOUVEL IMPORT ---
 import { useGetProductsQuery, useDeleteProductMutation } from '../../slices/productsApiSlice';
-import './ProductListScreen.css'; // On importe notre nouveau style
+import './ProductListScreen.css';
 
 const ProductListScreen = () => {
   const { data: products, isLoading, error } = useGetProductsQuery({ category: 'all' });
@@ -56,17 +57,18 @@ const ProductListScreen = () => {
         </Col>
       </Row>
 
-      {loadingDelete && <p>Suppression...</p>}
-      {isLoading ? (<p>Chargement...</p>) 
-       : error ? (<Message variant='danger'>{error?.data?.message || error.message}</Message>) 
+      {loadingDelete && <Loader />}
+      {/* --- MODIFICATION ICI --- */}
+      {isLoading ? (<Loader />)
+       : error ? (<Message variant='danger'>{error?.data?.message || error.message}</Message>)
        : (
         <div>
           {filteredProducts.map((product) => (
             <div key={product._id} className="product-list-card">
-              <Image 
-                src={(product.images && product.images[0]) || 'https://via.placeholder.com/150'} 
-                alt={product.name} 
-                className="product-list-image" 
+              <Image
+                src={(product.images && product.images[0]) || 'https://via.placeholder.com/150'}
+                alt={product.name}
+                className="product-list-image"
               />
               <div className="product-list-info">
                 <div className="name">{product.name}</div>

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import Message from '../components/Message';
+import Loader from '../components/Loader'; // --- NOUVEL IMPORT ---
 import { toast } from 'react-toastify';
 import { useGetMyOrdersQuery, useCancelOrderMutation, useDeleteOrderMutation } from '../slices/orderApiSlice';
 
@@ -35,8 +36,9 @@ const ProfileScreen = () => {
   return (
     <div>
       <h2>Mes Commandes</h2>
+      {/* --- MODIFICATION ICI --- */}
       {isLoading || loadingCancel || loadingDelete ? (
-        <p>Chargement...</p>
+        <Loader />
       ) : error ? (
         <Message variant='danger'>
           {error?.data?.message || error.error}
@@ -84,7 +86,6 @@ const ProfileScreen = () => {
                     </Button>
                   )}
 
-                  {/* --- AJOUT DU BOUTON POUR LAISSER UN AVIS --- */}
                   {order.status === 'Livrée' && (
                     <LinkContainer to={`/product/${order.orderItems[0].product}`}>
                         <Button className='btn-sm ms-2' variant='info'>
@@ -92,8 +93,7 @@ const ProfileScreen = () => {
                         </Button>
                     </LinkContainer>
                   )}
-                  {/* --- FIN DE L'AJOUT --- */}
-
+                  
                   {(order.status === 'Livrée' || order.status === 'Annulée') && (
                     <Button
                       className='btn-sm ms-2'

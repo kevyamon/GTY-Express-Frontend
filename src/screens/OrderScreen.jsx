@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { FaShippingFast, FaCreditCard, FaUser, FaAt, FaPhone } from 'react-icons/fa';
 import Message from '../components/Message';
+import Loader from '../components/Loader'; // --- NOUVEL IMPORT ---
 import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
   useGetOrderDetailsQuery,
@@ -64,7 +65,8 @@ const OrderScreen = () => {
     }
   };
 
-  return isLoading ? <p>Chargement...</p> 
+  // --- MODIFICATION ICI ---
+  return isLoading ? <Loader />
     : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
     : (
     <>
@@ -128,7 +130,7 @@ const OrderScreen = () => {
                   <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>
                     Marquer comme livré
                   </Button>
-                  {loadingUpdate && <p className="text-center mt-2">Chargement...</p>}
+                  {loadingUpdate && <Loader />}
                 </ListGroup.Item>
               )}
             </ListGroup>

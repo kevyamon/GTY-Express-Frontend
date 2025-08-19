@@ -4,6 +4,8 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import PromoBanner from '../components/PromoBanner';
 import ProductCarousel from '../components/ProductCarousel';
+// --- NOUVEL IMPORT ---
+import Loader from '../components/Loader';
 import {
   useGetProductsQuery,
   useGetTopProductsQuery,
@@ -49,7 +51,6 @@ const HomeScreen = () => {
   const isMobile = window.innerWidth < 767;
   const mobileProductRows = products ? chunkProducts(products, 5) : [];
 
-  // --- NOUVELLE CONDITION : Vrai si c'est la page 'Tous les produits' ou 'Supermarché' sur mobile ---
   const showMobileHint = isMobile && (isAllProductsPage || isSupermarket);
 
   return (
@@ -81,13 +82,12 @@ const HomeScreen = () => {
         
         <h1 className='home-screen-title'>{pageTitle}</h1>
         
-        {/* --- DÉBUT DE L'AJOUT --- */}
         {showMobileHint && products && products.length > 0 && (
           <p className="mobile-scroll-hint">Glissez vers → pour voir plus</p>
         )}
-        {/* --- FIN DE L'AJOUT --- */}
 
-        {isLoading ? (<h2>Chargement...</h2>) 
+        {/* --- MODIFICATION ICI --- */}
+        {isLoading ? (<Loader />) 
         : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
         : (
           <>

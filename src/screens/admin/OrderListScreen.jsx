@@ -3,10 +3,11 @@ import { Button, Row, Col, Form, InputGroup, Badge, Collapse, ListGroup, Image }
 import { toast } from 'react-toastify';
 import { FaSearch, FaChevronDown, FaChevronUp, FaArchive, FaInbox } from 'react-icons/fa';
 import Message from '../../components/Message';
-import { 
-  useGetOrdersQuery, 
+import Loader from '../../components/Loader'; // --- NOUVEL IMPORT ---
+import {
+  useGetOrdersQuery,
   useGetArchivedOrdersQuery,
-  useUpdateOrderStatusMutation, 
+  useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
   useArchiveOrderMutation
 } from '../../slices/orderApiSlice';
@@ -17,14 +18,14 @@ const OrderListScreen = () => {
 
   const { data: activeOrders, isLoading: isLoadingActive } = useGetOrdersQuery(undefined, { skip: showArchived });
   const { data: archivedOrders, isLoading: isLoadingArchived } = useGetArchivedOrdersQuery(undefined, { skip: !showArchived });
-  
+
   const orders = showArchived ? archivedOrders : activeOrders;
   const isLoading = showArchived ? isLoadingArchived : isLoadingActive;
 
   const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
   const [archiveOrder, { isLoading: isArchiving }] = useArchiveOrderMutation();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
@@ -80,7 +81,7 @@ const OrderListScreen = () => {
         }
     }
   };
-  
+
   const getStatusVariant = (status) => {
     switch (status) {
       case 'Livrée': return 'success';
@@ -92,7 +93,8 @@ const OrderListScreen = () => {
     }
   };
 
-  if (isLoading) { return <p>Chargement...</p>; }
+  // --- MODIFICATION ICI ---
+  if (isLoading) { return <Loader />; }
 
   return (
     <>
@@ -116,7 +118,7 @@ const OrderListScreen = () => {
         </Col>
       </Row>
 
-      {(isUpdating || isDeleting || isArchiving) && <p>Mise à jour en cours...</p>}
+      {(isUpdating || isDeleting || isArchiving) && <Loader />}
 
       {filteredOrders.length === 0 && (
         <Message variant='info'>{showArchived ? 'Aucune commande dans les archives.' : 'Aucune commande active à afficher.'}</Message>
@@ -148,7 +150,6 @@ const OrderListScreen = () => {
                 </div>
               </div>
 
-              {/* --- DÉBUT DE L'AJOUT --- */}
               <div className="details-cell items-cell">
                 <h6 className="mb-3">Articles Commandés :</h6>
                 <ListGroup variant="flush" className="order-items-list">
@@ -166,7 +167,6 @@ const OrderListScreen = () => {
                   ))}
                 </ListGroup>
               </div>
-              {/* --- FIN DE L'AJOUT --- */}
 
               <div className="details-cell">
                 <h5>Actions :</h5>

@@ -10,8 +10,9 @@ import QtySelector from '../components/QtySelector';
 import StockStatus from '../components/StockStatus';
 import Message from '../components/Message';
 import Rating from '../components/Rating';
-// --- NOUVEL IMPORT ---
 import Review from '../components/Review';
+// --- NOUVEL IMPORT ---
+import Loader from '../components/Loader';
 import './ProductScreen.css';
 
 const ProductScreen = () => {
@@ -78,7 +79,8 @@ const ProductScreen = () => {
   return (
     <div className="product-screen-container">
       <Link className="btn btn-light my-3" to="/products">Retour</Link>
-      {isLoading ? (<h2>Chargement...</h2>)
+      {/* --- MODIFICATION ICI --- */}
+      {isLoading ? (<Loader />)
       : error ? (<Message variant='danger'>{error?.data?.message || error.error}</Message>)
       : product && (
         <>
@@ -151,18 +153,15 @@ const ProductScreen = () => {
               </Col>
           </Row>
 
-          {/* --- DÉBUT DE LA MODIFICATION MAJEURE DE LA SECTION AVIS --- */}
           <Row className="reviews mt-4">
             <Col>
               <Card className="add-to-cart-card">
                 <Card.Body>
                   <h2>Avis des clients</h2>
-                  {/* Conteneur avec le scroll interne */}
                   <div className="reviews-container">
                     {product.reviews.length === 0 ? (
                       <Message>Aucun avis pour le moment.</Message>
                     ) : (
-                      // On affiche uniquement les avis qui n'ont pas de parent
                       product.reviews
                         .filter(review => !review.parent)
                         .map(review => (
@@ -212,7 +211,6 @@ const ProductScreen = () => {
               </Card>
             </Col>
           </Row>
-          {/* --- FIN DE LA MODIFICATION --- */}
         </>
       )}
     </div>
