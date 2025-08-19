@@ -68,7 +68,7 @@ export function useVersionCheck() {
     // On attend un peu pour que l'animation soit visible, puis on recharge
     setTimeout(() => {
       window.location.reload();
-    }, 2000);
+    }, 90000);
   };
 
   // L'utilisateur clique sur "Plus tard"
