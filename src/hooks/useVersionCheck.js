@@ -19,7 +19,7 @@ export function useVersionCheck() {
   // Nouvel état pour gérer le modal de succès post-mise à jour
   const [showUpdateCompleteModal, setShowUpdateCompleteModal] = useState(false);
 
-  // Au chargement initial, on vérifie si une mise à jour vient de se terminer
+  // --- Vérification si une mise à jour vient de se terminer ---
   useEffect(() => {
     const updateFlag = sessionStorage.getItem('pwaUpdateInProgress');
     if (updateFlag) {
@@ -28,12 +28,13 @@ export function useVersionCheck() {
     }
   }, []);
 
-  // La fonction qui vérifie la version sur le serveur
+  // --- Vérification de la version côté serveur ---
   const performCheck = useCallback(async () => {
     const currentVersion = document.querySelector('meta[name="app-version"]')?.content;
     if (!currentVersion || isUpdateAvailable) return;
 
     try {
+      // On ajoute un paramètre timestamp pour forcer à ignorer le cache
       const url = `/meta.json?t=${new Date().getTime()}`;
       const response = await fetch(url, { cache: 'no-store' });
       const meta = await response.json();
@@ -48,45 +49,52 @@ export function useVersionCheck() {
     }
   }, [isUpdateAvailable]);
 
-  // Le hook pour la vérification automatique
+  // --- Vérification automatique à intervalle régulier ---
   useEffect(() => {
     const interval = setInterval(performCheck, POLLING_INTERVAL);
     return () => clearInterval(interval);
   }, [performCheck]);
 
-  // --- Fonctions pour gérer les actions de l'utilisateur ---
+  // --- Fonction utilitaire : recharger sans cache ---
+  const reloadWithoutCache = () => {
+    // On ajoute un paramètre unique (timestamp) à l’URL
+    // Ainsi, le navigateur est obligé de recharger depuis le serveur
+    const { pathname, search, hash } = window.location;
+    const newUrl = `${pathname}?nocache=${Date.now()}${search}${hash}`;
+    window.location.replace(newUrl);
+  };
 
-  // L'utilisateur clique sur "Mettre à jour maintenant"
+  // --- L'utilisateur confirme la mise à jour ---
   const confirmUpdate = () => {
     setIsUpdateInProgress(true);
-    // --- MODIFICATION APPLIQUÉE ICI ---
-    // On passe maintenant un objet avec le message à afficher au loader.
+
+    // On affiche le loader avec un message explicite
     dispatch(showLoader({ message: "Veuillez patienter, cela peut prendre jusqu'à 3 minutes" }));
     
-    // On stocke la nouvelle version pour l'afficher après le rechargement
+    // On stocke la nouvelle version pour l’afficher après rechargement
     sessionStorage.setItem('newAppVersion', newVersionInfo?.version || 'inconnue');
     sessionStorage.setItem('pwaUpdateInProgress', 'true');
 
     // On attend 90 secondes avant de recharger la page
     setTimeout(() => {
-      window.location.reload();
+      reloadWithoutCache(); // <--- On recharge sans utiliser le cache
     }, 90000);
   };
 
-  // L'utilisateur clique sur "Plus tard"
+  // --- L'utilisateur refuse la mise à jour ---
   const declineUpdate = () => {
     setIsModalOpen(false);
     setUpdateDeclined(true);
   };
 
-  // Pour ouvrir manuellement le modal (depuis un bouton par exemple)
+  // --- Ouverture manuelle du modal (si besoin) ---
   const openUpdateModal = () => {
     if (isUpdateAvailable) {
       setIsModalOpen(true);
     }
   };
 
-  // On retourne tous les états et fonctions nécessaires pour les composants
+  // --- Retour des états et fonctions pour les composants ---
   return {
     isUpdateAvailable,
     isUpdateInProgress,
