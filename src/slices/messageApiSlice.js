@@ -7,6 +7,20 @@ export const messageApiSlice = apiSlice.injectEndpoints({
       query: () => ({ url: MESSAGES_URL }),
       providesTags: ['Conversation'],
     }),
+    // --- DÉBUT DE L'AJOUT ---
+    getArchivedConversations: builder.query({
+      query: () => ({ url: `${MESSAGES_URL}/archived` }),
+      providesTags: ['ArchivedConversation'], // On utilise un tag différent pour le cache
+    }),
+    archiveConversation: builder.mutation({
+      query: (conversationId) => ({
+        url: `${MESSAGES_URL}/archive/${conversationId}`,
+        method: 'POST',
+      }),
+      // Invalide les deux listes pour forcer leur rafraîchissement
+      invalidatesTags: ['Conversation', 'ArchivedConversation'], 
+    }),
+    // --- FIN DE L'AJOUT ---
     getMessages: builder.query({
       query: (conversationId) => ({ url: `${MESSAGES_URL}/${conversationId}` }),
       providesTags: (result, error, id) => [{ type: 'Message', id }],
@@ -57,6 +71,8 @@ export const messageApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetConversationsQuery,
+  useGetArchivedConversationsQuery, // Nouvel export
+  useArchiveConversationMutation, // Nouvel export
   useGetMessagesQuery,
   useSendMessageMutation,
   useMarkAsReadMutation,
