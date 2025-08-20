@@ -6,12 +6,12 @@
 .cart-item-card {
   background: #ffffff;
   border-radius: 12px;
-  padding: 1.5rem !important;
+  padding: 1.5rem;
   margin-bottom: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   display: flex;
   gap: 1.5rem;
-  border: none !important;
+  border: none;
 }
 
 .cart-item-image {
@@ -72,16 +72,18 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
+/* J'ai simplifié le CSS ici pour utiliser directement les éléments de la Card */
 .summary-title {
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .summary-total {
   font-size: 1.8rem;
   font-weight: bold;
   text-align: right;
+  margin-bottom: 1.5rem;
 }
 
 .checkout-btn {
@@ -107,9 +109,26 @@
 
 /* Responsive pour les mobiles */
 @media (max-width: 767px) {
+  /* --- DÉBUT DE LA CORRECTION --- */
+  .cart-items-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Crée 2 colonnes égales */
+    gap: 0.75rem; /* Espace entre les cartes */
+  }
+
   .cart-item-card {
     flex-direction: column;
+    padding: 0.75rem; /* Padding réduit pour les petites cartes */
+    margin-bottom: 0; /* La grille gère l'espacement */
+    gap: 0.75rem;
   }
+  /* --- FIN DE LA CORRECTION --- */
+
+  .cart-item-image {
+    width: 100%; /* L'image prend toute la largeur de sa carte */
+    height: 120px; /* Hauteur fixe pour l'image */
+  }
+
   .cart-item-actions {
     flex-direction: row;
     justify-content: space-between;

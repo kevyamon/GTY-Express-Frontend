@@ -1,12 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Row, Col, ListGroup, Image, Button, Card } from 'react-bootstrap';
+import { Row, Col, Image, Button, Card } from 'react-bootstrap'; // ListGroup et ListGroup.Item retirés
 import { FaShoppingCart, FaTrash } from 'react-icons/fa';
 import Message from '../components/Message';
 import StockStatus from '../components/StockStatus';
 import { addToCart, removeFromCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
-import './CartScreen.css'; // NOUVEL IMPORT
+import './CartScreen.css';
 
 const CartScreen = () => {
   const navigate = useNavigate();
@@ -59,9 +59,11 @@ const CartScreen = () => {
             </Link>
           </div>
         ) : (
-          <ListGroup variant='flush'>
+          // --- MODIFICATION : Remplacement de ListGroup par un div ---
+          <div className="cart-items-container"> 
             {cartItems.map((item) => (
-              <ListGroup.Item key={item._id} className="cart-item-card">
+              // --- MODIFICATION : Remplacement de ListGroup.Item par un div ---
+              <div key={item._id} className="cart-item-card"> 
                 <Image src={getImageUrl(item)} alt={item.name} className="cart-item-image" />
                 
                 <div className="cart-item-details">
@@ -85,9 +87,9 @@ const CartScreen = () => {
                     <FaTrash /> Supprimer
                   </Button>
                 </div>
-              </ListGroup.Item>
+              </div>
             ))}
-          </ListGroup>
+          </div>
         )}
       </Col>
       
@@ -95,25 +97,19 @@ const CartScreen = () => {
         <Col md={4}>
           <Card className="cart-summary-card">
             <Card.Body>
-              <ListGroup variant='flush'>
-                <ListGroup.Item>
-                  <h4 className="summary-title">
-                    Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) articles
-                  </h4>
-                  <div className="summary-total">
-                    {(cart.itemsPrice || 0).toFixed(2)} FCFA
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <Button
-                    type='button'
-                    className='checkout-btn'
-                    onClick={checkoutHandler}
-                  >
-                    Passer la commande
-                  </Button>
-                </ListGroup.Item>
-              </ListGroup>
+              <Card.Title as="h4" className="summary-title">
+                Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) articles
+              </Card.Title>
+              <div className="summary-total">
+                {(cart.itemsPrice || 0).toFixed(2)} FCFA
+              </div>
+              <Button
+                type='button'
+                className='checkout-btn'
+                onClick={checkoutHandler}
+              >
+                Passer la commande
+              </Button>
             </Card.Body>
           </Card>
         </Col>
