@@ -18,7 +18,7 @@ import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
-import logo from '../assets/logo.png'; // NOUVEAU : Importation du logo
+import logo from '../assets/logo.png';
 import './Header.css';
 
 const Header = ({ handleShowInstallModal }) => {
@@ -157,9 +157,9 @@ const Header = ({ handleShowInstallModal }) => {
   return (
     <>
       <header className="header-layout">
+        {/* ... (le reste du code de Navbar reste identique) ... */}
         <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
           <Container fluid>
-            {/* --- DÉBUT DE LA MODIFICATION --- */}
             <LinkContainer to={homePath}>
               <Navbar.Brand>
                 <img 
@@ -169,7 +169,6 @@ const Header = ({ handleShowInstallModal }) => {
                 />
               </Navbar.Brand>
             </LinkContainer>
-            {/* --- FIN DE LA MODIFICATION --- */}
 
             <Button variant="outline-info" size="sm" className="install-app-btn" onClick={handleShowInstallModal}>
               <FaDownload/>
@@ -250,7 +249,8 @@ const Header = ({ handleShowInstallModal }) => {
             </Navbar.Collapse>
           </Container>
         </Navbar>
-
+        
+        {/* ... (le reste du code de Header reste identique) ... */}
         {userInfo && (
           <div className="header-search-row bg-dark">
             <Form onSubmit={submitHandler} className="d-flex search-form">
@@ -296,6 +296,8 @@ const Header = ({ handleShowInstallModal }) => {
           totalAdminCount={totalAdminCount}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
+          // --- LIGNE AJOUTÉE ---
+          handleShowSuggestionModal={() => setShowSuggestionModal(true)}
         />
       )}
 

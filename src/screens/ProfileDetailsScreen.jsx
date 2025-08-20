@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner, Badge } from 'react-bootstrap'; // Badge ajouté
+import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner, Badge } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera, FaBell } from 'react-icons/fa'; // FaBell a été ajouté
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+import { subscribeUserToPush } from '../components/PushNotificationManager'; // Import de la logique Push
 import './ProfileDetailsScreen.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-// --- NOUVEAU : On récupère l'email du super admin depuis les variables d'environnement ---
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL;
 
 const ProfileDetailsScreen = () => {
@@ -24,6 +23,9 @@ const ProfileDetailsScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
 
+  // --- ÉTAT POUR LA GESTION DES NOTIFICATIONS ---
+  const [notificationPermission, setNotificationPermission] = useState('default');
+
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
   const [updateProfile, { isLoading: loadingUpdateProfile }] = useUpdateProfileMutation();
@@ -35,9 +37,12 @@ const ProfileDetailsScreen = () => {
       setPhone(userInfo.phone || '');
       setProfilePicture(userInfo.profilePicture || '');
     }
+    // On vérifie l'état actuel de la permission au chargement
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
   }, [userInfo]);
 
-  // --- NOUVELLE LOGIQUE : Déterminer le rôle de l'utilisateur ---
   const getUserRole = () => {
     if (!userInfo) return null;
     if (userInfo.email === SUPER_ADMIN_EMAIL) return 'Super Admin';
@@ -45,8 +50,12 @@ const ProfileDetailsScreen = () => {
     return 'Client';
   };
   const userRole = getUserRole();
-  // --- FIN DE L'AJOUT ---
 
+  // --- LOGIQUE POUR S'ABONNER AUX NOTIFICATIONS ---
+  const handleSubscribe = async () => {
+    await subscribeUserToPush(dispatch);
+    setNotificationPermission(Notification.permission); // Met à jour l'état du bouton
+  };
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -112,9 +121,7 @@ const ProfileDetailsScreen = () => {
                     roundedCircle 
                     className="profile-picture-img"
                   />
-                  {/* --- NOUVEL AJOUT : Le badge de rôle --- */}
                   {userRole && <Badge bg="danger" className="role-badge">{userRole}</Badge>}
-                  {/* --- FIN DE L'AJOUT --- */}
                   <label htmlFor="image-upload" className="profile-picture-upload-label">
                     <FaCamera />
                   </label>
@@ -151,6 +158,28 @@ const ProfileDetailsScreen = () => {
                   <Form.Control type='tel' placeholder='Ajoutez votre numéro' value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </InputGroup>
               </Form.Group>
+              
+              {/* --- SECTION NOTIFICATIONS RÉINTÉGRÉE AU BON ENDROIT --- */}
+              <hr className="my-4" />
+              <h5 className="mb-3">Notifications</h5>
+              <div className="notification-control">
+                <p>Recevez des alertes sur vos commandes et les promotions.</p>
+                <Button 
+                  variant={notificationPermission === 'granted' ? 'success' : 'primary'}
+                  onClick={handleSubscribe}
+                  disabled={notificationPermission !== 'default'}
+                >
+                  <FaBell className="me-2" />
+                  {notificationPermission === 'granted' && 'Activé'}
+                  {notificationPermission === 'denied' && 'Bloqué'}
+                  {notificationPermission === 'default' && 'Activer les notifications'}
+                </Button>
+                {notificationPermission === 'denied' && (
+                    <small className="text-muted d-block mt-2">
+                        Vous avez bloqué les notifications. Vous devez les réactiver dans les paramètres de votre navigateur.
+                    </small>
+                )}
+              </div>
 
               <hr className="my-4" />
 

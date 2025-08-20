@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { useGetVapidPublicKeyQuery, useSubscribeToPushMutation } from '../slices/pushApiSlice';
+import { pushApiSlice } from '../slices/pushApiSlice';
+import { apiSlice } from '../slices/apiSlice';
 
+// Fonction pour convertir la clé VAPID
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -14,49 +14,55 @@ const urlBase64ToUint8Array = (base64String) => {
   return outputArray;
 };
 
+// --- MODIFICATION : On exporte une fonction au lieu d'un composant ---
+export const subscribeUserToPush = async (dispatch) => {
+  if (!('serviceWorker' in navigator && 'PushManager' in window)) {
+    toast.error("Les notifications push ne sont pas supportées sur ce navigateur.");
+    return;
+  }
+
+  try {
+    const swRegistration = await navigator.serviceWorker.ready;
+    const existingSubscription = await swRegistration.pushManager.getSubscription();
+
+    if (existingSubscription) {
+      toast.info('Vous êtes déjà abonné aux notifications.');
+      return;
+    }
+
+    const permission = await window.Notification.requestPermission();
+    if (permission !== 'granted') {
+      toast.warn("Vous n'avez pas autorisé les notifications.");
+      return;
+    }
+
+    // On récupère la clé VAPID à la volée
+    const getVapidKeyAction = pushApiSlice.endpoints.getVapidPublicKey.initiate();
+    const { data: vapidPublicKey } = await dispatch(getVapidKeyAction);
+
+    if (!vapidPublicKey) {
+        throw new Error("Clé VAPID non récupérée du serveur.");
+    }
+
+    const subscription = await swRegistration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+    });
+
+    // On envoie l'abonnement au backend
+    await dispatch(pushApiSlice.endpoints.subscribeToPush.initiate(subscription)).unwrap();
+    
+    toast.success('Vous êtes maintenant abonné aux notifications !');
+
+  } catch (error) {
+    console.error("Erreur lors de l'abonnement aux notifications push:", error);
+    toast.error("L'activation des notifications a échoué. Veuillez réessayer.");
+  }
+};
+
+// Ce composant ne rend plus rien, il contient juste la logique
 const PushNotificationManager = () => {
-  const { userInfo } = useSelector((state) => state.auth);
-  const { data: vapidPublicKey } = useGetVapidPublicKeyQuery(undefined, {
-    skip: !userInfo, // Ne fetch la clé que si l'utilisateur est connecté
-  });
-  const [subscribeToPush] = useSubscribeToPushMutation();
-
-  useEffect(() => {
-    const subscribeUser = async () => {
-      if ('serviceWorker' in navigator && 'PushManager' in window && userInfo && vapidPublicKey) {
-        try {
-          const swRegistration = await navigator.serviceWorker.ready;
-          const existingSubscription = await swRegistration.pushManager.getSubscription();
-
-          if (existingSubscription) {
-            console.log('Utilisateur déjà abonné aux notifications push.');
-            return;
-          }
-
-          const permission = await window.Notification.requestPermission();
-          if (permission !== 'granted') {
-            console.log("Permission de notification non accordée.");
-            return;
-          }
-
-          const subscription = await swRegistration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-          });
-          
-          await subscribeToPush(subscription).unwrap();
-          toast.success('Vous êtes maintenant abonné aux notifications !');
-
-        } catch (error) {
-          console.error("Erreur lors de l'abonnement aux notifications push:", error);
-        }
-      }
-    };
-
-    subscribeUser();
-  }, [userInfo, vapidPublicKey, subscribeToPush]);
-
-  return null; // Ce composant n'affiche rien
+  return null;
 };
 
 export default PushNotificationManager;

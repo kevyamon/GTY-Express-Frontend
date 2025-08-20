@@ -76,3 +76,25 @@
   border: 2px solid white;
   z-index: 2; /* S'assure qu'il est au-dessus de l'icône de caméra */
 }
+
+/* --- NOUVEAUX STYLES AJOUTÉS --- */
+.notification-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.notification-control p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.notification-control .btn {
+  flex-shrink: 0;
+}
+/* --- FIN DES NOUVEAUX STYLES --- */
