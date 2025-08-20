@@ -14,14 +14,13 @@ const LandingScreen = () => {
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
 
-  // La logique de redirection si l'utilisateur est connecté est conservée
+  // La logique de redirection et de chargement d'images est conservée
   useEffect(() => {
     if (userInfo) {
       navigate('/products');
     }
   }, [userInfo, navigate]);
 
-  // La logique de chargement des images pour l'arrière-plan est conservée
   useEffect(() => {
     const loadImages = async () => {
       const imagePromises = Object.values(imageModules).map(importImage => importImage());
@@ -72,26 +71,29 @@ const LandingScreen = () => {
         </div>
       )}
 
-      {/* NOUVEAU : Superposition sombre pour la lisibilité */}
       <div className='overlay'></div>
 
-      {/* Le contenu est maintenant centré sans boîte en arrière-plan */}
+      {/* --- DÉBUT DE LA MODIFICATION DU CONTENU --- */}
       <div className='landing-v2-content'>
-        <h1 className='landing-main-title'>Vos envies, livrées en un instant.</h1>
-        <p className='landing-subtitle'>
+        <h1 className='landing-main-title'>Bienvenue sur GTY Express</h1>
+        
+        <h2 className='landing-subtitle-typing'>Vos envies, livrées en un instant.</h2>
+
+        <p className='landing-subtitle-secondary'>
           Explorez des milliers d'articles et recevez-les où que vous soyez.
           <br />
           Le meilleur service de livraison en Côte d'Ivoire.
         </p>
+
         <div className='landing-buttons-v2'>
           <Link to='/register'>
-            {/* NOUVEAU : Un seul bouton d'appel à l'action */}
             <Button className='btn-cta-primary'>
               Commencer
             </Button>
           </Link>
         </div>
       </div>
+      {/* --- FIN DE LA MODIFICATION DU CONTENU --- */}
     </div>
   );
 };

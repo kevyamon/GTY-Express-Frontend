@@ -15,15 +15,14 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* NOUVEAU : Calque de superposition pour le contraste */
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Noir avec 60% d'opacité */
-  z-index: 2; /* Se place entre le fond et le contenu */
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2;
 }
 
 .scrolling-background {
@@ -36,7 +35,7 @@
   flex-direction: column;
   justify-content: space-around;
   gap: 1rem;
-  z-index: 1; /* Reste en arrière-plan */
+  z-index: 1;
 }
 
 .product-scroller {
@@ -52,7 +51,7 @@
   margin: 0 1rem;
   border-radius: var(--image-border-radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  opacity: 0.15; /* L'opacité est conservée */
+  opacity: 0.15;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .product-image:hover {
@@ -72,10 +71,9 @@
   to { transform: translateX(0); }
 }
 
-/* MODIFIÉ : Le conteneur de contenu n'a plus de fond ni de bordure */
 .landing-v2-content {
   position: relative;
-  z-index: 3; /* Passe au-dessus de l'overlay */
+  z-index: 3;
   padding: 2rem;
   text-align: center;
   max-width: 800px;
@@ -88,34 +86,74 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* MODIFIÉ : Style du titre principal, inspiré de RouteNote */
+/* --- DÉBUT DES STYLES MODIFIÉS ET AJOUTÉS --- */
+
+/* Titre principal avec animation de couleur */
 .landing-main-title {
-  font-size: 4.5rem; /* Très grand */
-  font-weight: 800; /* Très gras */
+  font-size: 4.5rem;
+  font-weight: 800;
   color: white;
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   line-height: 1.1;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  animation: color-change 6s linear infinite;
 }
 
-/* MODIFIÉ : Style du sous-titre */
-.landing-subtitle {
+/* Keyframes pour l'animation de couleur */
+@keyframes color-change {
+  0%, 100% { color: white; }
+  33% { color: #ff4d4d; } /* Rouge vif */
+  66% { color: #ffd700; } /* Jaune or */
+}
+
+/* Sous-titre avec animation d'écriture */
+.landing-subtitle-typing {
+  font-size: 2rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 2rem;
+  border-right: 3px solid rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  width: 33ch; /* 33 caractères = "Vos envies, livrées en un instant." */
+  animation: typing 3s steps(33), blink .5s step-end infinite alternate;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Keyframes pour l'animation d'écriture */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+
+/* Keyframes pour le curseur qui clignote */
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+/* Second sous-titre (ancien .landing-subtitle) */
+.landing-subtitle-secondary {
   font-size: 1.25rem;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 auto 2.5rem auto; /* Centré avec une marge en bas */
+  margin: 0 auto 2.5rem auto;
   max-width: 600px;
   font-weight: 400;
   line-height: 1.6;
 }
+
+/* --- FIN DES STYLES MODIFIÉS ET AJOUTÉS --- */
 
 .landing-buttons-v2 {
   display: flex;
   justify-content: center;
 }
 
-/* NOUVEAU : Style pour le bouton d'action principal */
 .btn-cta-primary {
-  background-color: #3b82f6; /* Bleu vibrant */
+  background-color: #3b82f6;
   color: white;
   font-weight: 600;
   border-radius: 50px;
@@ -127,12 +165,11 @@
 }
 
 .btn-cta-primary:hover {
-  background-color: #2563eb; /* Bleu un peu plus foncé */
+  background-color: #2563eb;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-  color: white; /* Assurez-vous que la couleur du texte ne change pas */
+  color: white;
 }
-
 
 /* --- AJUSTEMENTS POUR LE RESPONSIVE MOBILE --- */
 @media (max-width: 767px) {
@@ -141,10 +178,14 @@
     width: 100px;
   }
   .landing-main-title {
-    font-size: 2.5rem; /* Titre plus petit mais toujours impactant */
+    font-size: 2.5rem;
   }
-  .landing-subtitle {
-    font-size: 1rem; /* Sous-titre plus petit */
+  .landing-subtitle-typing {
+    font-size: 1.2rem;
+    width: 33ch; /* La largeur reste basée sur les caractères */
+  }
+  .landing-subtitle-secondary {
+    font-size: 1rem;
     margin-bottom: 2rem;
   }
   .btn-cta-primary {
