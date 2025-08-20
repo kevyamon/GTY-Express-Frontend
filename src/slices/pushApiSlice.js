@@ -14,7 +14,20 @@ export const pushApiSlice = apiSlice.injectEndpoints({
         body: subscription,
       }),
     }),
+    // --- NOUVELLE MUTATION AJOUTÉE ---
+    unsubscribeFromPush: builder.mutation({
+      query: (data) => ({
+        url: `${PUSH_URL}/unsubscribe`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    // --- FIN DE L'AJOUT ---
   }),
 });
 
-export const { useGetVapidPublicKeyQuery, useSubscribeToPushMutation } = pushApiSlice;
+export const { 
+  useGetVapidPublicKeyQuery, 
+  useSubscribeToPushMutation,
+  useUnsubscribeFromPushMutation, // --- Nouvel export
+} = pushApiSlice;

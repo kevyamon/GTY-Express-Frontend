@@ -6,7 +6,8 @@ import axios from 'axios';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera, FaBell } from 'react-icons/fa';
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { subscribeUserToPush } from '../components/PushNotificationManager';
+// --- MODIFICATION : On importe aussi la fonction de désabonnement ---
+import { subscribeUserToPush, unsubscribeUserFromPush } from '../components/PushNotificationManager';
 import './ProfileDetailsScreen.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -49,11 +50,28 @@ const ProfileDetailsScreen = () => {
   };
   const userRole = getUserRole();
 
-  // --- CORRECTION : La mise à jour de l'état du bouton est conditionnelle ---
   const handleSubscribe = async () => {
     const success = await subscribeUserToPush(dispatch);
     if (success) {
       setNotificationPermission(Notification.permission);
+    }
+  };
+
+  // --- NOUVELLE FONCTION POUR LE DÉSABONNEMENT ---
+  const handleUnsubscribe = async () => {
+    const success = await unsubscribeUserFromPush(dispatch);
+    if (success) {
+      // Après un désabonnement, la permission du navigateur est réinitialisée
+      setNotificationPermission('default');
+    }
+  };
+
+  // --- MODIFICATION : Logique du clic sur le bouton ---
+  const handleNotificationToggle = () => {
+    if (notificationPermission === 'granted') {
+      handleUnsubscribe();
+    } else {
+      handleSubscribe();
     }
   };
 
@@ -164,12 +182,13 @@ const ProfileDetailsScreen = () => {
               <div className="notification-control">
                 <p>Recevez des alertes sur vos commandes et les promotions.</p>
                 <Button 
-                  variant={notificationPermission === 'granted' ? 'success' : 'primary'}
-                  onClick={handleSubscribe}
-                  disabled={notificationPermission !== 'default'}
+                  // --- MODIFICATION : Logique du bouton ---
+                  variant={notificationPermission === 'granted' ? 'outline-danger' : 'primary'}
+                  onClick={handleNotificationToggle}
+                  disabled={notificationPermission === 'denied'}
                 >
                   <FaBell className="me-2" />
-                  {notificationPermission === 'granted' && 'Activé'}
+                  {notificationPermission === 'granted' && 'Désactiver'}
                   {notificationPermission === 'denied' && 'Bloqué'}
                   {notificationPermission === 'default' && 'Activer les notifications'}
                 </Button>
