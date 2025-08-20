@@ -14,11 +14,11 @@ const urlBase64ToUint8Array = (base64String) => {
   return outputArray;
 };
 
-// --- MODIFICATION : On exporte une fonction au lieu d'un composant ---
+
 export const subscribeUserToPush = async (dispatch) => {
   if (!('serviceWorker' in navigator && 'PushManager' in window)) {
     toast.error("Les notifications push ne sont pas supportées sur ce navigateur.");
-    return;
+    return false; // --- MODIFICATION : Indiquer l'échec
   }
 
   try {
@@ -27,40 +27,43 @@ export const subscribeUserToPush = async (dispatch) => {
 
     if (existingSubscription) {
       toast.info('Vous êtes déjà abonné aux notifications.');
-      return;
+      return true; // --- MODIFICATION : Indiquer le succès (déjà fait)
     }
 
     const permission = await window.Notification.requestPermission();
     if (permission !== 'granted') {
       toast.warn("Vous n'avez pas autorisé les notifications.");
-      return;
+      return false; // --- MODIFICATION : Indiquer l'échec
     }
 
-    // On récupère la clé VAPID à la volée
     const getVapidKeyAction = pushApiSlice.endpoints.getVapidPublicKey.initiate();
-    const { data: vapidPublicKey } = await dispatch(getVapidKeyAction);
+    
+    // --- CORRECTION : Extraire la clé de l'objet JSON ---
+    const { data: vapidKeyData } = await dispatch(getVapidKeyAction);
 
-    if (!vapidPublicKey) {
+    if (!vapidKeyData || !vapidKeyData.publicKey) {
         throw new Error("Clé VAPID non récupérée du serveur.");
     }
+    const vapidPublicKey = vapidKeyData.publicKey;
+    // --- FIN DE LA CORRECTION ---
 
     const subscription = await swRegistration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
 
-    // On envoie l'abonnement au backend
     await dispatch(pushApiSlice.endpoints.subscribeToPush.initiate(subscription)).unwrap();
     
     toast.success('Vous êtes maintenant abonné aux notifications !');
+    return true; // --- MODIFICATION : Indiquer le succès
 
   } catch (error) {
     console.error("Erreur lors de l'abonnement aux notifications push:", error);
     toast.error("L'activation des notifications a échoué. Veuillez réessayer.");
+    return false; // --- MODIFICATION : Indiquer l'échec
   }
 };
 
-// Ce composant ne rend plus rien, il contient juste la logique
 const PushNotificationManager = () => {
   return null;
 };

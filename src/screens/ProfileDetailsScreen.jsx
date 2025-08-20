@@ -3,10 +3,10 @@ import { Form, Button, Row, Col, InputGroup, Image, Card, Spinner, Badge } from 
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera, FaBell } from 'react-icons/fa'; // FaBell a été ajouté
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaCamera, FaBell } from 'react-icons/fa';
 import { useUpdateProfileMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { subscribeUserToPush } from '../components/PushNotificationManager'; // Import de la logique Push
+import { subscribeUserToPush } from '../components/PushNotificationManager';
 import './ProfileDetailsScreen.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -23,7 +23,6 @@ const ProfileDetailsScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
 
-  // --- ÉTAT POUR LA GESTION DES NOTIFICATIONS ---
   const [notificationPermission, setNotificationPermission] = useState('default');
 
   const dispatch = useDispatch();
@@ -37,7 +36,6 @@ const ProfileDetailsScreen = () => {
       setPhone(userInfo.phone || '');
       setProfilePicture(userInfo.profilePicture || '');
     }
-    // On vérifie l'état actuel de la permission au chargement
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
@@ -51,10 +49,12 @@ const ProfileDetailsScreen = () => {
   };
   const userRole = getUserRole();
 
-  // --- LOGIQUE POUR S'ABONNER AUX NOTIFICATIONS ---
+  // --- CORRECTION : La mise à jour de l'état du bouton est conditionnelle ---
   const handleSubscribe = async () => {
-    await subscribeUserToPush(dispatch);
-    setNotificationPermission(Notification.permission); // Met à jour l'état du bouton
+    const success = await subscribeUserToPush(dispatch);
+    if (success) {
+      setNotificationPermission(Notification.permission);
+    }
   };
 
   const uploadFileHandler = async (e) => {
@@ -159,7 +159,6 @@ const ProfileDetailsScreen = () => {
                 </InputGroup>
               </Form.Group>
               
-              {/* --- SECTION NOTIFICATIONS RÉINTÉGRÉE AU BON ENDROIT --- */}
               <hr className="my-4" />
               <h5 className="mb-3">Notifications</h5>
               <div className="notification-control">
