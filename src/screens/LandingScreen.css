@@ -1,9 +1,7 @@
-/* Variable pour contrôler l'arrondi des images facilement */
 :root {
   --image-border-radius: 40%;
 }
 
-/* Conteneur principal de la page avec la nouvelle police */
 .landing-v2 {
   min-height: 100vh;
   width: 100%;
@@ -17,7 +15,17 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* Conteneur pour les images qui défilent en fond */
+/* NOUVEAU : Calque de superposition pour le contraste */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Noir avec 60% d'opacité */
+  z-index: 2; /* Se place entre le fond et le contenu */
+}
+
 .scrolling-background {
   position: absolute;
   top: 0;
@@ -28,10 +36,9 @@
   flex-direction: column;
   justify-content: space-around;
   gap: 1rem;
-  z-index: 1;
+  z-index: 1; /* Reste en arrière-plan */
 }
 
-/* Style de chaque ligne d'images qui défile */
 .product-scroller {
   display: flex;
   flex-shrink: 0;
@@ -45,7 +52,7 @@
   margin: 0 1rem;
   border-radius: var(--image-border-radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  opacity: 0.15;
+  opacity: 0.15; /* L'opacité est conservée */
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .product-image:hover {
@@ -53,13 +60,8 @@
   opacity: 0.3;
 }
 
-/* Animations de défilement */
-.scroll-left {
-  animation: scrollLeft 60s linear infinite;
-}
-.scroll-right {
-  animation: scrollRight 60s linear infinite;
-}
+.scroll-left { animation: scrollLeft 60s linear infinite; }
+.scroll-right { animation: scrollRight 60s linear infinite; }
 
 @keyframes scrollLeft {
   from { transform: translateX(0); }
@@ -70,19 +72,14 @@
   to { transform: translateX(0); }
 }
 
-/* Contenu principal (logo, texte, boutons) */
+/* MODIFIÉ : Le conteneur de contenu n'a plus de fond ni de bordure */
 .landing-v2-content {
   position: relative;
-  z-index: 2;
-  background: rgba(10, 25, 47, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 3rem;
-  border-radius: 24px;
+  z-index: 3; /* Passe au-dessus de l'overlay */
+  padding: 2rem;
   text-align: center;
-  max-width: 650px;
+  max-width: 800px;
   width: 90%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   animation: content-appear 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
@@ -91,112 +88,67 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.landing-logo {
-  width: 100px;
-  margin-bottom: 1rem;
-  animation: logo-float 4s ease-in-out infinite;
-  border-radius: 40%;
-}
-
-@keyframes logo-float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
+/* MODIFIÉ : Style du titre principal, inspiré de RouteNote */
 .landing-main-title {
-  font-size: 2.8rem;
-  font-weight: 700;
+  font-size: 4.5rem; /* Très grand */
+  font-weight: 800; /* Très gras */
   color: white;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  line-height: 1.2;
-  margin-bottom: 0.5rem;
-}
-
-.landing-slogan {
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  line-height: 1.1;
   margin-bottom: 1.5rem;
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
+/* MODIFIÉ : Style du sous-titre */
 .landing-subtitle {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: 1rem;
-  margin-bottom: 2.5rem;
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 auto 2.5rem auto; /* Centré avec une marge en bas */
+  max-width: 600px;
   font-weight: 400;
+  line-height: 1.6;
 }
 
-/* Style des boutons ultra-moderne */
 .landing-buttons-v2 {
   display: flex;
-  gap: 1rem;
   justify-content: center;
 }
 
-.landing-buttons-v2 .btn {
+/* NOUVEAU : Style pour le bouton d'action principal */
+.btn-cta-primary {
+  background-color: #3b82f6; /* Bleu vibrant */
+  color: white;
   font-weight: 600;
   border-radius: 50px;
-  padding: 0.9rem 2.2rem;
+  padding: 1rem 2.5rem;
   border: none;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
 }
 
-.landing-buttons-v2 .btn-signup {
-  background: white;
-  color: #0a192f;
-}
-.landing-buttons-v2 .btn-signup:hover {
-  background: #f0f0f0;
+.btn-cta-primary:hover {
+  background-color: #2563eb; /* Bleu un peu plus foncé */
   transform: translateY(-3px);
-  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  color: white; /* Assurez-vous que la couleur du texte ne change pas */
 }
 
-.landing-buttons-v2 .btn-login {
-  background: transparent;
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-}
-.landing-buttons-v2 .btn-login:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: white;
-  transform: translateY(-3px);
-}
 
-/* --- CORRECTIONS POUR LE RESPONSIVE MOBILE --- */
+/* --- AJUSTEMENTS POUR LE RESPONSIVE MOBILE --- */
 @media (max-width: 767px) {
   .product-image {
     height: 100px;
     width: 100px;
   }
-  .landing-v2-content {
-    padding: 1.5rem 1rem; /* Padding réduit pour moins de hauteur */
-    width: 90%; /* On garde une petite marge sur les côtés */
-  }
-  .landing-logo {
-    width: 80px; /* Logo plus petit */
-    margin-bottom: 1rem;
-  }
   .landing-main-title {
-    font-size: 1.8rem; /* Titre plus petit */
-  }
-  .landing-slogan {
-    font-size: 1.1rem; /* Slogan plus petit */
-    margin-bottom: 1rem;
+    font-size: 2.5rem; /* Titre plus petit mais toujours impactant */
   }
   .landing-subtitle {
-    font-size: 0.9rem; /* Sous-titre plus petit */
-    margin-bottom: 1.5rem;
+    font-size: 1rem; /* Sous-titre plus petit */
+    margin-bottom: 2rem;
   }
-  .landing-buttons-v2 {
-    flex-direction: column;
-    gap: 0.75rem; /* Espace réduit entre les boutons */
-  }
-  .landing-buttons-v2 .btn {
-    padding: 0.7rem 1.5rem; /* Boutons moins hauts */
-    font-size: 0.9rem;
+  .btn-cta-primary {
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
   }
 }

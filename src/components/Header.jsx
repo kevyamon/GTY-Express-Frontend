@@ -18,6 +18,7 @@ import CategoryMenu from './CategoryMenu';
 import AdminMenuModal from './AdminMenuModal';
 import SuggestionModal from './SuggestionModal';
 import MobileMenuModal from './MobileMenuModal';
+import logo from '../assets/logo.png'; // NOUVEAU : Importation du logo
 import './Header.css';
 
 const Header = ({ handleShowInstallModal }) => {
@@ -158,9 +159,17 @@ const Header = ({ handleShowInstallModal }) => {
       <header className="header-layout">
         <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
           <Container fluid>
+            {/* --- DÉBUT DE LA MODIFICATION --- */}
             <LinkContainer to={homePath}>
-              <Navbar.Brand>GTY Express</Navbar.Brand>
+              <Navbar.Brand>
+                <img 
+                  src={logo} 
+                  alt="GTY Express Logo" 
+                  className="header-logo"
+                />
+              </Navbar.Brand>
             </LinkContainer>
+            {/* --- FIN DE LA MODIFICATION --- */}
 
             <Button variant="outline-info" size="sm" className="install-app-btn" onClick={handleShowInstallModal}>
               <FaDownload/>
@@ -193,7 +202,6 @@ const Header = ({ handleShowInstallModal }) => {
                 </Button>
               )}
 
-              {/* --- DÉBUT DE LA CORRECTION --- */}
               {userInfo && (
                 <LinkContainer to="/promotions">
                   <Nav.Link className="text-danger fw-bold d-flex align-items-center ms-3">
@@ -201,7 +209,6 @@ const Header = ({ handleShowInstallModal }) => {
                   </Nav.Link>
                 </LinkContainer>
               )}
-              {/* --- FIN DE LA CORRECTION --- */}
             </Nav>
 
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-none" />
@@ -244,7 +251,6 @@ const Header = ({ handleShowInstallModal }) => {
           </Container>
         </Navbar>
 
-        {/* --- DÉBUT DE LA CORRECTION --- */}
         {userInfo && (
           <div className="header-search-row bg-dark">
             <Form onSubmit={submitHandler} className="d-flex search-form">
@@ -253,8 +259,6 @@ const Header = ({ handleShowInstallModal }) => {
             </Form>
           </div>
         )}
-        {/* --- FIN DE LA CORRECTION --- */}
-
 
         {userInfo && (
           <div className="header-icon-row bg-dark">

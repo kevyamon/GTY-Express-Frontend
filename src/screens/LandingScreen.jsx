@@ -3,9 +3,8 @@ import { Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import logo from '../assets/logo.png';
+// Vos imports d'images restent les mêmes
 import landingBackground from '../assets/landingbackground.png';
-
 const imageModules = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}');
 
 import './LandingScreen.css';
@@ -15,16 +14,14 @@ const LandingScreen = () => {
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
 
-  // --- DÉBUT DE LA CORRECTION ---
-  // Ce `useEffect` s'exécute au chargement du composant.
-  // S'il détecte qu'un utilisateur est connecté, il le redirige immédiatement.
+  // La logique de redirection si l'utilisateur est connecté est conservée
   useEffect(() => {
     if (userInfo) {
       navigate('/products');
     }
   }, [userInfo, navigate]);
-  // --- FIN DE LA CORRECTION ---
 
+  // La logique de chargement des images pour l'arrière-plan est conservée
   useEffect(() => {
     const loadImages = async () => {
       const imagePromises = Object.values(imageModules).map(importImage => importImage());
@@ -47,14 +44,13 @@ const LandingScreen = () => {
     backgroundImage: `url(${landingBackground})`,
   };
 
-  // Si l'utilisateur est connecté, on peut retourner null car la redirection est en cours.
-  // Cela évite un bref affichage de la page avant la redirection.
   if (userInfo) {
     return null;
   }
 
   return (
     <div className='landing-v2' style={pageStyle}>
+      {/* L'arrière-plan avec les images qui défilent est conservé */}
       {productImages.length > 0 && (
         <div className='scrolling-background'>
           {chunkedImages.map((row, rowIndex) => (
@@ -76,22 +72,22 @@ const LandingScreen = () => {
         </div>
       )}
 
+      {/* NOUVEAU : Superposition sombre pour la lisibilité */}
+      <div className='overlay'></div>
+
+      {/* Le contenu est maintenant centré sans boîte en arrière-plan */}
       <div className='landing-v2-content'>
-        <img src={logo} alt="GTY Express Logo" className="landing-logo animated-logo" />
-        <h1 className='landing-main-title'>Bienvenue sur GTY Express</h1>
-        <h2 className='landing-slogan'>Là où le produit, c'est ton envie.</h2>
+        <h1 className='landing-main-title'>Vos envies, livrées en un instant.</h1>
         <p className='landing-subtitle'>
-          Explore des milliers d'articles et profite d'une livraison express en Côte d'Ivoire.
+          Explorez des milliers d'articles et recevez-les où que vous soyez.
+          <br />
+          Le meilleur service de livraison en Côte d'Ivoire.
         </p>
         <div className='landing-buttons-v2'>
           <Link to='/register'>
-            <Button className='btn-signup'>
-              Créer un compte
-            </Button>
-          </Link>
-          <Link to='/login'>
-            <Button className='btn-login'>
-              Se Connecter
+            {/* NOUVEAU : Un seul bouton d'appel à l'action */}
+            <Button className='btn-cta-primary'>
+              Commencer
             </Button>
           </Link>
         </div>

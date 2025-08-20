@@ -87,3 +87,10 @@
     align-items: center;
     justify-content: center;
 }
+
+/* Style pour le logo dans le header */
+.header-logo {
+  height: 40px; /* Vous pouvez ajuster cette valeur */
+  width: auto;
+  border-radius: 25%; /* Ajoute des coins arrondis comme sur la landing page */
+}
