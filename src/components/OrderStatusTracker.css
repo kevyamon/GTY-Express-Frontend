@@ -7,36 +7,48 @@
   display: flex;
   align-items: flex-start;
   position: relative;
-  padding-bottom: 2rem;
+  padding-bottom: 2.5rem; /* Espace augmenté */
+}
+
+.step:last-child {
+  padding-bottom: 0;
 }
 
 .step-icon {
-  width: 30px;
-  height: 30px;
+  width: 40px; /* Plus grand */
+  height: 40px;
   border-radius: 50%;
   background-color: #e9ecef;
-  color: #6c757d;
+  color: #adb5bd;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   z-index: 2;
-  border: 3px solid white;
+  border: 4px solid #fff; /* Bordure blanche pour le détacher */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .step-icon.completed {
   background-color: #198754; /* Vert */
   color: white;
+  box-shadow: 0 0 15px rgba(25, 135, 84, 0.5);
 }
 
 .step-line {
   position: absolute;
-  left: 15px;
-  top: 15px;
-  bottom: -15px;
-  width: 2px;
+  left: 19px; /* Centré par rapport à l'icône de 40px */
+  top: 20px;
+  bottom: -20px;
+  width: 3px; /* Ligne plus épaisse */
   background-color: #e9ecef;
   z-index: 1;
+  transition: background-color 0.5s ease;
+}
+
+.step.completed .step-line {
+    background-color: #198754; /* La ligne devient verte si l'étape est complétée */
 }
 
 .step:last-child .step-line {
@@ -44,12 +56,19 @@
 }
 
 .step-content {
-  margin-left: 1rem;
+  margin-left: 1.5rem;
+  padding-top: 0.5rem;
 }
 
 .step-content h5 {
-  font-weight: bold;
+  font-weight: 600; /* Moins gras */
   margin-bottom: 0.2rem;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.step.completed .step-content h5 {
+    color: #212529; /* Texte plus foncé pour l'étape active/complétée */
 }
 
 .step-content p {

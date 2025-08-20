@@ -3,9 +3,9 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import { FaShippingFast, FaCreditCard, FaUser, FaAt, FaPhone } from 'react-icons/fa';
+import { FaShippingFast, FaCreditCard, FaUser, FaAt, FaPhone, FaArrowLeft } from 'react-icons/fa';
 import Message from '../components/Message';
-import Loader from '../components/Loader'; // --- NOUVEL IMPORT ---
+import Loader from '../components/Loader';
 import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
   useGetOrderDetailsQuery,
@@ -65,12 +65,15 @@ const OrderScreen = () => {
     }
   };
 
-  // --- MODIFICATION ICI ---
   return isLoading ? <Loader />
     : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
     : (
     <>
-      <h3 className="mb-4">Détails de la commande {order._id.substring(0, 10)}...</h3>
+      <Link to='/profile' className='btn btn-light my-3'>
+        <FaArrowLeft /> Retour à Mes Commandes
+      </Link>
+
+      <h3 className="mb-4">Détails de la commande <span className="order-id-highlight">{order.orderNumber || order._id}</span></h3>
       <Row>
         <Col md={7}>
           <Card className="mb-4 order-card">
@@ -84,16 +87,16 @@ const OrderScreen = () => {
             <Card.Header as="h5">Détails de Livraison et Paiement</Card.Header>
             <ListGroup variant='flush'>
               <ListGroup.Item>
-                <p><strong><FaUser className="me-2"/>Client:</strong> {order.user.name}</p>
-                <p><strong><FaAt className="me-2"/>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
-                <p><strong><FaPhone className="me-2"/>Téléphone:</strong> {order.shippingAddress.phone}</p>
+                <p><strong><FaUser /> Client:</strong> {order.user.name}</p>
+                <p><strong><FaAt /> Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
+                <p><strong><FaPhone /> Téléphone:</strong> {order.shippingAddress.phone}</p>
               </ListGroup.Item>
               <ListGroup.Item>
-                <p><strong><FaShippingFast className="me-2"/>Adresse de livraison:</strong></p>
+                <p><strong><FaShippingFast /> Adresse de livraison:</strong></p>
                 {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}
               </ListGroup.Item>
                <ListGroup.Item>
-                <p><strong><FaCreditCard className="me-2"/>Méthode de paiement:</strong> {order.paymentMethod}</p>
+                <p><strong><FaCreditCard /> Méthode de paiement:</strong> {order.paymentMethod}</p>
                 {order.isPaid ? (<Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>) : (<Message variant='danger'>Non payé</Message>)}
               </ListGroup.Item>
             </ListGroup>
@@ -137,7 +140,7 @@ const OrderScreen = () => {
           </Card>
           
           <h5 className="mt-4">Articles Commandés</h5>
-          <ListGroup variant='flush'>
+          <ListGroup variant='flush' className="order-items-list">
             {order.orderItems.map((item, index) => {
               let imageToDisplay = 'https://via.placeholder.com/150';
               if (item.images && item.images.length > 0) {
