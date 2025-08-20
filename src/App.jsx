@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'; // Ajout de useEffect
+import { useState, useEffect, useContext } from 'react';
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,7 +21,8 @@ import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import { VersionContext } from './contexts/VersionContext';
 import UpdateModal from './components/UpdateModal'; 
 import UpdateCompleteModal from './components/UpdateCompleteModal';
-import SplashScreen from './components/SplashScreen'; // --- NOUVEL IMPORT ---
+import SplashScreen from './components/SplashScreen';
+import PushNotificationManager from './components/PushNotificationManager'; // --- NOUVEL IMPORT ---
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -30,14 +31,12 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // --- DÉBUT DE LA MODIFICATION ---
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 3000); // L'écran disparaît après 3s
+    const timer = setTimeout(() => setShowSplash(false), 1800);
     return () => clearTimeout(timer);
   }, []);
-  // --- FIN DE LA MODIFICATION ---
 
   const {
     isModalOpen,
@@ -72,9 +71,10 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      {/* --- MODIFICATION ICI --- */}
       <SplashScreen show={showSplash} />
-      {/* --- FIN DE LA MODIFICATION --- */}
+      
+      {/* --- LIGNE AJOUTÉE --- */}
+      {userInfo && <PushNotificationManager />}
       
       <GlobalLoader />
       

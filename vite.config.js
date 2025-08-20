@@ -1,4 +1,3 @@
-
 // vite.config.js
 
 import { defineConfig } from 'vite';
@@ -10,7 +9,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      // --- MODIFICATION ICI ---
       registerType: 'autoUpdate',
+      injectRegister: false, // On désactive l'injection automatique
+      strategies: 'injectManifest', // On utilise notre propre SW
+      srcDir: 'src', // Le dossier où se trouve notre fichier source de SW
+      filename: 'sw.js', // Le nom de notre fichier source
+      // --- FIN DE LA MODIFICATION ---
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY Express',
