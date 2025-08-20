@@ -5,22 +5,23 @@ import { toast } from 'react-toastify';
 import Message from '../../components/Message';
 import {
   useGetSuggestionsQuery,
-  useGetArchivedSuggestionsQuery, // --- NOUVEL IMPORT ---
+  useGetArchivedSuggestionsQuery,
   useArchiveSuggestionMutation,
 } from '../../slices/suggestionApiSlice';
 import { FaArchive, FaInbox, FaLightbulb } from 'react-icons/fa';
 import './SuggestionListScreen.css';
 
 const SuggestionListScreen = () => {
-  // --- DÉBUT DE LA MODIFICATION DE LA LOGIQUE ---
   const [showArchived, setShowArchived] = useState(false);
 
-  const { data: activeSuggestions, isLoading: isLoadingActive } = useGetSuggestionsQuery(undefined, { skip: showArchived });
-  const { data: archivedSuggestions, isLoading: isLoadingArchived } = useGetArchivedSuggestionsQuery(undefined, { skip: !showArchived });
+  // --- DÉBUT DE LA CORRECTION ---
+  const { data: activeSuggestions, isLoading: isLoadingActive, error: errorActive } = useGetSuggestionsQuery(undefined, { skip: showArchived });
+  const { data: archivedSuggestions, isLoading: isLoadingArchived, error: errorArchived } = useGetArchivedSuggestionsQuery(undefined, { skip: !showArchived });
 
   const suggestions = showArchived ? archivedSuggestions : activeSuggestions;
   const isLoading = showArchived ? isLoadingArchived : isLoadingActive;
-  // --- FIN DE LA MODIFICATION DE LA LOGIQUE ---
+  const error = showArchived ? errorArchived : errorActive; // La variable error est maintenant définie
+  // --- FIN DE LA CORRECTION ---
 
   const [archiveSuggestion, { isLoading: isArchiving }] = useArchiveSuggestionMutation();
   const { userInfo } = useSelector((state) => state.auth);
