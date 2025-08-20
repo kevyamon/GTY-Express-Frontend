@@ -1,0 +1,67 @@
+@keyframes dezoom-fade-out {
+  0% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes text-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1d2b64; /* Fond bleu nuit */
+  z-index: 10001; /* Au-dessus de tout */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.splash-screen-overlay:not(.show) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-content {
+  text-align: center;
+}
+
+.splash-logo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /* Logo arrondi */
+  animation: dezoom-fade-out 3.5s forwards; /* Animation de 3.5s */
+}
+
+.splash-text {
+  color: white;
+  font-family: 'Poppins', sans-serif; /* Nouvelle police */
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  opacity: 0;
+  animation: text-fade-in 1s forwards;
+  animation-delay: 0.5s; /* Apparaît après 0.5s */
+}

@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react'; // Ajout de useEffect
 import { Container } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,8 +19,9 @@ import { clearWelcome } from './slices/authSlice';
 import SuggestionModal from './components/SuggestionModal';
 import GlobalMessageDisplay from './components/GlobalMessageDisplay';
 import { VersionContext } from './contexts/VersionContext';
-import UpdateModal from './components/UpdateModal'; // On importe le nouveau modal
+import UpdateModal from './components/UpdateModal'; 
 import UpdateCompleteModal from './components/UpdateCompleteModal';
+import SplashScreen from './components/SplashScreen'; // --- NOUVEL IMPORT ---
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -29,7 +30,15 @@ const App = () => {
   const dispatch = useDispatch();
   const { userInfo, showWelcome } = useSelector((state) => state.auth);
 
-  // On récupère TOUT ce dont on a besoin depuis le contexte
+  // --- DÉBUT DE LA MODIFICATION ---
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3000); // L'écran disparaît après 3s
+    return () => clearTimeout(timer);
+  }, []);
+  // --- FIN DE LA MODIFICATION ---
+
   const {
     isModalOpen,
     isUpdateInProgress,
@@ -63,6 +72,10 @@ const App = () => {
 
   return (
     <div style={appStyle}>
+      {/* --- MODIFICATION ICI --- */}
+      <SplashScreen show={showSplash} />
+      {/* --- FIN DE LA MODIFICATION --- */}
+      
       <GlobalLoader />
       
       {showWelcome && <WelcomeTransition onTransitionEnd={handleWelcomeEnd} />}
@@ -104,7 +117,6 @@ const App = () => {
         handleClose={() => setShowSuggestionModal(false)}
       />
 
-      {/* On affiche le modal de mise à jour en utilisant les données du contexte */}
       <UpdateModal
         show={isModalOpen}
         handleClose={declineUpdate}
