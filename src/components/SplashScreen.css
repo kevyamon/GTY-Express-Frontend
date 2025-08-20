@@ -65,3 +65,16 @@
   animation: text-fade-in 1s forwards;
   animation-delay: 0.5s; /* Apparaît après 0.5s */
 }
+
+/* --- NOUVEAUX STYLES AJOUTÉS CI-DESSOUS --- */
+.splash-signature {
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  letter-spacing: 1px;
+  opacity: 0;
+  animation: text-fade-in 1s forwards;
+  animation-delay: 0.8s; /* Apparaît un peu après le titre */
+}

@@ -8,6 +8,8 @@ const SplashScreen = ({ show }) => {
       <div className="splash-content">
         <img src={logo} alt="GTY Express Logo" className="splash-logo" />
         <h1 className="splash-text">GTY Express</h1>
+        {/* --- LIGNE AJOUTÉE CI-DESSOUS --- */}
+        <p className="splash-signature">By_Kevy</p>
       </div>
     </div>
   );
