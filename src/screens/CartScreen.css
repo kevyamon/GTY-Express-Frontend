@@ -110,13 +110,13 @@
 /* Responsive pour les mobiles */
 @media (max-width: 767px) {
   /* --- DÉBUT DE LA CORRECTION --- */
-  .cart-items-container {
+  .cart-screen .cart-items-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* Crée 2 colonnes égales */
     gap: 0.75rem; /* Espace entre les cartes */
   }
 
-  .cart-item-card {
+  .cart-screen .cart-item-card {
     flex-direction: column;
     padding: 0.75rem; /* Padding réduit pour les petites cartes */
     margin-bottom: 0; /* La grille gère l'espacement */

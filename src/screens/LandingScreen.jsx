@@ -77,7 +77,7 @@ const LandingScreen = () => {
       <div className='landing-v2-content'>
         <h1 className='landing-main-title'>Bienvenue sur GTY Express</h1>
         
-        <h2 className='landing-subtitle-typing'>Vos envies, livrées en un instant.</h2>
+        <h2 className='landing-subtitle-typing'>Vos envies,en un instant.</h2>
 
         <p className='landing-subtitle-secondary'>
           Explorez des milliers d'articles et recevez-les où que vous soyez.
