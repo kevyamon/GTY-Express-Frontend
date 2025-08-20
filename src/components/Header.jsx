@@ -30,18 +30,16 @@ const Header = ({ handleShowInstallModal }) => {
 
   const { isUpdateAvailable, isUpdateInProgress, updateDeclined, openUpdateModal } = useContext(VersionContext);
 
-  // ✅ CORRECTION : La logique pour le bouton est correcte, mais on la rend plus robuste.
-  // La mise à jour est terminée quand aucune de ces conditions n'est vraie.
   const isUpdateFinished = !isUpdateAvailable && !isUpdateInProgress;
 
   const showUpdateButton = isUpdateAvailable || isUpdateInProgress;
   const shouldBlink = isUpdateInProgress || (isUpdateAvailable && updateDeclined);
 
   const getUpdateVariant = () => {
-    if (isUpdateInProgress) return 'warning'; // Jaune pendant l'installation
-    if (updateDeclined) return 'danger'; // Rouge si refusé
-    if (isUpdateAvailable) return 'success'; // Vert si disponible
-    return 'outline-secondary'; // Gris (état final)
+    if (isUpdateInProgress) return 'warning';
+    if (updateDeclined) return 'danger';
+    if (isUpdateAvailable) return 'success';
+    return 'outline-secondary';
   };
 
   const [lastSeen, setLastSeen] = useState(() => {
@@ -182,25 +180,28 @@ const Header = ({ handleShowInstallModal }) => {
             <Nav className="me-auto d-none d-lg-flex align-items-center">
               {userInfo && <CategoryMenu />}
               
-              {/* ✅ CORRECTION : Le bouton est maintenant ici, visible sur tous les écrans */}
               {userInfo && (showUpdateButton || isUpdateFinished) && (
                 <Button 
                     variant={getUpdateVariant()} 
                     onClick={openUpdateModal}
                     className={`ms-3 d-flex align-items-center ${shouldBlink ? 'update-available-blink' : ''}`} 
                     size="sm"
-                    disabled={isUpdateFinished} // On le grise si la MàJ est finie
+                    disabled={isUpdateFinished}
                 >
                   <FaSyncAlt className="me-1" />
                   {isUpdateInProgress ? 'Installation...' : (isUpdateFinished ? 'À jour' : 'Màj Dispo')}
                 </Button>
               )}
 
-              <LinkContainer to="/promotions">
-                <Nav.Link className="text-danger fw-bold d-flex align-items-center ms-3">
-                  <FaTag className="me-1" /> PROMO
-                </Nav.Link>
-              </LinkContainer>
+              {/* --- DÉBUT DE LA CORRECTION --- */}
+              {userInfo && (
+                <LinkContainer to="/promotions">
+                  <Nav.Link className="text-danger fw-bold d-flex align-items-center ms-3">
+                    <FaTag className="me-1" /> PROMO
+                  </Nav.Link>
+                </LinkContainer>
+              )}
+              {/* --- FIN DE LA CORRECTION --- */}
             </Nav>
 
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-none" />
@@ -243,12 +244,17 @@ const Header = ({ handleShowInstallModal }) => {
           </Container>
         </Navbar>
 
-        <div className="header-search-row bg-dark">
-          <Form onSubmit={submitHandler} className="d-flex search-form">
-            <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
-            <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
-          </Form>
-        </div>
+        {/* --- DÉBUT DE LA CORRECTION --- */}
+        {userInfo && (
+          <div className="header-search-row bg-dark">
+            <Form onSubmit={submitHandler} className="d-flex search-form">
+              <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
+              <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
+            </Form>
+          </div>
+        )}
+        {/* --- FIN DE LA CORRECTION --- */}
+
 
         {userInfo && (
           <div className="header-icon-row bg-dark">

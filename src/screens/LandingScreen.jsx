@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import logo from '../assets/logo.png';
 import landingBackground from '../assets/landingbackground.png';
 
-// On charge les images de manière asynchrone pour ne pas bloquer le chargement initial
 const imageModules = import.meta.glob('../assets/products/*.{png,jpg,jpeg,svg}');
 
 import './LandingScreen.css';
 
 const LandingScreen = () => {
-  // On utilise un état pour stocker les images une fois chargées
   const [productImages, setProductImages] = useState([]);
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((state) => state.auth);
+
+  // --- DÉBUT DE LA CORRECTION ---
+  // Ce `useEffect` s'exécute au chargement du composant.
+  // S'il détecte qu'un utilisateur est connecté, il le redirige immédiatement.
+  useEffect(() => {
+    if (userInfo) {
+      navigate('/products');
+    }
+  }, [userInfo, navigate]);
+  // --- FIN DE LA CORRECTION ---
 
   useEffect(() => {
-    // On charge les images après l'affichage du composant
     const loadImages = async () => {
       const imagePromises = Object.values(imageModules).map(importImage => importImage());
       const loadedImages = await Promise.all(imagePromises);
@@ -24,7 +34,6 @@ const LandingScreen = () => {
     loadImages();
   }, []);
 
-  // On groupe les images par lots pour créer plusieurs lignes de défilement
   const chunkedImages = [];
   for (let i = 0; i < productImages.length; i += 5) {
     chunkedImages.push(productImages.slice(i, i + 5));
@@ -38,6 +47,12 @@ const LandingScreen = () => {
     backgroundImage: `url(${landingBackground})`,
   };
 
+  // Si l'utilisateur est connecté, on peut retourner null car la redirection est en cours.
+  // Cela évite un bref affichage de la page avant la redirection.
+  if (userInfo) {
+    return null;
+  }
+
   return (
     <div className='landing-v2' style={pageStyle}>
       {productImages.length > 0 && (
@@ -47,7 +62,6 @@ const LandingScreen = () => {
               key={rowIndex}
               className={`product-scroller ${rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right'}`}
             >
-              {/* On duplique la ligne d'images pour un défilement infini fluide */}
               {[...row, ...row].map((image, imgIndex) => (
                 <img
                   key={imgIndex}
