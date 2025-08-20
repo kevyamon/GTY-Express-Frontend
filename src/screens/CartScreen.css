@@ -1,0 +1,119 @@
+.cart-screen h1 {
+  margin-bottom: 1.5rem;
+}
+
+/* Style pour un article individuel dans le panier */
+.cart-item-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 1.5rem;
+  border: none !important;
+}
+
+.cart-item-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.cart-item-details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item-name {
+  font-weight: 600;
+  color: #212529;
+  text-decoration: none;
+  margin-bottom: 0.25rem;
+}
+
+.cart-item-name:hover {
+  text-decoration: underline;
+}
+
+.cart-item-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cart-remove-btn {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-decoration: none;
+  padding: 0.2rem;
+}
+
+.cart-remove-btn:hover {
+  color: #dc3545;
+  text-decoration: underline;
+}
+
+/* Style pour le résumé de la commande */
+.cart-summary-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.summary-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.summary-total {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: right;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Style pour le panier vide */
+.empty-cart-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.empty-cart-icon {
+  font-size: 5rem;
+  color: #e0e0e0;
+}
+
+/* Responsive pour les mobiles */
+@media (max-width: 767px) {
+  .cart-item-card {
+    flex-direction: column;
+  }
+  .cart-item-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}

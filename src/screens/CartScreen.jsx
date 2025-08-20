@@ -1,16 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Row,
-  Col,
-  ListGroup,
-  Image,
-  Button,
-  Card,
-} from 'react-bootstrap';
+import { Row, Col, ListGroup, Image, Button, Card } from 'react-bootstrap';
+import { FaShoppingCart, FaTrash } from 'react-icons/fa';
 import Message from '../components/Message';
+import StockStatus from '../components/StockStatus';
 import { addToCart, removeFromCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
+import './CartScreen.css'; // NOUVEL IMPORT
 
 const CartScreen = () => {
   const navigate = useNavigate();
@@ -37,90 +33,91 @@ const CartScreen = () => {
     }
   };
 
+  const getImageUrl = (item) => {
+    let imageToDisplay = 'https://via.placeholder.com/150';
+    if (item.images && item.images.length > 0) {
+      imageToDisplay = item.images[0];
+    } else if (item.image) {
+      imageToDisplay = item.image;
+    }
+    return imageToDisplay.startsWith('/')
+      ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
+      : imageToDisplay;
+  };
+
   return (
-    <Row>
+    <Row className="cart-screen">
       <Col md={8}>
-        <h1 style={{ marginBottom: '20px' }}>Panier</h1>
+        <h1>Mon Panier</h1>
         {cartItems.length === 0 ? (
-          <Message>
-            Votre panier est vide <Link to='/products'>Retour</Link>
-          </Message>
+          <div className="empty-cart-container">
+            <FaShoppingCart className="empty-cart-icon" />
+            <h2 className="mt-3">Votre panier est tristement vide</h2>
+            <p>Parcourez nos rayons pour trouver des articles qui vous plaisent !</p>
+            <Link to='/products' className='btn btn-primary mt-3'>
+              Continuer mes achats
+            </Link>
+          </div>
         ) : (
           <ListGroup variant='flush'>
-            {cartItems.map((item) => {
-              let imageToDisplay = 'https://via.placeholder.com/150';
-              if (item.images && item.images.length > 0) {
-                imageToDisplay = item.images[0];
-              } else if (item.image) {
-                imageToDisplay = item.image;
-              }
-              const imageUrl = imageToDisplay.startsWith('/')
-                ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
-                : imageToDisplay;
+            {cartItems.map((item) => (
+              <ListGroup.Item key={item._id} className="cart-item-card">
+                <Image src={getImageUrl(item)} alt={item.name} className="cart-item-image" />
+                
+                <div className="cart-item-details">
+                  <Link to={`/product/${item._id}`} className="cart-item-name">{item.name}</Link>
+                  <div className="cart-item-price">{item.price.toFixed(2)} FCFA</div>
+                  <StockStatus countInStock={item.countInStock} />
+                </div>
 
-              return (
-                <ListGroup.Item key={item._id}>
-                  {/* --- CORRECTION POUR LE RESPONSIVE --- */}
-                  <Row className="align-items-center">
-                    {/* Colonne Image (petite sur mobile) */}
-                    <Col xs={3} md={2}>
-                      <Image src={imageUrl} alt={item.name} fluid rounded />
-                    </Col>
-                    {/* Colonne Titre (prend le reste de la ligne sur mobile) */}
-                    <Col xs={9} md={3}>
-                      <Link to={`/product/${item._id}`}>{item.name}</Link>
-                    </Col>
-                    {/* Colonne Prix (visible uniquement sur grand écran) */}
-                    <Col md={2} className="d-none d-md-block">{item.price} FCFA</Col>
-                    {/* Colonne Quantité (prend la moitié de la largeur sur mobile) */}
-                    <Col xs={8} md={3} className="mt-2 mt-md-0">
-                      <QtySelector
-                        value={item.qty}
-                        onChange={(newQty) => updateQtyHandler(item, newQty)}
-                        max={item.countInStock}
-                      />
-                    </Col>
-                    {/* Colonne Supprimer (prend l'autre moitié sur mobile) */}
-                    <Col xs={4} md={2} className="text-end mt-2 mt-md-0">
-                      <Button
-                        type='button'
-                        variant='light'
-                        onClick={() => removeFromCartHandler(item._id)}
-                      >
-                        🗑️
-                      </Button>
-                    </Col>
-                  </Row>
-                  {/* --- FIN DE LA CORRECTION --- */}
-                </ListGroup.Item>
-              );
-            })}
+                <div className="cart-item-actions">
+                  <QtySelector
+                    value={item.qty}
+                    onChange={(newQty) => updateQtyHandler(item, newQty)}
+                    max={item.countInStock}
+                  />
+                  <Button
+                    type='button'
+                    variant='link'
+                    className="cart-remove-btn"
+                    onClick={() => removeFromCartHandler(item._id)}
+                  >
+                    <FaTrash /> Supprimer
+                  </Button>
+                </div>
+              </ListGroup.Item>
+            ))}
           </ListGroup>
         )}
       </Col>
-      <Col md={4}>
-        <Card>
-          <ListGroup variant='flush'>
-            <ListGroup.Item>
-              <h2>
-                Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
-                articles
-              </h2>
-              {(cart.itemsPrice || 0).toFixed(2)} FCFA
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Button
-                type='button'
-                className='btn-block w-100'
-                disabled={cartItems.length === 0}
-                onClick={checkoutHandler}
-              >
-                Passer la commande
-              </Button>
-            </ListGroup.Item>
-          </ListGroup>
-        </Card>
-      </Col>
+      
+      {cartItems.length > 0 && (
+        <Col md={4}>
+          <Card className="cart-summary-card">
+            <Card.Body>
+              <ListGroup variant='flush'>
+                <ListGroup.Item>
+                  <h4 className="summary-title">
+                    Sous-total ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) articles
+                  </h4>
+                  <div className="summary-total">
+                    {(cart.itemsPrice || 0).toFixed(2)} FCFA
+                  </div>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Button
+                    type='button'
+                    className='checkout-btn'
+                    onClick={checkoutHandler}
+                  >
+                    Passer la commande
+                  </Button>
+                </ListGroup.Item>
+              </ListGroup>
+            </Card.Body>
+          </Card>
+        </Col>
+      )}
     </Row>
   );
 };
