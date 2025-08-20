@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
-import { Table, Button } from 'react-bootstrap';
+import { Button, Row, Col, Card, Badge, ListGroup } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { Link } from 'react-router-dom';
 import Message from '../components/Message';
-import Loader from '../components/Loader'; // --- NOUVEL IMPORT ---
+import Loader from '../components/Loader';
 import { toast } from 'react-toastify';
 import { useGetMyOrdersQuery, useCancelOrderMutation, useDeleteOrderMutation } from '../slices/orderApiSlice';
+import { FaHashtag, FaCalendar, FaMoneyBillWave, FaCheckCircle, FaTimesCircle, FaEdit, FaTrashAlt, FaCommentDots } from 'react-icons/fa';
+import './ProfileScreen.css'; // NOUVEL IMPORT
 
 const ProfileScreen = () => {
   const { data: orders, isLoading, error } = useGetMyOrdersQuery();
@@ -33,10 +36,20 @@ const ProfileScreen = () => {
     }
   };
 
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case 'Livrée': return 'success';
+      case 'Confirmée': return 'primary';
+      case 'Expédiée': return 'info';
+      case 'En attente': return 'warning';
+      case 'Annulée': return 'danger';
+      default: return 'secondary';
+    }
+  };
+
   return (
     <div>
-      <h2>Mes Commandes</h2>
-      {/* --- MODIFICATION ICI --- */}
+      <h2 className="mb-4">Mes Commandes</h2>
       {isLoading || loadingCancel || loadingDelete ? (
         <Loader />
       ) : error ? (
@@ -44,70 +57,77 @@ const ProfileScreen = () => {
           {error?.data?.message || error.error}
         </Message>
       ) : (
-        <Table striped hover responsive className='table-sm'>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>DATE</th>
-              <th>TOTAL</th>
-              <th>PAYÉ</th>
-              <th>STATUT</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id.substring(0, 10)}...</td>
-                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>{order.totalPrice.toFixed(2)} FCFA</td>
-                <td>
-                  {order.isPaid ? (
-                    `Le ${new Date(order.paidAt).toLocaleDateString()}`
-                  ) : (
-                    <span style={{ color: 'red' }}>Non</span>
-                  )}
-                </td>
-                <td>{order.status}</td>
-                <td>
-                  <LinkContainer to={`/order/${order._id}`}>
-                    <Button className='btn-sm' variant='light'>
-                      Détails
-                    </Button>
-                  </LinkContainer>
-                  
-                  {order.status === 'En attente' && (
-                    <Button
-                      className='btn-sm ms-2'
-                      variant='warning'
-                      onClick={() => cancelHandler(order._id)}
-                    >
-                      Annuler
-                    </Button>
-                  )}
-
-                  {order.status === 'Livrée' && (
-                    <LinkContainer to={`/product/${order.orderItems[0].product}`}>
-                        <Button className='btn-sm ms-2' variant='info'>
-                            Laisser un avis
-                        </Button>
+        <Row>
+          {orders.length === 0 ? (
+             <Col>
+                <Message>Vous n'avez pas encore de commandes. <Link to="/products">Commencez vos achats !</Link></Message>
+             </Col>
+          ) : (
+            orders.map((order) => (
+              <Col key={order._id} sm={12} md={6} className="mb-4">
+                <Card className="order-card-profile h-100">
+                  <Card.Header as="div" className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <FaHashtag className="me-1" />
+                      <strong>COMMANDE</strong> {order.orderNumber || order._id.substring(18)}
+                    </div>
+                    <Badge bg={getStatusVariant(order.status)}>{order.status}</Badge>
+                  </Card.Header>
+                  <Card.Body>
+                    <ListGroup variant="flush">
+                      <ListGroup.Item>
+                        <FaCalendar className="icon-blue" />
+                        <div>
+                            <strong>Date:</strong>
+                            <span className="ms-2">{new Date(order.createdAt).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        <FaMoneyBillWave className="icon-blue" />
+                        <div>
+                            <strong>Total:</strong>
+                            <span className="ms-2 fw-bold">{order.totalPrice.toFixed(2)} FCFA</span>
+                        </div>
+                      </ListGroup.Item>
+                      <ListGroup.Item>
+                        {order.isPaid ? <FaCheckCircle className="text-success" /> : <FaTimesCircle className="text-danger" />}
+                        <div className="ms-2">
+                            <strong>Payé:</strong>
+                            <span className="ms-2">{order.isPaid ? `Le ${new Date(order.paidAt).toLocaleDateString('fr-FR')}` : 'Non'}</span>
+                        </div>
+                      </ListGroup.Item>
+                    </ListGroup>
+                  </Card.Body>
+                  <Card.Footer>
+                    <LinkContainer to={`/order/${order._id}`}>
+                      <Button variant='dark' size="sm">Détails</Button>
                     </LinkContainer>
-                  )}
-                  
-                  {(order.status === 'Livrée' || order.status === 'Annulée') && (
-                    <Button
-                      className='btn-sm ms-2'
-                      variant='danger'
-                      onClick={() => deleteHandler(order._id)}
-                    >
-                      Supprimer
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                    
+                    {order.status === 'En attente' && (
+                      <Button variant='warning' size="sm" onClick={() => cancelHandler(order._id)}>
+                        <FaTimesCircle className="me-1" /> Annuler
+                      </Button>
+                    )}
+
+                    {order.status === 'Livrée' && (
+                      <LinkContainer to={`/product/${order.orderItems[0].product}`}>
+                          <Button variant='info' size="sm">
+                              <FaCommentDots className="me-1" /> Laisser un avis
+                          </Button>
+                      </LinkContainer>
+                    )}
+                    
+                    {(order.status === 'Livrée' || order.status === 'Annulée') && (
+                      <Button variant='danger' size="sm" onClick={() => deleteHandler(order._id)}>
+                        <FaTrashAlt className="me-1" /> Supprimer
+                      </Button>
+                    )}
+                  </Card.Footer>
+                </Card>
+              </Col>
+            ))
+          )}
+        </Row>
       )}
     </div>
   );
