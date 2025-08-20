@@ -86,8 +86,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- DÉBUT DES STYLES MODIFIÉS ET AJOUTÉS --- */
-
 /* Titre principal avec animation de couleur */
 .landing-main-title {
   font-size: 4.5rem;
@@ -99,14 +97,15 @@
   animation: color-change 6s linear infinite;
 }
 
-/* Keyframes pour l'animation de couleur */
 @keyframes color-change {
   0%, 100% { color: white; }
   33% { color: #ff4d4d; } /* Rouge vif */
   66% { color: #ffd700; } /* Jaune or */
 }
 
-/* Sous-titre avec animation d'écriture */
+/* --- DÉBUT DES CORRECTIONS POUR L'ANIMATION D'ÉCRITURE --- */
+
+/* Sous-titre avec la nouvelle animation en boucle */
 .landing-subtitle-typing {
   font-size: 2rem;
   font-weight: 500;
@@ -115,27 +114,40 @@
   border-right: 3px solid rgba(255, 255, 255, 0.75);
   white-space: nowrap;
   overflow: hidden;
-  width: 33ch; /* 33 caractères = "Vos envies, livrées en un instant." */
-  animation: typing 3s steps(33), blink .5s step-end infinite alternate;
+  /* La largeur est animée dans les keyframes */
+  width: 0; 
+  /* Durée totale : 3s d'écriture + 5s de pause = 8s */
+  animation: typing-loop 8s steps(33) infinite;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Keyframes pour l'animation d'écriture */
-@keyframes typing {
-  from {
+/* Nouvelle animation qui gère l'écriture, la pause et la disparition du curseur */
+@keyframes typing-loop {
+  /* Phase d'écriture (0s à 3s) */
+  0% {
     width: 0;
+    border-right-color: rgba(255, 255, 255, 0.75); /* Curseur visible */
+  }
+  37.5% { /* 3s / 8s = 37.5% */
+    width: 33ch; /* Largeur finale du texte */
+    border-right-color: rgba(255, 255, 255, 0.75); /* Curseur visible */
+  }
+  /* Phase de pause (3s à 8s) */
+  37.6%, 99% {
+    width: 33ch; /* Le texte reste affiché */
+    border-right-color: transparent; /* Le curseur disparaît */
+  }
+  /* Réinitialisation pour la boucle suivante */
+  100% {
+    width: 0;
+    border-right-color: transparent;
   }
 }
 
-/* Keyframes pour le curseur qui clignote */
-@keyframes blink {
-  50% {
-    border-color: transparent;
-  }
-}
+/* --- FIN DES CORRECTIONS --- */
 
-/* Second sous-titre (ancien .landing-subtitle) */
+/* Second sous-titre */
 .landing-subtitle-secondary {
   font-size: 1.25rem;
   color: rgba(255, 255, 255, 0.9);
@@ -144,8 +156,6 @@
   font-weight: 400;
   line-height: 1.6;
 }
-
-/* --- FIN DES STYLES MODIFIÉS ET AJOUTÉS --- */
 
 .landing-buttons-v2 {
   display: flex;
@@ -180,10 +190,23 @@
   .landing-main-title {
     font-size: 2.5rem;
   }
+  
+  /* --- CORRECTION MOBILE POUR LE TEXTE ANIMÉ --- */
   .landing-subtitle-typing {
     font-size: 1.2rem;
-    width: 33ch; /* La largeur reste basée sur les caractères */
+    /* On s'assure que la largeur du texte ne dépasse jamais 90% de la largeur de l'écran */
+    max-width: 90vw; 
+    /* L'animation continue de fonctionner, mais elle est contenue */
   }
+  /* On ajuste la largeur dans l'animation pour mobile */
+  @keyframes typing-loop {
+    0% { width: 0; border-right-color: rgba(255, 255, 255, 0.75); }
+    37.5% { width: 33ch; border-right-color: rgba(255, 255, 255, 0.75); }
+    37.6%, 99% { width: 33ch; border-right-color: transparent; }
+    100% { width: 0; border-right-color: transparent; }
+  }
+  /* --- FIN DE LA CORRECTION MOBILE --- */
+
   .landing-subtitle-secondary {
     font-size: 1rem;
     margin-bottom: 2rem;
