@@ -22,7 +22,8 @@ import { VersionContext } from './contexts/VersionContext';
 import UpdateModal from './components/UpdateModal'; 
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import SplashScreen from './components/SplashScreen';
-import PushNotificationManager from './components/PushNotificationManager'; // --- NOUVEL IMPORT ---
+import PushNotificationManager from './components/PushNotificationManager';
+import ServiceWorkerRegistrar from './components/ServiceWorkerRegistrar'; // --- NOUVEL IMPORT ---
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -71,9 +72,9 @@ const App = () => {
 
   return (
     <div style={appStyle}>
+      <ServiceWorkerRegistrar /> {/* --- LIGNE AJOUTÉE --- */}
       <SplashScreen show={showSplash} />
       
-      {/* --- LIGNE AJOUTÉE --- */}
       {userInfo && <PushNotificationManager />}
       
       <GlobalLoader />
