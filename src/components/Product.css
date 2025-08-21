@@ -66,14 +66,46 @@
   color: #111;
 }
 
-.original-price {
-  font-size: 0.75rem;
-  color: #888;
-  text-decoration: line-through;
-  margin-left: 0.4rem;
+/* --- DÉBUT DES MODIFICATIONS --- */
+.original-price-container {
+  min-height: 18px; /* On réserve l'espace pour éviter les sauts de page */
+  margin-bottom: 0.25rem;
 }
 
-/* --- MODIFICATION : AJOUT DU STYLE POUR LA MARQUE --- */
+.original-price {
+  font-size: 0.85rem; /* Légèrement plus grand pour la lisibilité */
+  color: #dc3545; /* Couleur rouge */
+  text-decoration: none; /* On retire le soulignement par défaut */
+  position: relative;
+  display: inline-block; /* Nécessaire pour le pseudo-élément */
+}
+
+/* On crée la barre via un pseudo-élément pour pouvoir l'animer */
+.original-price::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #dc3545;
+  transform: scaleX(0); /* La barre est invisible au départ */
+  transform-origin: left; /* L'animation partira de la gauche */
+  /* Animation douce avec un délai de 0.5s */
+  animation: strike-through 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards;
+}
+
+/* Keyframes pour l'animation de la barre */
+@keyframes strike-through {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+/* --- FIN DES MODIFICATIONS --- */
+
 .brand-container {
   margin-bottom: 0.25rem;
 }
@@ -86,7 +118,6 @@
   padding: 2px 6px;
   border-radius: 4px;
 }
-/* --- FIN DE LA MODIFICATION --- */
 
 .stock-status-container {
   margin-top: auto;

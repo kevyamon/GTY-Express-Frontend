@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
 import Rating from './Rating';
-import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
+import { getOptimizedUrl } from '../utils/cloudinaryUtils';
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -37,7 +37,6 @@ const Product = ({ product }) => {
     ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
     : imageToDisplay;
 
-  // --- MODIFICATION : On utilise la nouvelle fonction ---
   const imageUrl = getOptimizedUrl(rawImageUrl);
 
   const addToCartHandler = (e) => {
@@ -95,24 +94,25 @@ const Product = ({ product }) => {
           )}
         </div>
 
+        {/* --- DÉBUT DES MODIFICATIONS --- */}
         <div className="price-container">
           <span className="product-price">{product.price} FCFA</span>
-          {hasPromo ? (
+        </div>
+        
+        <div className="original-price-container">
+          {hasPromo && (
             <span className="original-price">
               {product.originalPrice} FCFA
             </span>
-          ) : null}
+          )}
         </div>
+        {/* --- FIN DES MODIFICATIONS --- */}
 
-        {/* --- MODIFICATION : AJOUT DE LA MARQUE --- */}
-        {/* On vérifie si le produit a une marque, et si oui, on l'affiche. */}
         {product.brand && (
           <div className="brand-container">
             <span className="product-brand">{product.brand}</span>
           </div>
         )}
-        {/* --- FIN DE LA MODIFICATION --- */}
-
 
         <div className="stock-status-container">
           <StockStatus countInStock={product.countInStock} />
