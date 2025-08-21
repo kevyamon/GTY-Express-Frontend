@@ -50,6 +50,11 @@ import ChatScreen from './screens/ChatScreen.jsx';
 import BannedScreen from './screens/BannedScreen.jsx';
 import MySuggestionsScreen from './screens/MySuggestionsScreen.jsx';
 
+// --- DÉBUT DE L'AJOUT : IMPORTS DES NOUVEAUX ÉCRANS ---
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen.jsx';
+import ResetPasswordScreen from './screens/ResetPasswordScreen.jsx';
+// --- FIN DE L'AJOUT ---
+
 import PopularProductsScreen from './screens/PopularProductsScreen.jsx';
 import TopProductsScreen from './screens/TopProductsScreen.jsx';
 
@@ -99,6 +104,11 @@ const router = createBrowserRouter(
         <Route path="/contact" element={<ContactScreen />} />
         <Route path="/stores" element={<StoresScreen />} />
         <Route path="/privacy" element={<PrivacyScreen />} />
+
+        {/* --- DÉBUT DE L'AJOUT : ROUTES POUR LE MOT DE PASSE OUBLIÉ --- */}
+        <Route path='/forgot-password' element={<ForgotPasswordScreen />} />
+        <Route path='/reset-password/:token' element={<ResetPasswordScreen />} />
+        {/* --- FIN DE L'AJOUT --- */}
 
         {/* --- Routes Privées (clients et admins connectés) --- */}
         <Route path="" element={<PrivateRoute />}>

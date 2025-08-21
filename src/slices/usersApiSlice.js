@@ -58,6 +58,22 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }), 
       invalidatesTags: ['User'] 
     }),
+    // --- DÉBUT DE L'AJOUT : MOT DE PASSE OUBLIÉ ---
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/forgot-password`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: ({ token, password }) => ({
+        url: `${USERS_URL}/reset-password/${token}`,
+        method: 'PUT',
+        body: { password },
+      }),
+    }),
+    // --- FIN DE L'AJOUT ---
   }),
 });
 
@@ -67,4 +83,7 @@ export const {
   useRegisterMutation,
   useUpdateProfileMutation, 
   useGetProfileDetailsQuery,
+  // --- NOUVEAUX EXPORTS ---
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = usersApiSlice;

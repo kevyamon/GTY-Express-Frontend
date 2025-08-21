@@ -62,6 +62,12 @@ const LoginScreen = () => {
               </InputGroup>
             </Form.Group>
 
+            {/* --- DÉBUT DE L'AJOUT --- */}
+            <div className='text-end mt-2'>
+                <Link to='/forgot-password'>Mot de passe oublié ?</Link>
+            </div>
+            {/* --- FIN DE L'AJOUT --- */}
+
             <Button type='submit' variant='primary' disabled={isLoading} className='mt-3'>
               {isLoading ? 'Connexion...' : 'Se Connecter'}
             </Button>
