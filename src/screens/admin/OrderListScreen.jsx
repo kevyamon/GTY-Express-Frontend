@@ -11,7 +11,7 @@ import {
   useDeleteOrderMutation,
   useArchiveOrderMutation
 } from '../../slices/orderApiSlice';
-import { getOptimizedUrl } from '../../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
+import { getOptimizedUrl } from '../../utils/cloudinaryUtils';
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
@@ -30,13 +30,20 @@ const OrderListScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
+  // --- DÉBUT DE LA CORRECTION ---
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
-    return orders.filter(order =>
-      (order.user?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase())) // On recherche par le nouveau numéro de commande
-    );
+    return orders.filter(order => {
+      const query = searchQuery.toLowerCase();
+      // On vérifie de manière sécurisée chaque champ avant de l'utiliser
+      const userName = order.user?.name?.toLowerCase() || '';
+      const orderNumber = order.orderNumber?.toLowerCase() || '';
+      const orderId = order._id?.toLowerCase() || '';
+
+      return userName.includes(query) || orderNumber.includes(query) || orderId.includes(query);
+    });
   }, [orders, searchQuery]);
+  // --- FIN DE LA CORRECTION ---
 
   const handleToggleDetails = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -128,8 +135,7 @@ const OrderListScreen = () => {
         <div key={order._id} className="order-list-card">
           <div className="order-card-header" onClick={() => handleToggleDetails(order._id)}>
             <div>
-              {/* On affiche le nouveau numéro de commande */}
-              <span className="order-id">N° : {order.orderNumber}</span>
+              <span className="order-id">N° : {order.orderNumber || order._id}</span>
               <br/>
               <small>{new Date(order.createdAt).toLocaleString('fr-FR')}</small>
             </div>
@@ -156,7 +162,6 @@ const OrderListScreen = () => {
                 <ListGroup variant="flush" className="order-items-list">
                   {order.orderItems.map((item) => (
                     <ListGroup.Item key={item._id} className="order-item-admin">
-                      {/* --- MODIFICATION ICI --- */}
                       <Image src={getOptimizedUrl(item.image)} alt={item.name} className="order-item-image-admin" />
                       <div className="order-item-details-admin">
                         <div>{item.name}</div>
