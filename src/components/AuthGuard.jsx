@@ -1,29 +1,28 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+// --- MODIFICATION : On importe useOutletContext ---
+import { useNavigate, useLocation, Outlet, useOutletContext } from 'react-router-dom';
 
 const AuthGuard = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // --- AJOUT : On récupère le contexte passé par App.jsx ---
+  const context = useOutletContext();
 
   useEffect(() => {
-    // --- MODIFICATION : Logique simplifiée et corrigée ---
-    // Le rôle du gardien est maintenant unique : si l'utilisateur est banni
-    // et qu'il n'est pas sur la page de bannissement, on l'y envoie de force.
     if (userInfo?.status === 'banned' && location.pathname !== '/banned') {
       navigate('/banned', { replace: true });
     }
-    // J'ai supprimé la condition 'else if' qui redirigeait l'utilisateur actif.
-    // C'est maintenant le composant BannedScreen qui gérera la redirection
-    // après le compte à rebours, comme tu le souhaites.
   }, [userInfo, navigate, location]);
 
   if (userInfo?.status === 'banned' && location.pathname !== '/banned') {
     return null; 
   }
 
-  return <Outlet />;
+  // --- MODIFICATION : On passe le contexte à l'Outlet enfant ---
+  return <Outlet context={context} />;
 };
 
 export default AuthGuard;
