@@ -12,6 +12,7 @@ import {
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
 } from '../slices/orderApiSlice';
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 import './OrderScreen.css';
 
 const OrderScreen = () => {
@@ -148,9 +149,12 @@ const OrderScreen = () => {
               } else if (item.image) {
                 imageToDisplay = item.image;
               }
-              const imageUrl = imageToDisplay.startsWith('/')
+              const rawUrl = imageToDisplay.startsWith('/')
                 ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
                 : imageToDisplay;
+              
+              // --- MODIFICATION : On utilise la nouvelle fonction ---
+              const imageUrl = getOptimizedUrl(rawUrl);
 
               return (
                 <ListGroup.Item key={index} className="order-item-row">

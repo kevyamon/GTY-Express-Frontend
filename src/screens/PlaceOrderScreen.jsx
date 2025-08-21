@@ -7,6 +7,7 @@ import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { useCreateOrderMutation, useValidateCouponMutation } from '../slices/orderApiSlice';
 import { clearCartItems, applyCoupon, removeCoupon } from '../slices/cartSlice';
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
@@ -90,9 +91,13 @@ const PlaceOrderScreen = () => {
                 } else if (item.image) {
                   imageToDisplay = item.image;
                 }
-                const imageUrl = imageToDisplay.startsWith('/')
+                const rawUrl = imageToDisplay.startsWith('/')
                   ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
                   : imageToDisplay;
+                
+                // --- MODIFICATION : On utilise la nouvelle fonction ---
+                const imageUrl = getOptimizedUrl(rawUrl);
+
                 return (
                   <ListGroup.Item key={index}>
                     <Row>

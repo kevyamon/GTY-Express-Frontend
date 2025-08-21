@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { FaCartPlus } from 'react-icons/fa';
 import StockStatus from './StockStatus';
 import Rating from './Rating';
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 import './Product.css';
 
 const Product = ({ product }) => {
@@ -32,9 +33,12 @@ const Product = ({ product }) => {
   } else if (product.image) {
     imageToDisplay = product.image;
   }
-  const imageUrl = imageToDisplay.startsWith('/')
+  const rawImageUrl = imageToDisplay.startsWith('/')
     ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
     : imageToDisplay;
+
+  // --- MODIFICATION : On utilise la nouvelle fonction ---
+  const imageUrl = getOptimizedUrl(rawImageUrl);
 
   const addToCartHandler = (e) => {
     e.preventDefault();

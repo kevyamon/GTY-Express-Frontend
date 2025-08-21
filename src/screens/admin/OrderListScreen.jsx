@@ -3,7 +3,7 @@ import { Button, Row, Col, Form, InputGroup, Badge, Collapse, ListGroup, Image }
 import { toast } from 'react-toastify';
 import { FaSearch, FaChevronDown, FaChevronUp, FaArchive, FaInbox } from 'react-icons/fa';
 import Message from '../../components/Message';
-import Loader from '../../components/Loader'; // --- NOUVEL IMPORT ---
+import Loader from '../../components/Loader';
 import {
   useGetOrdersQuery,
   useGetArchivedOrdersQuery,
@@ -11,6 +11,7 @@ import {
   useDeleteOrderMutation,
   useArchiveOrderMutation
 } from '../../slices/orderApiSlice';
+import { getOptimizedUrl } from '../../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 import './OrderListScreen.css';
 
 const OrderListScreen = () => {
@@ -33,7 +34,7 @@ const OrderListScreen = () => {
     if (!orders) return [];
     return orders.filter(order =>
       (order.user?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (order._id.toLowerCase().includes(searchQuery.toLowerCase()))
+      (order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase())) // On recherche par le nouveau numéro de commande
     );
   }, [orders, searchQuery]);
 
@@ -93,7 +94,6 @@ const OrderListScreen = () => {
     }
   };
 
-  // --- MODIFICATION ICI ---
   if (isLoading) { return <Loader />; }
 
   return (
@@ -104,7 +104,7 @@ const OrderListScreen = () => {
           <InputGroup>
             <InputGroup.Text><FaSearch /></InputGroup.Text>
             <Form.Control
-              placeholder="Rechercher par client ou ID..."
+              placeholder="Rechercher par client ou N°..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -128,7 +128,8 @@ const OrderListScreen = () => {
         <div key={order._id} className="order-list-card">
           <div className="order-card-header" onClick={() => handleToggleDetails(order._id)}>
             <div>
-              <span className="order-id">ID : {order._id.substring(0, 12)}...</span>
+              {/* On affiche le nouveau numéro de commande */}
+              <span className="order-id">N° : {order.orderNumber}</span>
               <br/>
               <small>{new Date(order.createdAt).toLocaleString('fr-FR')}</small>
             </div>
@@ -155,7 +156,8 @@ const OrderListScreen = () => {
                 <ListGroup variant="flush" className="order-items-list">
                   {order.orderItems.map((item) => (
                     <ListGroup.Item key={item._id} className="order-item-admin">
-                      <Image src={item.image} alt={item.name} className="order-item-image-admin" />
+                      {/* --- MODIFICATION ICI --- */}
+                      <Image src={getOptimizedUrl(item.image)} alt={item.name} className="order-item-image-admin" />
                       <div className="order-item-details-admin">
                         <div>{item.name}</div>
                         <small>{item.qty} x {item.price.toFixed(2)} FCFA</small>

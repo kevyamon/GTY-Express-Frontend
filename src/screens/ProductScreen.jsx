@@ -11,8 +11,8 @@ import StockStatus from '../components/StockStatus';
 import Message from '../components/Message';
 import Rating from '../components/Rating';
 import Review from '../components/Review';
-// --- NOUVEL IMPORT ---
 import Loader from '../components/Loader';
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 import './ProductScreen.css';
 
 const ProductScreen = () => {
@@ -59,7 +59,13 @@ const ProductScreen = () => {
   };
 
   const toggleDescription = () => setIsDescriptionExpanded(!isDescriptionExpanded);
-  const getImageUrl = (url) => url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url;
+
+  // --- MODIFICATION : On utilise maintenant notre fonction d'optimisation ---
+  const getImageUrl = (url) => {
+    const rawUrl = url.startsWith('/') ? `${import.meta.env.VITE_BACKEND_URL}${url}` : url;
+    return getOptimizedUrl(rawUrl);
+  };
+  // --- FIN DE LA MODIFICATION ---
 
   const submitReviewHandler = async (e) => {
     e.preventDefault();
@@ -79,7 +85,6 @@ const ProductScreen = () => {
   return (
     <div className="product-screen-container">
       <Link className="btn btn-light my-3" to="/products">Retour</Link>
-      {/* --- MODIFICATION ICI --- */}
       {isLoading ? (<Loader />)
       : error ? (<Message variant='danger'>{error?.data?.message || error.error}</Message>)
       : product && (

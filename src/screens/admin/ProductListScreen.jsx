@@ -4,8 +4,9 @@ import { Button, Row, Col, Form, InputGroup, Image, Badge } from 'react-bootstra
 import { toast } from 'react-toastify';
 import { FaPlus, FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
 import Message from '../../components/Message';
-import Loader from '../../components/Loader'; // --- NOUVEL IMPORT ---
+import Loader from '../../components/Loader';
 import { useGetProductsQuery, useDeleteProductMutation } from '../../slices/productsApiSlice';
+import { getOptimizedUrl } from '../../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
 import './ProductListScreen.css';
 
 const ProductListScreen = () => {
@@ -58,7 +59,6 @@ const ProductListScreen = () => {
       </Row>
 
       {loadingDelete && <Loader />}
-      {/* --- MODIFICATION ICI --- */}
       {isLoading ? (<Loader />)
        : error ? (<Message variant='danger'>{error?.data?.message || error.message}</Message>)
        : (
@@ -66,7 +66,8 @@ const ProductListScreen = () => {
           {filteredProducts.map((product) => (
             <div key={product._id} className="product-list-card">
               <Image
-                src={(product.images && product.images[0]) || 'https://via.placeholder.com/150'}
+                // --- MODIFICATION ICI ---
+                src={getOptimizedUrl((product.images && product.images[0]) || 'https://via.placeholder.com/150')}
                 alt={product.name}
                 className="product-list-image"
               />

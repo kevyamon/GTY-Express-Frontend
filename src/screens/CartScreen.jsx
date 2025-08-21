@@ -6,7 +6,8 @@ import Message from '../components/Message';
 import StockStatus from '../components/StockStatus';
 import { addToCart, removeFromCart } from '../slices/cartSlice';
 import QtySelector from '../components/QtySelector';
-import './CartScreen.css'; // NOUVEL IMPORT
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
+import './CartScreen.css';
 
 const CartScreen = () => {
   const navigate = useNavigate();
@@ -40,9 +41,12 @@ const CartScreen = () => {
     } else if (item.image) {
       imageToDisplay = item.image;
     }
-    return imageToDisplay.startsWith('/')
+    const rawUrl = imageToDisplay.startsWith('/')
       ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
       : imageToDisplay;
+    
+    // --- MODIFICATION : On utilise la nouvelle fonction ---
+    return getOptimizedUrl(rawUrl);
   };
 
   return (
