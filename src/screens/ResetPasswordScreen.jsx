@@ -11,14 +11,13 @@ const ResetPasswordScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordFocus, setPasswordFocus] = useState(false); // --- AJOUT ---
+  const [passwordFocus, setPasswordFocus] = useState(false);
 
   const { token } = useParams();
   const navigate = useNavigate();
 
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
-  // --- DÉBUT DE L'AJOUT : LOGIQUE DE VALIDATION ---
   const validatePassword = (pass) => {
     const hasMinLength = pass.length >= 9;
     const hasNumber = /\d{2,}/.test(pass); // Au moins 2 chiffres
@@ -28,12 +27,10 @@ const ResetPasswordScreen = () => {
 
   const { hasMinLength, hasNumber, hasSpecialChar } = validatePassword(password);
   const isPasswordValid = hasMinLength && hasNumber && hasSpecialChar;
-  // --- FIN DE L'AJOUT ---
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    // --- AJOUT : Vérification de la validité avant soumission ---
     if (!isPasswordValid) {
       toast.error('Votre mot de passe ne respecte pas les critères de sécurité.');
       return;
@@ -66,8 +63,8 @@ const ResetPasswordScreen = () => {
                   placeholder='Entrez votre nouveau mot de passe'
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setPasswordFocus(true)} // --- AJOUT ---
-                  onBlur={() => setPasswordFocus(false)}  // --- AJOUT ---
+                  onFocus={() => setPasswordFocus(true)}
+                  onBlur={() => setPasswordFocus(false)}
                   required
                 />
                 <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
@@ -75,7 +72,6 @@ const ResetPasswordScreen = () => {
                 </Button>
               </InputGroup>
               
-              {/* --- DÉBUT DE L'AJOUT : AFFICHAGE DES EXIGENCES --- */}
               {passwordFocus && (
                   <div className='password-rules mt-2'>
                     <small style={{ color: hasMinLength ? 'green' : 'red' }}>✓ 9 caractères minimum</small><br/>
@@ -83,7 +79,6 @@ const ResetPasswordScreen = () => {
                     <small style={{ color: hasSpecialChar ? 'green' : 'red' }}>✓ 1 caractère spécial (!, @, #...)</small>
                   </div>
                 )}
-              {/* --- FIN DE L'AJOUT --- */}
 
             </Form.Group>
 
@@ -107,6 +102,15 @@ const ResetPasswordScreen = () => {
               {isLoading ? 'Sauvegarde...' : 'Réinitialiser le mot de passe'}
             </Button>
           </Form>
+
+          {/* --- DÉBUT DE L'AJOUT --- */}
+          <Row className='py-3'>
+            <Col className='auth-switch-link'>
+              <Link to='/login'>Retour à la connexion</Link>
+            </Col>
+          </Row>
+          {/* --- FIN DE L'AJOUT --- */}
+
         </Card.Body>
       </Card>
     </div>
