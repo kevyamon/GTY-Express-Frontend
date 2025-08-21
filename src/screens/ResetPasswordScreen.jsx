@@ -1,4 +1,4 @@
-import { useState } from 'reac';
+import { useState } from 'react';
 import { Form, Button, Card, Row, Col, InputGroup } from 'react-bootstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
