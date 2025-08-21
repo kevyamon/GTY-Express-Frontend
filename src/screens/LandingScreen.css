@@ -51,12 +51,14 @@
   margin: 0 1rem;
   border-radius: var(--image-border-radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  opacity: 0.15;
+  /* --- MODIFICATION : Opacité augmentée --- */
+  opacity: 0.3;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .product-image:hover {
   transform: scale(1.1);
-  opacity: 0.3;
+  /* --- MODIFICATION : Opacité au survol augmentée --- */
+  opacity: 0.5;
 }
 
 .scroll-left { animation: scrollLeft 60s linear infinite; }
@@ -86,7 +88,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Titre principal avec animation de couleur */
 .landing-main-title {
   font-size: 4.5rem;
   font-weight: 800;
@@ -99,13 +100,10 @@
 
 @keyframes color-change {
   0%, 100% { color: white; }
-  33% { color: #ff4d4d; } /* Rouge vif */
-  66% { color: #ffd700; } /* Jaune or */
+  33% { color: #ff4d4d; }
+  66% { color: #ffd700; }
 }
 
-/* --- DÉBUT DES CORRECTIONS POUR L'ANIMATION D'ÉCRITURE --- */
-
-/* Sous-titre avec la nouvelle animation en boucle */
 .landing-subtitle-typing {
   font-size: 2rem;
   font-weight: 500;
@@ -114,40 +112,19 @@
   border-right: 3px solid rgba(255, 255, 255, 0.75);
   white-space: nowrap;
   overflow: hidden;
-  /* La largeur est animée dans les keyframes */
   width: 0; 
-  /* Durée totale : 3s d'écriture + 5s de pause = 8s */
   animation: typing-loop 8s steps(33) infinite;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Nouvelle animation qui gère l'écriture, la pause et la disparition du curseur */
 @keyframes typing-loop {
-  /* Phase d'écriture (0s à 3s) */
-  0% {
-    width: 0;
-    border-right-color: rgba(255, 255, 255, 0.75); /* Curseur visible */
-  }
-  37.5% { /* 3s / 8s = 37.5% */
-    width: 33ch; /* Largeur finale du texte */
-    border-right-color: rgba(255, 255, 255, 0.75); /* Curseur visible */
-  }
-  /* Phase de pause (3s à 8s) */
-  37.6%, 99% {
-    width: 33ch; /* Le texte reste affiché */
-    border-right-color: transparent; /* Le curseur disparaît */
-  }
-  /* Réinitialisation pour la boucle suivante */
-  100% {
-    width: 0;
-    border-right-color: transparent;
-  }
+  0% { width: 0; border-right-color: rgba(255, 255, 255, 0.75); }
+  37.5% { width: 33ch; border-right-color: rgba(255, 255, 255, 0.75); }
+  37.6%, 99% { width: 33ch; border-right-color: transparent; }
+  100% { width: 0; border-right-color: transparent; }
 }
 
-/* --- FIN DES CORRECTIONS --- */
-
-/* Second sous-titre */
 .landing-subtitle-secondary {
   font-size: 1.25rem;
   color: rgba(255, 255, 255, 0.9);
@@ -181,38 +158,64 @@
   color: white;
 }
 
-/* --- AJUSTEMENTS POUR LE RESPONSIVE MOBILE --- */
+/* --- DÉBUT DES NOUVEAUX STYLES --- */
+.download-app-section {
+  margin-top: 3rem;
+}
+
+.download-app-section p {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.download-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 8px !important;
+  padding: 0.6rem 1.2rem !important;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.download-btn:hover {
+    transform: scale(1.05);
+}
+
+.download-btn.android {
+  background-color: #A4C639 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.download-btn.apple {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+}
+/* --- FIN DES NOUVEAUX STYLES --- */
+
 @media (max-width: 767px) {
-  .product-image {
-    height: 100px;
-    width: 100px;
-  }
-  .landing-main-title {
-    font-size: 2.5rem;
-  }
-  
-  /* --- CORRECTION MOBILE POUR LE TEXTE ANIMÉ --- */
-  .landing-subtitle-typing {
-    font-size: 1.2rem;
-    /* On s'assure que la largeur du texte ne dépasse jamais 90% de la largeur de l'écran */
-    max-width: 90vw; 
-    /* L'animation continue de fonctionner, mais elle est contenue */
-  }
-  /* On ajuste la largeur dans l'animation pour mobile */
+  .product-image { height: 100px; width: 100px; }
+  .landing-main-title { font-size: 2.5rem; }
+  .landing-subtitle-typing { font-size: 1.2rem; max-width: 90vw; }
   @keyframes typing-loop {
     0% { width: 0; border-right-color: rgba(255, 255, 255, 0.75); }
     37.5% { width: 33ch; border-right-color: rgba(255, 255, 255, 0.75); }
     37.6%, 99% { width: 33ch; border-right-color: transparent; }
     100% { width: 0; border-right-color: transparent; }
   }
-  /* --- FIN DE LA CORRECTION MOBILE --- */
-
-  .landing-subtitle-secondary {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-  }
-  .btn-cta-primary {
-    padding: 0.8rem 1.8rem;
-    font-size: 1rem;
-  }
+  .landing-subtitle-secondary { font-size: 1rem; margin-bottom: 2rem; }
+  .btn-cta-primary { padding: 0.8rem 1.8rem; font-size: 1rem; }
+  /* --- AJOUT MOBILE --- */
+  .download-buttons { flex-direction: column; align-items: center; }
+  .download-btn { width: 200px; justify-content: center; }
 }

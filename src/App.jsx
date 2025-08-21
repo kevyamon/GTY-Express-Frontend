@@ -23,7 +23,7 @@ import UpdateModal from './components/UpdateModal';
 import UpdateCompleteModal from './components/UpdateCompleteModal';
 import SplashScreen from './components/SplashScreen';
 import PushNotificationManager from './components/PushNotificationManager';
-import ServiceWorkerRegistrar from './components/ServiceWorkerRegistrar'; // --- NOUVEL IMPORT ---
+import ServiceWorkerRegistrar from './components/ServiceWorkerRegistrar';
 import './App.css';
 import bgImage from '../background.jpg';
 
@@ -72,7 +72,7 @@ const App = () => {
 
   return (
     <div style={appStyle}>
-      <ServiceWorkerRegistrar /> {/* --- LIGNE AJOUTÉE --- */}
+      <ServiceWorkerRegistrar />
       <SplashScreen show={showSplash} />
       
       {userInfo && <PushNotificationManager />}
@@ -83,13 +83,15 @@ const App = () => {
       
       <ScrollToTop />
 
-      {!isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} />}
+      {/* --- MODIFICATION ICI : On cache le header sur la landing page --- */}
+      {!isLandingPage && !isBannedPage && <Header handleShowInstallModal={handleShowInstallModal} />}
       
       <main className={!isLandingPage ? "py-3" : ""}>
         <Container className={!isLandingPage ? "" : "p-0"} fluid={isLandingPage}>
           <TransitionGroup component={null}>
             <CSSTransition key={location.key} timeout={300} classNames="fade">
-                <Outlet />
+                {/* --- MODIFICATION ICI : On passe la fonction à l'Outlet --- */}
+                <Outlet context={{ handleShowInstallModal }} />
             </CSSTransition>
           </TransitionGroup>
         </Container>
