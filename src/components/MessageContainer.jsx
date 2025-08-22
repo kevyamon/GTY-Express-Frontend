@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Form, Button, InputGroup, Image, Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { FaPaperclip, FaTrash, FaEdit, FaFileAlt } from 'react-icons/fa';
+import { FaPaperclip, FaTrash, FaEdit, FaFileAlt, FaBan } from 'react-icons/fa';
 import { BsCheck2All } from 'react-icons/bs';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useGetMessagesQuery, useSendMessageMutation, useDeleteMessageMutation, useUpdateMessageMutation, useMarkMessagesAsSeenMutation } from '../slices/messageApiSlice';
+import { useGetMessagesQuery, useDeleteMessageMutation, useUpdateMessageMutation, useMarkMessagesAsSeenMutation } from '../slices/messageApiSlice';
 import '../screens/Chat.css';
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -13,7 +13,9 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const MessageContainer = ({ conversationId, onSendMessage }) => {
   const { userInfo } = useSelector((state) => state.auth);
-  const { data: messages, isLoading } = useGetMessagesQuery(conversationId);
+  const { data: messages, isLoading } = useGetMessagesQuery(conversationId, {
+    skip: conversationId === 'new', // On ne charge pas de messages pour une nouvelle conversation
+  });
   const [markMessagesAsSeen] = useMarkMessagesAsSeenMutation();
   const [deleteMessage] = useDeleteMessageMutation();
   const [updateMessage] = useUpdateMessageMutation();
@@ -27,6 +29,9 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [editedText, setEditedText] = useState('');
+  
+  // --- NOUVEL ÉTAT POUR LE "VOIR PLUS" ---
+  const [expandedMessages, setExpandedMessages] = useState({});
 
   useEffect(() => {
     if (conversationId && conversationId !== 'new') {
@@ -38,7 +43,7 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
     if (messagesAreaRef.current) {
         messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, expandedMessages]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -105,7 +110,40 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
   const isNewDay = (msg1, msg2) => { if (!msg2) return true; return new Date(msg1.createdAt).toLocaleDateString() !== new Date(msg2.createdAt).toLocaleDateString(); };
   const formatDate = (dateString) => { const date = new Date(dateString); const today = new Date(); const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (date.toLocaleDateString() === today.toLocaleDateString()) return "AUJOURD'HUI"; if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return "HIER"; return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); };
 
-  if (isLoading) return <div className="d-flex justify-content-center align-items-center h-100"><Spinner /></div>;
+  // --- NOUVELLE FONCTION POUR GÉRER LE "VOIR PLUS" ---
+  const toggleExpandMessage = (messageId) => {
+    setExpandedMessages(prev => ({
+      ...prev,
+      [messageId]: !prev[messageId]
+    }));
+  };
+
+  const renderMessageContent = (msg) => {
+    const isExpanded = expandedMessages[msg._id];
+    const isLong = msg.text.length > 150;
+
+    if (isLong && !isExpanded) {
+      return (
+        <>
+          {`${msg.text.substring(0, 150)}...`}
+          <button onClick={() => toggleExpandMessage(msg._id)} className="toggle-text-btn">
+            Voir plus
+          </button>
+        </>
+      );
+    }
+    return msg.text;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="messages-area">
+        <div className="skeleton-bubble received"></div>
+        <div className="skeleton-bubble sent"></div>
+        <div className="skeleton-bubble received"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="message-container">
@@ -118,7 +156,6 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
             return (
               <React.Fragment key={msg._id}>
                 {showDate && <div className="date-separator">{formatDate(msg.createdAt)}</div>}
-                {/* --- MODIFICATION ICI POUR LA PHOTO DE PROFIL --- */}
                 <div className={`d-flex align-items-end ${messageAlignment === 'sent' ? 'justify-content-end' : 'justify-content-start'}`}>
                   {messageAlignment === 'received' && (
                     <Image 
@@ -142,7 +179,14 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
                                           <span>{file.fileName}</span>
                                       </a>
                                   ))}
-                                  {msg.text && <p className="mb-0">{msg.text}</p>}
+                                  {isDeleted ? (
+                                    <>
+                                      <FaBan />
+                                      <span>Message supprimé</span>
+                                    </>
+                                  ) : msg.text ? (
+                                    <p className="mb-0">{renderMessageContent(msg)}</p>
+                                  ) : null}
                               </>
                           )}
                       </div>
@@ -158,7 +202,6 @@ const MessageContainer = ({ conversationId, onSendMessage }) => {
                       </div>
                   </div>
                 </div>
-                 {/* --- FIN DE LA MODIFICATION --- */}
               </React.Fragment>
             );
         })}

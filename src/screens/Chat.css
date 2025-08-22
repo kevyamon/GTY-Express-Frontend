@@ -14,9 +14,6 @@
     padding: 0 !important;
 }
 
-/* Le reste des styles (message-container, messages-area, etc.) reste le même */
-/* car ils sont maintenant appliqués à l'intérieur de la modale */
-
 .message-container {
   display: flex;
   flex-direction: column;
@@ -30,13 +27,71 @@
   background-color: #f8f9fa;
 }
 
+/* --- DÉBUT DES MODIFICATIONS --- */
 .message-bubble {
   max-width: 70%;
   padding: 0.5rem 1rem;
   border-radius: 18px;
   margin-bottom: 0.2rem;
-  word-wrap: break-word;
+  word-wrap: break-word; /* Correction pour les textes longs */
+  word-break: break-word; /* Correction pour les textes longs */
+  min-width: 40px; /* Empêche la bulle de trop se rétrécir */
+  display: flex; /* Permet un meilleur alignement interne */
+  flex-direction: column; /* Organise le contenu verticalement */
 }
+
+/* Style pour le bouton "Voir plus" */
+.toggle-text-btn {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-weight: bold;
+  padding: 0.25rem 0 0 0;
+  cursor: pointer;
+  align-self: flex-start; /* Aligne à gauche dans la bulle */
+  font-size: 0.9rem;
+}
+
+.toggle-text-btn:hover {
+  text-decoration: underline;
+}
+
+/* Amélioration pour les messages supprimés */
+.deleted-message {
+  font-style: italic;
+  color: #6c757d;
+  background-color: #f8f9fa !important;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espace entre l'icône et le texte */
+}
+
+/* Squelette de chargement */
+.skeleton-bubble {
+  height: 40px;
+  border-radius: 18px;
+  background-color: #e0e0e0;
+  margin-bottom: 1rem;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeleton-bubble.sent {
+  width: 60%;
+  margin-left: auto;
+}
+
+.skeleton-bubble.received {
+  width: 60%;
+  margin-right: auto;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+/* --- FIN DES MODIFICATIONS --- */
+
 
 .message-bubble.sent {
   background-color: #4169e1;
@@ -61,6 +116,7 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 0.5rem;
+  max-width: 80%; /* S'assure que le wrapper ne prend pas toute la largeur */
 }
 
 .message-wrapper.sent {
@@ -115,13 +171,6 @@
   color: #6c757d;
   font-style: italic;
   margin-bottom: 0.2rem;
-}
-
-.deleted-message {
-  font-style: italic;
-  color: #6c757d;
-  background-color: #f8f9fa !important;
-  border: 1px dashed #ccc;
 }
 
 .edit-message-form {
@@ -187,17 +236,17 @@
     font-size: 1.5rem;
     margin-right: 0.8rem;
 }
-/* --- STYLES MIS À JOUR POUR LA PRÉVISUALISATION MULTIPLE --- */
+
 .preview-container {
     padding: 0.5rem 1rem;
     padding-bottom: 0;
-    display: flex; /* Active flexbox */
-    flex-wrap: wrap; /* Permet aux éléments d'aller à la ligne */
-    gap: 0.5rem; /* Espace entre les miniatures */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 .image-preview-wrapper, .file-preview-wrapper {
     position: relative;
-    width: 80px; /* Taille fixe pour les miniatures */
+    width: 80px;
 }
 .preview-image { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
 .remove-preview-btn { position: absolute; top: -10px; right: -10px; background-color: rgba(0, 0, 0, 0.7); color: white; border: 2px solid white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
