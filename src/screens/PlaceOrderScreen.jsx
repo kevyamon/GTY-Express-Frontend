@@ -4,18 +4,22 @@ import { toast } from 'react-toastify';
 import { Button, Row, Col, ListGroup, Image, Card, Form, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
+import Loader from '../components/Loader';
 import CheckoutSteps from '../components/CheckoutSteps';
-import { useCreateOrderMutation, useValidateCouponMutation } from '../slices/orderApiSlice';
+import { useCreateOrderMutation, useValidateCouponMutation, useInitiateCinetpayPaymentMutation } from '../slices/orderApiSlice';
 import { clearCartItems, applyCoupon, removeCoupon } from '../slices/cartSlice';
-import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
+import { getOptimizedUrl } from '../utils/cloudinaryUtils';
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
-  const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
-  // --- NOUVEAUX ÉTATS ET LOGIQUE POUR LE COUPON ---
+  const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  // --- DÉBUT DE L'AJOUT ---
+  const [initiateCinetpay, { isLoading: loadingCinetpay }] = useInitiateCinetpayPaymentMutation();
+  // --- FIN DE L'AJOUT ---
+
   const [couponCode, setCouponCode] = useState('');
   const [validateCoupon, { isLoading: loadingCoupon }] = useValidateCouponMutation();
 
@@ -36,7 +40,6 @@ const PlaceOrderScreen = () => {
     toast.info('Coupon retiré.');
     setCouponCode('');
   };
-  // --- FIN DE L'AJOUT DE LA LOGIQUE ---
 
   useEffect(() => {
     if (!cart.shippingAddress.address) {
@@ -56,17 +59,20 @@ const PlaceOrderScreen = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
-        coupon: cart.coupon, // On envoie les infos du coupon
+        coupon: cart.coupon,
       }).unwrap();
 
       dispatch(clearCartItems());
 
-      if (res.paymentMethod === 'Cash') {
+      // --- DÉBUT DE LA MODIFICATION DE LA LOGIQUE ---
+      if (res.paymentMethod === 'CinetPay') {
+        const { payment_url } = await initiateCinetpay(res._id).unwrap();
+        window.location.href = payment_url; // Redirection vers CinetPay
+      } else { // Pour 'Cash'
         toast.success('Votre commande a été validée !');
         navigate(`/order/${res._id}`);
-      } else {
-        navigate(`/payment-gateway/${res._id}`);
       }
+      // --- FIN DE LA MODIFICATION ---
 
     } catch (err) {
       toast.error(err?.data?.message || err.message);
@@ -76,11 +82,12 @@ const PlaceOrderScreen = () => {
   return (
     <>
       <CheckoutSteps step={3} />
+      {(isLoading || loadingCinetpay) && <Loader />}
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
             <ListGroup.Item><h2>Livraison</h2><p><strong>Adresse: </strong>{cart.shippingAddress.address}, {cart.shippingAddress.city},{' '}{cart.shippingAddress.country}</p></ListGroup.Item>
-            <ListGroup.Item><h2>Paiement</h2><p><strong>Méthode: </strong>{cart.paymentMethod}</p></ListGroup.Item>
+            <ListGroup.Item><h2>Paiement</h2><p><strong>Méthode: </strong>{cart.paymentMethod === 'CinetPay' ? 'Mobile Money' : 'Paiement à la livraison'}</p></ListGroup.Item>
             <ListGroup.Item>
               <h2>Articles</h2>
               {cart.cartItems.length === 0 ? <Message>Votre panier est vide</Message>
@@ -95,7 +102,6 @@ const PlaceOrderScreen = () => {
                   ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
                   : imageToDisplay;
                 
-                // --- MODIFICATION : On utilise la nouvelle fonction ---
                 const imageUrl = getOptimizedUrl(rawUrl);
 
                 return (
@@ -115,8 +121,6 @@ const PlaceOrderScreen = () => {
           <Card>
             <ListGroup variant='flush'>
               <ListGroup.Item><h2>Récapitulatif</h2></ListGroup.Item>
-
-              {/* --- SECTION COUPON AJOUTÉE --- */}
               <ListGroup.Item>
                 {cart.coupon ? (
                   <div>
@@ -141,13 +145,11 @@ const PlaceOrderScreen = () => {
                   </Form>
                 )}
               </ListGroup.Item>
-              {/* --- FIN DE LA SECTION COUPON --- */}
 
               <ListGroup.Item>
                 <Row><Col>Sous-total</Col><Col>{(cart.itemsPrice || 0).toFixed(2)} FCFA</Col></Row>
               </ListGroup.Item>
 
-              {/* --- AFFICHAGE DE LA RÉDUCTION --- */}
               {cart.coupon && (
                 <ListGroup.Item>
                   <Row className="text-danger">
@@ -156,8 +158,7 @@ const PlaceOrderScreen = () => {
                   </Row>
                 </ListGroup.Item>
               )}
-              {/* --- FIN DE L'AFFICHAGE --- */}
-
+              
               <ListGroup.Item>
                 <Row><Col>Total</Col><Col><strong>{(cart.totalPrice || 0).toFixed(2)} FCFA</strong></Col></Row>
               </ListGroup.Item>
@@ -168,10 +169,10 @@ const PlaceOrderScreen = () => {
                 <Button
                   type='button'
                   className='btn-block w-100'
-                  disabled={cart.cartItems.length === 0 || isLoading}
+                  disabled={cart.cartItems.length === 0 || isLoading || loadingCinetpay}
                   onClick={placeOrderHandler}
                 >
-                  {isLoading ? 'Chargement...' : cart.paymentMethod === 'Cash' ? 'Valider la Commande' : 'Continuer vers le Paiement'}
+                  {isLoading || loadingCinetpay ? 'Chargement...' : cart.paymentMethod === 'Cash' ? 'Valider la Commande' : 'Continuer vers le Paiement'}
                 </Button>
               </ListGroup.Item>
             </ListGroup>

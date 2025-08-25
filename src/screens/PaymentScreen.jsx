@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import { FaPaypal, FaMoneyBillWave, FaMobileAlt } from 'react-icons/fa';
+import { FaMoneyBillWave, FaMobileAlt } from 'react-icons/fa';
 import { savePaymentMethod } from '../slices/cartSlice';
 import CheckoutSteps from '../components/CheckoutSteps';
 import './PaymentScreen.css';
@@ -19,17 +18,15 @@ const PaymentScreen = () => {
     }
   }, [shippingAddress, navigate]);
 
-  const [paymentMethod, setPaymentMethod] = useState('PayPal');
+  // --- DÉBUT DE LA MODIFICATION ---
+  // On initialise avec 'CinetPay' par défaut
+  const [paymentMethod, setPaymentMethod] = useState('CinetPay');
   const dispatch = useDispatch();
 
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(savePaymentMethod(paymentMethod));
     navigate('/placeorder');
-  };
-
-  const mobileMoneyHandler = () => {
-    toast.info("Mobile Money n'est pas encore disponible, mais le sera bientôt !");
   };
 
   return (
@@ -40,25 +37,25 @@ const PaymentScreen = () => {
         <Form.Group>
           <Form.Label as='legend' className='mb-3'>Sélectionnez une méthode</Form.Label>
           <Col>
-            {/* --- CORRECTION : Remplacement de Form.Check par un input standard --- */}
+            {/* Option Mobile Money (anciennement PayPal) */}
             <input 
               type='radio' 
-              id='PayPal' 
+              id='CinetPay' 
               name='paymentMethod' 
-              value='PayPal' 
+              value='CinetPay' 
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="payment-method-input"
-              checked={paymentMethod === 'PayPal'}
+              checked={paymentMethod === 'CinetPay'}
             />
-            <label htmlFor="PayPal" className='payment-method-label'>
-              <FaPaypal className="payment-icon paypal" />
+            <label htmlFor="CinetPay" className='payment-method-label'>
+              <FaMobileAlt className="payment-icon mobile-money" style={{color: '#0d6efd'}} />
               <div>
-                <span className="fw-bold">PayPal ou Carte de Crédit</span>
-                <small className="d-block text-muted">Paiement sécurisé en ligne (Simulation)</small>
+                <span className="fw-bold">Mobile Money</span>
+                <small className="d-block text-muted">Paiement sécurisé via CinetPay</small>
               </div>
             </label>
 
-            {/* --- CORRECTION : Remplacement de Form.Check par un input standard --- */}
+            {/* Option Paiement à la livraison */}
             <input 
               type='radio' 
               id='Cash' 
@@ -76,13 +73,6 @@ const PaymentScreen = () => {
               </div>
             </label>
 
-            <div className='payment-method-label disabled' onClick={mobileMoneyHandler}>
-              <FaMobileAlt className="payment-icon mobile-money" />
-              <div>
-                <span className="fw-bold">Mobile Money</span>
-                <small className="d-block text-muted">Bientôt disponible</small>
-              </div>
-            </div>
           </Col>
         </Form.Group>
 
