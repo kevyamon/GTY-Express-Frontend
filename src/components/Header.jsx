@@ -243,7 +243,7 @@ const Header = ({ handleShowInstallModal }) => {
                     <NavDropdown.Item onClick={logoutHandler}>Déconnexion</NavDropdown.Item>
                   </NavDropdown>
                 ) : (
-                  <LinkContainer to="/login"><Nav.Link>👤 Se Connecter</Nav.Link></LinkContainer>
+                  <LinkContainer to="/login"><Nav.Link>🙍‍♂️Se Connecter</Nav.Link></LinkContainer>
                 )}
               </Nav>
             </Navbar.Collapse>

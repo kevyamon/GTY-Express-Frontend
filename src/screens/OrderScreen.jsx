@@ -1,173 +1,210 @@
 import { useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import { FaShippingFast, FaCreditCard, FaUser, FaAt, FaPhone, FaArrowLeft } from 'react-icons/fa';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import OrderStatusTracker from '../components/OrderStatusTracker';
 import {
   useGetOrderDetailsQuery,
-  useUpdateOrderStatusMutation,
-  useDeleteOrderMutation,
-} from '../slices/orderApiSlice';
-import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // --- NOUVEL IMPORT ---
-import './OrderScreen.css';
+  useInitiateCinetpayPaymentMutation,
+} from '../slices/ordersApiSlice';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+// Assurez-vous que ces images existent dans le dossier src/assets/images/
+import orangeMoneyLogo from '../assets/images/orange-money.png';
+import mtnMoneyLogo from '../assets/images/mtn-money.png';
+import moovMoneyLogo from '../assets/images/moov-money.png';
+import waveLogo from '../assets/images/wave.png';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
-  const navigate = useNavigate();
 
   const {
     data: order,
+    refetch,
     isLoading,
     error,
   } = useGetOrderDetailsQuery(orderId);
 
-  const [updateOrderStatus, { isLoading: loadingUpdate }] = useUpdateOrderStatusMutation();
-  const [deleteOrder, { isLoading: loadingDelete }] = useDeleteOrderMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+  const [initiateCinetpay, { isLoading: loadingCinetpay }] =
+    useInitiateCinetpayPaymentMutation();
 
   useEffect(() => {
-    if (order) {
-      const seenOrders = JSON.parse(localStorage.getItem('seenOrders')) || {};
-      if (!seenOrders[order._id] || new Date(order.updatedAt) > new Date(seenOrders[order._id])) {
-          seenOrders[order._id] = order.updatedAt;
-          localStorage.setItem('seenOrders', JSON.stringify(seenOrders));
-      }
+    // Rafraîchit périodiquement les détails de la commande si elle n'est pas encore payée
+    if (order && !order.isPaid) {
+      const interval = setInterval(() => {
+        refetch();
+      }, 5000); // Toutes les 5 secondes
+      return () => clearInterval(interval);
     }
-  }, [order]);
+  }, [order, refetch]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error?.data?.message || error.error);
-    }
-  }, [error]);
-
-  const updateStatusHandler = async (newStatus) => {
+  const onCinetpayPayment = async () => {
     try {
-      await updateOrderStatus({ orderId, status: newStatus }).unwrap();
-      toast.success('Statut mis à jour');
+      const res = await initiateCinetpay(orderId).unwrap();
+      // Redirige l'utilisateur vers la page de paiement sécurisée de CinetPay
+      window.location.href = res.payment_url;
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      toast.error(err?.data?.message || err.error || 'Une erreur est survenue lors de l\'initialisation du paiement.');
     }
   };
 
-  const deleteHandler = async () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande de votre historique ?')) {
-      try {
-        await deleteOrder(orderId).unwrap();
-        toast.success('Commande supprimée');
-        navigate('/profile');
-      } catch (err) {
-        toast.error(err?.data?.message || err.error);
-      }
-    }
-  };
-
-  return isLoading ? <Loader />
-    : error ? <Message variant='danger'>{error?.data?.message || error.error}</Message>
-    : (
+  return isLoading ? (
+    <Loader />
+  ) : error ? (
+    <Message variant='danger'>{error.data.message || error.error}</Message>
+  ) : (
     <>
-      <Link to='/profile' className='btn btn-light my-3'>
-        <FaArrowLeft /> Retour à Mes Commandes
-      </Link>
-
-      <h3 className="mb-4">Détails de la commande <span className="order-id-highlight">{order.orderNumber || order._id}</span></h3>
+      <h2 className='text-primary'>Commande N°{order.orderNumber}</h2>
       <Row>
-        <Col md={7}>
-          <Card className="mb-4 order-card">
-            <Card.Header as="h5">Suivi de la Commande</Card.Header>
-            <Card.Body>
-              <OrderStatusTracker order={order} />
-            </Card.Body>
-          </Card>
-
-          <Card className="mb-4 order-card">
-            <Card.Header as="h5">Détails de Livraison et Paiement</Card.Header>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <p><strong><FaUser /> Client:</strong> {order.user.name}</p>
-                <p><strong><FaAt /> Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
-                <p><strong><FaPhone /> Téléphone:</strong> {order.shippingAddress.phone}</p>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <p><strong><FaShippingFast /> Adresse de livraison:</strong></p>
-                {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}
-              </ListGroup.Item>
-               <ListGroup.Item>
-                <p><strong><FaCreditCard /> Méthode de paiement:</strong> {order.paymentMethod}</p>
-                {order.isPaid ? (<Message variant='success'>Payé le {new Date(order.paidAt).toLocaleDateString()}</Message>) : (<Message variant='danger'>Non payé</Message>)}
-              </ListGroup.Item>
-            </ListGroup>
-          </Card>
-        </Col>
-
-        <Col md={5}>
-          <Card className="order-summary-card">
-            <Card.Header as="h4" className="text-center">Récapitulatif</Card.Header>
-            <ListGroup variant='flush'>
-              <ListGroup.Item className="summary-item">
-                <span>Sous-total</span>
-                <strong>{(order.itemsPrice || 0).toFixed(2)} FCFA</strong>
-              </ListGroup.Item>
-              {order.coupon && (
-                <ListGroup.Item className="summary-item text-success">
-                  <span>Réduction ({order.coupon.code})</span>
-                  <strong>-{(order.coupon.discountAmount || 0).toFixed(2)} FCFA</strong>
-                </ListGroup.Item>
+        <Col md={8}>
+          <ListGroup variant='flush'>
+            <ListGroup.Item>
+              <h3>Livraison</h3>
+              <p>
+                <strong>Nom: </strong> {order.user.name}
+              </p>
+              <p>
+                <strong>Email: </strong>{' '}
+                <a href={`mailto:${order.user.email}`}>{order.user.email}</a>
+              </p>
+              <p>
+                <strong>Adresse: </strong>
+                {order.shippingAddress.address}, {order.shippingAddress.city}{' '}
+                {order.shippingAddress.postalCode},{' '}
+                {order.shippingAddress.country}
+              </p>
+              <p>
+                <strong>Téléphone: </strong> {order.shippingAddress.phone}
+              </p>
+              {order.isDelivered ? (
+                <Message variant='success'>
+                  Livré le {format(new Date(order.deliveredAt), 'd MMMM yyyy à HH:mm', { locale: fr })}
+                </Message>
+              ) : (
+                <Message variant='warning'>Non livré</Message>
               )}
-              <ListGroup.Item className="summary-total">
-                <span>Total</span>
-                <strong>{(order.totalPrice || 0).toFixed(2)} FCFA</strong>
-              </ListGroup.Item>
-              {!order.isPaid && order.paymentMethod !== 'Cash' && (
-                <ListGroup.Item className="p-3">
-                  <Link to={`/payment-gateway/${order._id}`}>
-                    <Button className='btn-primary w-100' size="lg">Terminer le paiement</Button>
-                  </Link>
-                </ListGroup.Item>
-              )}
-               {userInfo && userInfo.isAdmin && order.status !== 'Livrée' && (
-                <ListGroup.Item className="p-3">
-                  <Button type='button' className='btn btn-success w-100' onClick={() => updateStatusHandler('Livrée')} disabled={loadingUpdate}>
-                    Marquer comme livré
-                  </Button>
-                  {loadingUpdate && <Loader />}
-                </ListGroup.Item>
-              )}
-            </ListGroup>
-          </Card>
-          
-          <h5 className="mt-4">Articles Commandés</h5>
-          <ListGroup variant='flush' className="order-items-list">
-            {order.orderItems.map((item, index) => {
-              let imageToDisplay = 'https://via.placeholder.com/150';
-              if (item.images && item.images.length > 0) {
-                imageToDisplay = item.images[0];
-              } else if (item.image) {
-                imageToDisplay = item.image;
-              }
-              const rawUrl = imageToDisplay.startsWith('/')
-                ? `${import.meta.env.VITE_BACKEND_URL}${imageToDisplay}`
-                : imageToDisplay;
-              
-              // --- MODIFICATION : On utilise la nouvelle fonction ---
-              const imageUrl = getOptimizedUrl(rawUrl);
+            </ListGroup.Item>
 
-              return (
-                <ListGroup.Item key={index} className="order-item-row">
-                  <Image src={imageUrl} alt={item.name} className="order-item-image" />
-                  <div className="order-item-details">
-                    <Link to={`/product/${item.product}`}>{item.name}</Link>
-                    <span>{item.qty} x {item.price} FCFA</span>
-                  </div>
-                  <strong>{(item.qty * item.price).toFixed(2)} FCFA</strong>
-                </ListGroup.Item>
-              )
-            })}
+            <ListGroup.Item>
+              <h3>Paiement</h3>
+              <p>
+                <strong>Méthode: </strong>
+                {order.paymentMethod}
+              </p>
+              {order.isPaid ? (
+                <Message variant='success'>
+                  Payé le {format(new Date(order.paidAt), 'd MMMM yyyy à HH:mm', { locale: fr })}
+                </Message>
+              ) : (
+                <Message variant='warning'>Non payé</Message>
+              )}
+            </ListGroup.Item>
+
+            <ListGroup.Item>
+              <h3>Articles</h3>
+              {order.orderItems.length === 0 ? (
+                <Message>Votre commande est vide</Message>
+              ) : (
+                <ListGroup variant='flush'>
+                  {order.orderItems.map((item, index) => (
+                    <ListGroup.Item key={index}>
+                      <Row>
+                        <Col md={1}>
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fluid
+                            rounded
+                          />
+                        </Col>
+                        <Col>
+                          <Link to={`/product/${item.product}`}>
+                            {item.name}
+                          </Link>
+                        </Col>
+                        <Col md={4}>
+                          {item.qty} x {item.price.toLocaleString('fr-FR')} FCFA = {(item.qty * item.price).toLocaleString('fr-FR')} FCFA
+                        </Col>
+                      </Row>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
+            </ListGroup.Item>
           </ListGroup>
+        </Col>
+        <Col md={4}>
+          <Card>
+            <ListGroup variant='flush'>
+              <ListGroup.Item>
+                <h2>Résumé</h2>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Articles</Col>
+                  <Col>{order.itemsPrice.toLocaleString('fr-FR')} FCFA</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Livraison</Col>
+                  <Col>{order.shippingPrice.toLocaleString('fr-FR')} FCFA</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Taxes</Col>
+                  <Col>{order.taxPrice.toLocaleString('fr-FR')} FCFA</Col>
+                </Row>
+              </ListGroup.Item>
+              {order.coupon && order.coupon.code && (
+                <ListGroup.Item>
+                    <Row>
+                        <Col className='text-success'>Réduction ({order.coupon.code})</Col>
+                        <Col className='text-success'>- {order.coupon.discountAmount.toLocaleString('fr-FR')} FCFA</Col>
+                    </Row>
+                </ListGroup.Item>
+              )}
+              <ListGroup.Item>
+                <Row>
+                  <Col>
+                    <strong>Total</strong>
+                  </Col>
+                  <Col>
+                    <strong>{order.totalPrice.toLocaleString('fr-FR')} FCFA</strong>
+                  </Col>
+                </Row>
+              </ListGroup.Item>
+              
+              {!order.isPaid && (
+                <ListGroup.Item>
+                   {loadingCinetpay && <Loader />}
+
+                    <div>
+                      <Button
+                        onClick={onCinetpayPayment}
+                        className='btn-block btn-success w-100'
+                        disabled={loadingCinetpay}
+                      >
+                        Payer par Mobile Money
+                      </Button>
+                      <div className='text-center mt-3 d-flex justify-content-around align-items-center'>
+                        {/* --- MODIFICATION ICI --- */}
+                        <Image src={orangeMoneyLogo} alt='Orange Money' fluid style={{ maxWidth: '40px', borderRadius: '50%' }} />
+                        <Image src={mtnMoneyLogo} alt='MTN Mobile Money' fluid style={{ maxWidth: '40px', borderRadius: '50%' }} />
+                        <Image src={moovMoneyLogo} alt='Moov Money' fluid style={{ maxWidth: '40px', borderRadius: '50%' }} />
+                        <Image src={waveLogo} alt='Wave' fluid style={{ maxWidth: '40px', borderRadius: '50%' }} />
+                      </div>
+                      <p className='text-center mt-1 text-muted' style={{fontSize: '0.8rem'}}>Paiement sécurisé via CinetPay</p>
+                    </div>
+                </ListGroup.Item>
+              )}
+
+            </ListGroup>
+          </Card>
         </Col>
       </Row>
     </>

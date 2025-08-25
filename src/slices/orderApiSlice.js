@@ -1,62 +1,88 @@
 import { apiSlice } from './apiSlice';
-const ORDERS_URL = '/api/orders';
+import { ORDERS_URL } from '../constants';
 
 export const orderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createOrder: builder.mutation({ query: (order) => ({ url: ORDERS_URL, method: 'POST', body: order }), invalidatesTags: ['Order'] }),
-    getOrderDetails: builder.query({ query: (id) => ({ url: `${ORDERS_URL}/${id}` }), providesTags: (result, error, id) => [{ type: 'Order', id }] }),
-    payOrder: builder.mutation({ query: ({ orderId, details }) => ({ url: `${ORDERS_URL}/${orderId}/pay`, method: 'PUT', body: details }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
-    getPaypalClientId: builder.query({ query: () => ({ url: '/api/config/paypal' }) }),
-    getMyOrders: builder.query({ query: () => ({ url: `${ORDERS_URL}/myorders` }), providesTags: ['Order'] }),
-    
-    getMyPurchases: builder.query({
-      query: () => ({ url: `${ORDERS_URL}/mypurchases` }),
-      providesTags: ['Order'],
-    }),
-    
-    getOrders: builder.query({ query: () => ({ url: ORDERS_URL }), providesTags: ['Order'] }),
-    
-    // --- NOUVELLE REQUÊTE AJOUTÉE ---
-    getArchivedOrders: builder.query({
-      query: () => ({ url: `${ORDERS_URL}/archived` }),
-      providesTags: ['Order'],
-    }),
-    // --- FIN DE L'AJOUT ---
-
-    updateOrderStatus: builder.mutation({ query: ({ orderId, status, isPaid }) => ({ url: `${ORDERS_URL}/${orderId}/status`, method: 'PUT', body: { status, isPaid } }), invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }] }),
-    cancelOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}/cancel`, method: 'PUT' }), invalidatesTags: ['Order'] }),
-    deleteOrder: builder.mutation({ query: (orderId) => ({ url: `${ORDERS_URL}/${orderId}`, method: 'DELETE' }), invalidatesTags: ['Order'] }),
-
-    validateCoupon: builder.mutation({
-      query: (data) => ({
-        url: `${ORDERS_URL}/validate-coupon`,
+    createOrder: builder.mutation({
+      query: (order) => ({
+        url: ORDERS_URL,
         method: 'POST',
-        body: data,
+        body: order,
       }),
     }),
+    getOrderDetails: builder.query({
+      query: (id) => ({
+        url: `${ORDERS_URL}/${id}`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // --- DÉBUT DE LA MODIFICATION ---
+    // La mutation payOrder et getPaypalClientId sont supprimées.
+    // Elles sont remplacées par la nouvelle mutation pour CinetPay.
 
-    archiveOrder: builder.mutation({
+    initiateCinetpayPayment: builder.mutation({
       query: (orderId) => ({
-        url: `${ORDERS_URL}/${orderId}/archive`,
+        url: `${ORDERS_URL}/${orderId}/pay-cinetpay`,
+        method: 'POST',
+      }),
+    }),
+    // --- FIN DE LA MODIFICATION ---
+    getMyOrders: builder.query({
+      query: () => ({
+        url: `${ORDERS_URL}/myorders`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    getOrders: builder.query({
+      query: () => ({
+        url: ORDERS_URL,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    deliverOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/deliver`,
         method: 'PUT',
       }),
-      invalidatesTags: ['Order'],
+    }),
+    updateOrderStatus: builder.mutation({
+      query: ({ orderId, status, isPaid }) => ({
+        url: `${ORDERS_URL}/${orderId}/status`,
+        method: 'PUT',
+        body: { status, isPaid },
+      }),
+    }),
+    archiveOrder: builder.mutation({
+        query: (orderId) => ({
+            url: `${ORDERS_URL}/${orderId}/archive`,
+            method: 'PUT',
+        }),
+    }),
+    getArchivedOrders: builder.query({
+        query: () => ({
+            url: `${ORDERS_URL}/archived`,
+        }),
+        keepUnusedDataFor: 5,
+    }),
+    validateCoupon: builder.mutation({
+        query: (couponCode) => ({
+            url: `${ORDERS_URL}/validate-coupon`,
+            method: 'POST',
+            body: { couponCode },
+        })
     }),
   }),
 });
 
 export const {
-  useCreateOrderMutation, 
-  useGetOrderDetailsQuery, 
-  usePayOrderMutation, 
-  useGetPaypalClientIdQuery,
+  useCreateOrderMutation,
+  useGetOrderDetailsQuery,
   useGetMyOrdersQuery,
-  useGetMyPurchasesQuery,
-  useGetOrdersQuery, 
-  useGetArchivedOrdersQuery, // Nouvel export
-  useUpdateOrderStatusMutation, 
-  useDeleteOrderMutation, 
-  useCancelOrderMutation,
-  useValidateCouponMutation,
+  useGetOrdersQuery,
+  useDeliverOrderMutation,
+  useUpdateOrderStatusMutation,
   useArchiveOrderMutation,
+  useGetArchivedOrdersQuery,
+  useValidateCouponMutation,
+  useInitiateCinetpayPaymentMutation, // <-- On exporte le nouvel hook
 } = orderApiSlice;
