@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react'; // CORRECTION ICI
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, ListGroup, Image, Card, Button, Modal } from 'react-bootstrap';
+import { Row, Col, ListGroup, Image, Card, Button, Modal } from 'react-bootstrap'; // CORRECTION ICI
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import Message from '../components/Message';
@@ -9,6 +9,7 @@ import OrderStatusTracker from '../components/OrderStatusTracker';
 import { useGetOrderDetailsQuery } from '../slices/orderApiSlice';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { getOptimizedUrl } from '../utils/cloudinaryUtils'; // Assurez-vous que le chemin est correct
 import './OrderScreen.css';
 
 const OrderScreen = () => {
@@ -22,8 +23,6 @@ const OrderScreen = () => {
     error,
   } = useGetOrderDetailsQuery(orderId);
 
-  // --- TOUTE LA LOGIQUE DE PAIEMENT CINETPAY EST SUPPRIMÉE D'ICI ---
-
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -35,7 +34,6 @@ const OrderScreen = () => {
     }
   }, [order, refetch]);
   
-  // --- DÉBUT DE L'AJOUT : GESTION DE L'ÉCHEC DE PAIEMENT ---
   const [showErrorModal, setShowErrorModal] = useState(false);
 
   useEffect(() => {
@@ -46,15 +44,16 @@ const OrderScreen = () => {
 
   const handleCloseErrorModal = () => {
     setShowErrorModal(false);
-    // On pourrait ajouter une logique pour réinitialiser le statut côté backend
-    // mais pour l'instant, on se contente de fermer la modale.
   };
 
   const handleRetryPayment = () => {
     setShowErrorModal(false);
-    navigate(`/payment-gateway/${orderId}`); // Redirige vers la logique de paiement
+    // Redirige vers la page qui initie le paiement (PlaceOrderScreen gère maintenant cela)
+    // Pour une nouvelle tentative, il serait idéal de recréer une commande ou d'avoir une route dédiée.
+    // Pour l'instant, on le renvoie vers son panier pour qu'il puisse relancer le processus.
+    navigate('/cart');
+    toast.info("Veuillez valider à nouveau votre panier pour réessayer le paiement.");
   };
-  // --- FIN DE L'AJOUT ---
 
 
   return isLoading ? (
@@ -125,9 +124,6 @@ const OrderScreen = () => {
                 <ListGroup.Item><Row className="text-success"><Col>Réduction ({order.coupon.code})</Col><Col>- {order.coupon.discountAmount.toLocaleString('fr-FR')} FCFA</Col></Row></ListGroup.Item>
               )}
               <ListGroup.Item><Row><Col><strong>Total</strong></Col><Col><strong>{order.totalPrice.toLocaleString('fr-FR')} FCFA</strong></Col></Row></ListGroup.Item>
-              
-              {/* --- LE BOUTON DE PAIEMENT EST SUPPRIMÉ D'ICI --- */}
-              
             </ListGroup>
           </Card>
           
@@ -139,7 +135,6 @@ const OrderScreen = () => {
         </Col>
       </Row>
 
-      {/* --- MODALE D'ERREUR DE PAIEMENT --- */}
       <Modal show={showErrorModal} onHide={handleCloseErrorModal} centered>
         <Modal.Header closeButton>
           <Modal.Title className="text-danger">❌ Échec du Paiement</Modal.Title>
@@ -157,7 +152,6 @@ const OrderScreen = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
     </>
   );
 };
