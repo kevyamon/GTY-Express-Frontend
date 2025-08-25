@@ -8,7 +8,7 @@ import Loader from '../components/Loader';
 import {
   useGetOrderDetailsQuery,
   useInitiateCinetpayPaymentMutation,
-} from '../slices/ordersApiSlice';
+} from '../slices/orderApiSlice';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
