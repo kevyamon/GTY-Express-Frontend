@@ -16,23 +16,26 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
     }),
-    // --- DÉBUT DE LA MODIFICATION ---
-    // La mutation payOrder et getPaypalClientId sont supprimées.
-    // Elles sont remplacées par la nouvelle mutation pour CinetPay.
-
     initiateCinetpayPayment: builder.mutation({
       query: (orderId) => ({
         url: `${ORDERS_URL}/${orderId}/pay-cinetpay`,
         method: 'POST',
       }),
     }),
-    // --- FIN DE LA MODIFICATION ---
     getMyOrders: builder.query({
       query: () => ({
         url: `${ORDERS_URL}/myorders`,
       }),
       keepUnusedDataFor: 5,
     }),
+    // --- DÉBUT DE L'AJOUT POUR CORRIGER L'ERREUR ---
+    getMyPurchases: builder.query({
+      query: () => ({
+        url: `${ORDERS_URL}/mypurchases`, // Appelle la route pour l'historique complet
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // --- FIN DE L'AJOUT ---
     getOrders: builder.query({
       query: () => ({
         url: ORDERS_URL,
@@ -53,23 +56,23 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     archiveOrder: builder.mutation({
-        query: (orderId) => ({
-            url: `${ORDERS_URL}/${orderId}/archive`,
-            method: 'PUT',
-        }),
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/archive`,
+        method: 'PUT',
+      }),
     }),
     getArchivedOrders: builder.query({
-        query: () => ({
-            url: `${ORDERS_URL}/archived`,
-        }),
-        keepUnusedDataFor: 5,
+      query: () => ({
+        url: `${ORDERS_URL}/archived`,
+      }),
+      keepUnusedDataFor: 5,
     }),
     validateCoupon: builder.mutation({
-        query: (couponCode) => ({
-            url: `${ORDERS_URL}/validate-coupon`,
-            method: 'POST',
-            body: { couponCode },
-        })
+      query: (couponCode) => ({
+        url: `${ORDERS_URL}/validate-coupon`,
+        method: 'POST',
+        body: { couponCode },
+      }),
     }),
   }),
 });
@@ -78,11 +81,12 @@ export const {
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
   useGetMyOrdersQuery,
+  useGetMyPurchasesQuery, // --- LIGNE AJOUTÉE POUR L'EXPORT ---
   useGetOrdersQuery,
   useDeliverOrderMutation,
   useUpdateOrderStatusMutation,
   useArchiveOrderMutation,
   useGetArchivedOrdersQuery,
   useValidateCouponMutation,
-  useInitiateCinetpayPaymentMutation, // <-- On exporte le nouvel hook
+  useInitiateCinetpayPaymentMutation,
 } = orderApiSlice;
