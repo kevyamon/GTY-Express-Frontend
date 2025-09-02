@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Row, Col, Form, InputGroup, Badge, Collapse, ListGroup, Image } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { FaSearch, FaChevronDown, FaChevronUp, FaArchive, FaInbox } from 'react-icons/fa';
+import { FaSearch, FaChevronDown, FaChevronUp, FaArchive, FaInbox, FaMapMarkerAlt } from 'react-icons/fa'; // Ajout de FaMapMarkerAlt
 import Message from '../../components/Message';
 import Loader from '../../components/Loader';
 import {
@@ -30,12 +30,10 @@ const OrderListScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
-  // --- DÉBUT DE LA CORRECTION ---
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
     return orders.filter(order => {
       const query = searchQuery.toLowerCase();
-      // On vérifie de manière sécurisée chaque champ avant de l'utiliser
       const userName = order.user?.name?.toLowerCase() || '';
       const orderNumber = order.orderNumber?.toLowerCase() || '';
       const orderId = order._id?.toLowerCase() || '';
@@ -43,7 +41,6 @@ const OrderListScreen = () => {
       return userName.includes(query) || orderNumber.includes(query) || orderId.includes(query);
     });
   }, [orders, searchQuery]);
-  // --- FIN DE LA CORRECTION ---
 
   const handleToggleDetails = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -152,6 +149,14 @@ const OrderListScreen = () => {
                   <div className="name">{order.user ? order.user.name : 'Utilisateur Supprimé'}</div>
                   <div className="email">{order.shippingAddress.phone}</div>
                 </div>
+                {/* --- DÉBUT DE L'AJOUT --- */}
+                <div className="shipping-info">
+                  <FaMapMarkerAlt className="me-2" />
+                  <span>
+                    {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.country}
+                  </span>
+                </div>
+                {/* --- FIN DE L'AJOUT --- */}
                 <div className="order-total">
                   {(order.totalPrice || 0).toFixed(2)} FCFA
                 </div>
