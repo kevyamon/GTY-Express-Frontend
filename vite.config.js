@@ -60,10 +60,7 @@ export default defineConfig({
 
         prefer_related_applications: false,
         display_override: ["window-controls-overlay", "standalone"],
-
-        // --- DÉBUT DES AJOUTS POUR LES NOUVELLES CAPACITÉS ---
         
-        // 1. Raccourcis (Shortcuts)
         shortcuts: [
           {
             name: "Mes Commandes",
@@ -88,7 +85,6 @@ export default defineConfig({
           }
         ],
 
-        // 2. Cible de partage (Share Target)
         share_target: {
           action: "/products",
           method: "GET",
@@ -98,7 +94,17 @@ export default defineConfig({
             url: "url"
           }
         },
-        // --- FIN DES AJOUTS ---
+
+        // --- DÉBUT DE L'AJOUT ---
+        // 3. Gestionnaires de protocoles (Protocol Handlers)
+        // Permet d'enregistrer un protocole personnalisé pour l'application.
+        protocol_handlers: [
+          {
+            protocol: "web+gtyexpress",
+            url: "/product/%s"
+          }
+        ],
+        // --- FIN DE L'AJOUT ---
 
         icons: [
           {
