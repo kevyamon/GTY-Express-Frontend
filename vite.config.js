@@ -50,13 +50,23 @@ export default defineConfig({
             type: 'image/png',
             form_factor: 'narrow',
             label: 'Accessoires indispensables'
+          },
+          
+          // On ajoute la nouvelle capture d'écran pour les grands écrans
+          {
+            src: '/screenshots/screenshot-large.png', 
+            sizes: '1280x720', // Taille typique pour un screenshot de bureau
+            type: 'image/png',
+            form_factor: 'wide', // On précise que c'est pour les écrans larges
+            label: 'Vue complète sur ordinateur'
           }
         ],
 
-        // On ajoute cette ligne pour indiquer que la PWA est la version préférée
-        // (corrige "Specify whether you want users to use your PWA or your native app")
         prefer_related_applications: false,
-        // --- FIN DE LA CORRECTION ---
+
+        // On ajoute le mode d'affichage pour une meilleure intégration sur ordinateur
+        display_override: ["window-controls-overlay", "standalone"],
+        // --- FIN DE LA MISE À JOUR ---
 
         icons: [
           {
