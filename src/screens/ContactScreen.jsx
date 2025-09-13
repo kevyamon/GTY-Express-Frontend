@@ -1,12 +1,38 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import './StaticPage.css'; // On importe le style
+import { toast } from 'react-toastify'; // On importe toast pour les notifications
+import './StaticPage.css';
 
 const ContactScreen = () => {
-  const handleSubmit = (e) => {
+  // --- DÉBUT DE LA MODIFICATION ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Merci pour votre message ! (Fonctionnalité en cours de développement)");
+
+    // On vérifie si l'utilisateur est en ligne
+    if (navigator.onLine) {
+      toast.success("Merci pour votre message ! (Simulation d'envoi réussi)");
+      // Ici, il y aurait la vraie logique d'envoi vers le backend
+      e.target.reset(); // On vide le formulaire
+    } else {
+      // Si l'utilisateur est hors ligne
+      toast.info("Vous êtes hors ligne. Votre message sera envoyé dès que vous retrouverez la connexion.");
+      
+      // On vérifie si le navigateur supporte la Background Sync
+      if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        try {
+          const swRegistration = await navigator.serviceWorker.ready;
+          // On enregistre une tâche de synchronisation avec le tag 'sync-contact-form'
+          await swRegistration.sync.register('sync-contact-form');
+        } catch (error) {
+          console.error('Enregistrement du Background Sync échoué:', error);
+          toast.error("Impossible de programmer l'envoi automatique.");
+        }
+      } else {
+        toast.warn("Votre navigateur ne supporte pas l'envoi automatique hors ligne.");
+      }
+    }
   };
+  // --- FIN DE LA MODIFICATION ---
 
   return (
     <div className="static-page-container">
