@@ -95,13 +95,23 @@ export default defineConfig({
           }
         },
 
-        // --- DÉBUT DE L'AJOUT ---
-        // 3. Gestionnaires de protocoles (Protocol Handlers)
-        // Permet d'enregistrer un protocole personnalisé pour l'application.
         protocol_handlers: [
           {
             protocol: "web+gtyexpress",
             url: "/product/%s"
+          }
+        ],
+
+        // --- DÉBUT DE L'AJOUT ---
+        // 4. Gestionnaires de fichiers (File Handlers)
+        // Permet à l'application de s'enregistrer comme pouvant ouvrir des images.
+        file_handlers: [
+          {
+            "action": "/file-handler",
+            "accept": {
+              "image/png": [".png"],
+              "image/jpeg": [".jpeg", ".jpg"]
+            }
           }
         ],
         // --- FIN DE L'AJOUT ---
