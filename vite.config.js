@@ -27,46 +27,78 @@ export default defineConfig({
         orientation: 'portrait',
         categories: ['shopping', 'ecommerce', 'business'],
         
-        // --- DÉBUT DE LA CORRECTION ---
-        // On indique les chemins publics et on précise le "form_factor"
         screenshots: [
           {
-            src: '/screenshots/screenshot-1.png', // Chemin public correct
+            src: '/screenshots/screenshot-1.png',
             sizes: '500x500',
             type: 'image/png',
-            form_factor: 'narrow', // Indique que c'est pour les écrans étroits (mobiles)
+            form_factor: 'narrow',
             label: 'Découvrez nos produits High-Tech'
           },
           {
-            src: '/screenshots/screenshot-2.png', // Chemin public correct
+            src: '/screenshots/screenshot-2.png',
             sizes: '500x500',
             type: 'image/png',
             form_factor: 'narrow',
             label: 'Mode et élégance'
           },
           {
-            src: '/screenshots/screenshot-3.png', // Chemin public correct
+            src: '/screenshots/screenshot-3.png',
             sizes: '500x500',
             type: 'image/png',
             form_factor: 'narrow',
             label: 'Accessoires indispensables'
           },
-          
-          // On ajoute la nouvelle capture d'écran pour les grands écrans
           {
             src: '/screenshots/screenshot-large.png', 
-            sizes: '1280x720', // Taille typique pour un screenshot de bureau
+            sizes: '1280x720',
             type: 'image/png',
-            form_factor: 'wide', // On précise que c'est pour les écrans larges
+            form_factor: 'wide',
             label: 'Vue complète sur ordinateur'
           }
         ],
 
         prefer_related_applications: false,
-
-        // On ajoute le mode d'affichage pour une meilleure intégration sur ordinateur
         display_override: ["window-controls-overlay", "standalone"],
-        // --- FIN DE LA MISE À JOUR ---
+
+        // --- DÉBUT DES AJOUTS POUR LES NOUVELLES CAPACITÉS ---
+        
+        // 1. Raccourcis (Shortcuts)
+        shortcuts: [
+          {
+            name: "Mes Commandes",
+            short_name: "Commandes",
+            description: "Voir l'historique de vos commandes",
+            url: "/profile",
+            icons: [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+          },
+          {
+            name: "Promotions",
+            short_name: "Promos",
+            description: "Voir toutes les promotions en cours",
+            url: "/promotions",
+            icons: [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+          },
+          {
+            name: "Mon Panier",
+            short_name: "Panier",
+            description: "Accéder à votre panier",
+            url: "/cart",
+            icons: [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+          }
+        ],
+
+        // 2. Cible de partage (Share Target)
+        share_target: {
+          action: "/products",
+          method: "GET",
+          params: {
+            title: "title",
+            text: "text",
+            url: "url"
+          }
+        },
+        // --- FIN DES AJOUTS ---
 
         icons: [
           {

@@ -4,7 +4,6 @@ import Product from '../components/Product';
 import Message from '../components/Message';
 import PromoBanner from '../components/PromoBanner';
 import ProductCarousel from '../components/ProductCarousel';
-// --- NOUVEL IMPORT ---
 import Loader from '../components/Loader';
 import {
   useGetProductsQuery,
@@ -23,9 +22,18 @@ const chunkProducts = (products, size) => {
 };
 
 const HomeScreen = () => {
-  const { keyword, category: categoryFromUrl } = useParams();
+  const { keyword: keywordFromUrl, category: categoryFromUrl } = useParams();
   const location = useLocation();
   const { data: activeBanner, isLoading: isLoadingBanner } = useGetActiveBannerQuery();
+
+  // --- DÉBUT DE LA MODIFICATION POUR LA CIBLE DE PARTAGE ---
+  // On récupère les paramètres de l'URL (ex: ?text=mon-produit)
+  const searchParams = new URLSearchParams(location.search);
+  const keywordFromShare = searchParams.get('text');
+
+  // Le mot-clé final est soit celui de l'URL, soit celui du partage, soit rien.
+  const keyword = keywordFromUrl || keywordFromShare || '';
+  // --- FIN DE LA MODIFICATION ---
 
   const isSupermarket = location.pathname.startsWith('/supermarket');
   const isPromo = location.pathname.startsWith('/promotions');
@@ -86,7 +94,6 @@ const HomeScreen = () => {
           <p className="mobile-scroll-hint">Glissez vers → pour voir plus</p>
         )}
 
-        {/* --- MODIFICATION ICI --- */}
         {isLoading ? (<Loader />) 
         : error ? (<Message variant="danger">{error?.data?.message || error.error}</Message>) 
         : (
