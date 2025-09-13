@@ -157,7 +157,6 @@ const Header = ({ handleShowInstallModal }) => {
   return (
     <>
       <header className="header-layout">
-        {/* ... (le reste du code de Navbar reste identique) ... */}
         <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className='pb-0'>
           <Container fluid>
             <LinkContainer to={homePath}>
@@ -250,10 +249,15 @@ const Header = ({ handleShowInstallModal }) => {
           </Container>
         </Navbar>
         
-        {/* ... (le reste du code de Header reste identique) ... */}
         {userInfo && (
-          <div className="header-search-row bg-dark">
-            <Form onSubmit={submitHandler} className="d-flex search-form">
+          <div className="header-search-row bg-dark d-flex align-items-center">
+            {/* --- MODIFICATION ICI --- */}
+            {/* On ajoute le menu des catégories, visible uniquement sur mobile/tablette */}
+            <div className='d-lg-none me-2'>
+              <CategoryMenu />
+            </div>
+
+            <Form onSubmit={submitHandler} className="d-flex search-form flex-grow-1">
               <Form.Control type='text' name='q' onChange={(e) => setKeyword(e.target.value)} value={keyword} placeholder='Rechercher...' className='mr-sm-2' />
               <Button type='submit' variant='outline-success' className='p-2 ms-2'>🔍</Button>
             </Form>
@@ -296,7 +300,6 @@ const Header = ({ handleShowInstallModal }) => {
           totalAdminCount={totalAdminCount}
           logoutHandler={logoutHandler}
           handleAdminModal={() => setShowAdminModal(true)}
-          // --- LIGNE AJOUTÉE ---
           handleShowSuggestionModal={() => setShowSuggestionModal(true)}
         />
       )}

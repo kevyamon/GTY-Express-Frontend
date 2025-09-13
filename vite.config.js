@@ -9,13 +9,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // --- MODIFICATION ICI ---
       registerType: 'autoUpdate',
-      injectRegister: false, // On désactive l'injection automatique
-      strategies: 'injectManifest', // On utilise notre propre SW
-      srcDir: 'src', // Le dossier où se trouve notre fichier source de SW
-      filename: 'sw.js', // Le nom de notre fichier source
-      // --- FIN DE LA MODIFICATION ---
+      injectRegister: false,
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       manifest: {
         name: 'GTY Express',
         short_name: 'GTY Express',
@@ -25,6 +23,31 @@ export default defineConfig({
         display: 'standalone',
         scope: '/',
         start_url: '/',
+        // --- DÉBUT DES AJOUTS ---
+        id: '/', // ID unique pour ton application
+        orientation: 'portrait', // Orientation préférée
+        categories: ['shopping', 'ecommerce', 'business'], // Catégories pour les stores
+        screenshots: [
+          {
+            src: '/src/assets/products/sc1.png',
+            sizes: '500x500',
+            type: 'image/png',
+            label: 'Découvrez nos produits High-Tech'
+          },
+          {
+            src: '/src/assets/products/sc2.png',
+            sizes: '500x500',
+            type: 'image/png',
+            label: 'Mode et élégance'
+          },
+          {
+            src: '/src/assets/products/sc3.png',
+            sizes: '500x500',
+            type: 'image/png',
+            label: 'Accessoires indispensables'
+          }
+        ],
+        // --- FIN DES AJOUTS ---
         icons: [
           {
             src: 'pwa-192x192.png',
