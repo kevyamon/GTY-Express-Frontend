@@ -23,31 +23,41 @@ export default defineConfig({
         display: 'standalone',
         scope: '/',
         start_url: '/',
-        // --- DÉBUT DES AJOUTS ---
-        id: '/', // ID unique pour ton application
-        orientation: 'portrait', // Orientation préférée
-        categories: ['shopping', 'ecommerce', 'business'], // Catégories pour les stores
+        id: '/',
+        orientation: 'portrait',
+        categories: ['shopping', 'ecommerce', 'business'],
+        
+        // --- DÉBUT DE LA CORRECTION ---
+        // On indique les chemins publics et on précise le "form_factor"
         screenshots: [
           {
-            src: '/src/assets/products/sc1.png',
+            src: '/screenshots/screenshot-1.png', // Chemin public correct
             sizes: '500x500',
             type: 'image/png',
+            form_factor: 'narrow', // Indique que c'est pour les écrans étroits (mobiles)
             label: 'Découvrez nos produits High-Tech'
           },
           {
-            src: '/src/assets/products/sc2.png',
+            src: '/screenshots/screenshot-2.png', // Chemin public correct
             sizes: '500x500',
             type: 'image/png',
+            form_factor: 'narrow',
             label: 'Mode et élégance'
           },
           {
-            src: '/src/assets/products/sc3.png',
+            src: '/screenshots/screenshot-3.png', // Chemin public correct
             sizes: '500x500',
             type: 'image/png',
+            form_factor: 'narrow',
             label: 'Accessoires indispensables'
           }
         ],
-        // --- FIN DES AJOUTS ---
+
+        // On ajoute cette ligne pour indiquer que la PWA est la version préférée
+        // (corrige "Specify whether you want users to use your PWA or your native app")
+        prefer_related_applications: false,
+        // --- FIN DE LA CORRECTION ---
+
         icons: [
           {
             src: 'pwa-192x192.png',
