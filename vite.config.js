@@ -59,6 +59,12 @@ export default defineConfig({
         ],
 
         prefer_related_applications: false,
+
+        // --- DÉBUT DE L'AJOUT ---
+        // Ajoute l'identifiant IARC pour la classification "Tout public".
+        iarc_rating_id: "e57e60b7-b333-40a3-83d7-427f7a73a6a1",
+        // --- FIN DE L'AJOUT ---
+
         display_override: ["window-controls-overlay", "standalone"],
         
         shortcuts: [
@@ -102,9 +108,6 @@ export default defineConfig({
           }
         ],
 
-        // --- DÉBUT DE L'AJOUT ---
-        // 4. Gestionnaires de fichiers (File Handlers)
-        // Permet à l'application de s'enregistrer comme pouvant ouvrir des images.
         file_handlers: [
           {
             "action": "/file-handler",
@@ -114,7 +117,10 @@ export default defineConfig({
             }
           }
         ],
-        // --- FIN DE L'AJOUT ---
+        
+        launch_handler: {
+          "client_mode": "focus-existing"
+        },
 
         icons: [
           {
