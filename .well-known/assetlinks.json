@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.onrender.gty_express_frontend.twa",
+               "sha256_cert_fingerprints": ["SHA-256: EA:A8:EC:9B:62:20:67:FA:13:E9:6B:8D:0C:33:17:E0:E4:6D:60:33:3C:4C:BE:14:72:E5:10:5C:16:21:28:71"] }
+}]
